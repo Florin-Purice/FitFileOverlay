@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Page Remove="Templates\TestTemplate.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Templates\TestTemplate.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="FFMpegCore" Version="5.4.0" />
+    <PackageReference Include="Garmin.FIT.Sdk" Version="21.205.0" />
+    <PackageReference Include="OpenTK" Version="4.9.4" />
+    <PackageReference Include="OpenTK.GLWpfControl" Version="4.3.6" />
+    <PackageReference Include="SkiaSharp" Version="4.151.0" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="4.151.0" />
+  </ItemGroup>
+
+</Project>

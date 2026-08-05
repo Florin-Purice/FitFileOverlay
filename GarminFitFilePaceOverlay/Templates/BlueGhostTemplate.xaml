@@ -1,0 +1,33 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <s:Int32 x:Key="OverlayWidth">1600</s:Int32>
+    <s:Int32 x:Key="OverlayHeight">800</s:Int32>
+    <s:Int32 x:Key="GPSOverlayWidth">800</s:Int32>
+    <s:Int32 x:Key="GPSOverlayHeight">800</s:Int32>
+    <s:Boolean x:Key="IsBackgroundTransparent">True</s:Boolean>
+    <s:String x:Key="LabelFontFamily">Arial</s:String>
+    <s:String x:Key="ValueFontFamily">Impact</s:String>
+    <SolidColorBrush x:Key="PrimaryColor" Color="Transparent"/>
+    <SolidColorBrush x:Key="SecondaryColor" Color="#00a0a0"/>
+    <SolidColorBrush x:Key="GpsOutlineColor" Color="Transparent"/>
+    <s:Single x:Key="FontSizeSmall">48</s:Single>
+    <s:Single x:Key="FontSizeBig">96</s:Single>
+    <s:Int32 x:Key="LineSpacingPixels">20</s:Int32>
+    <s:Single x:Key="GpsLineWidth">6</s:Single>
+    <s:Int32 x:Key="GpsFadeDurationSeconds">180</s:Int32>
+    <x:Array x:Key="ZoneMaxPercent" Type="{x:Type s:Single}">
+        <s:Single>0.8</s:Single>
+        <s:Single>0.89</s:Single>
+        <s:Single>0.95</s:Single>
+        <s:Single>1.0</s:Single>
+        <s:Single>Infinity</s:Single>
+    </x:Array>
+    <x:Array x:Key="ZoneBrushes" Type="{x:Type SolidColorBrush}">
+        <SolidColorBrush Color="#a6a6a6"/>
+        <SolidColorBrush Color="#3b97f3"/>
+        <SolidColorBrush Color="#82c91e" />
+        <SolidColorBrush Color="#f98925" />
+        <SolidColorBrush Color="#d32020" />
+    </x:Array>
+</ResourceDictionary>
