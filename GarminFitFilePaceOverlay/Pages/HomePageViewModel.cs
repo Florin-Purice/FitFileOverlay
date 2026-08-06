@@ -65,7 +65,7 @@ namespace GarminFitFilePaceOverlay.Pages
                         RunOnMainThread(() => FitProcessor = fop);
                         RunOnMainThread(() => SnapshotImage = snapshot.ToWriteableBitmap());
                         //log result
-                        RunOnMainThread(() => LogMessage($"FIT file loaded successfully. Activity duration: {fitProcessor.ActivityDurationString} LTHR: {fitProcessor.FileLTHR}", System.Windows.Media.Brushes.Green));
+                        RunOnMainThread(() => LogMessage($"FIT file loaded successfully. Activity duration: {fop.ActivityDurationString} LTHR: {fop.FileLTHR}", System.Windows.Media.Brushes.Green));
                     }
                     else
                         RunOnMainThread(() => LogMessage($"Failed to process FIT file. Error: {fop.ErrorMessage}", System.Windows.Media.Brushes.Red));
