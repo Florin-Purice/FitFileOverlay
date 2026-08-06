@@ -31,13 +31,16 @@ namespace GarminFitFilePaceOverlay.Pages
         private WriteableBitmap? snapshotImage;
 
         [ObservableProperty]
+        private double snapshotActivityPercent = 0.5;
+
+        [ObservableProperty]
+        private bool isExportingVideo = false;
+
+        [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsNotBusy))]
         [NotifyCanExecuteChangedFor(nameof(ExportVideoCommand))]
         [NotifyCanExecuteChangedFor(nameof(LoadFileCommand))]
         private bool isBusy = false;
-
-        [ObservableProperty]
-        private double snapshotActivityPercent = 0.5;
 
         public bool IsNotBusy => !IsBusy;
 
@@ -83,6 +86,7 @@ namespace GarminFitFilePaceOverlay.Pages
             if (FitProcessor == null) return;
             //Disable window interraction
             IsBusy = true;
+            IsExportingVideo = true;
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "mov Video|*.mov";
             if (sfd.ShowDialog() == true)
@@ -118,6 +122,7 @@ namespace GarminFitFilePaceOverlay.Pages
             }
             //Re-enable window interaction
             IsBusy = false;
+            IsExportingVideo = false;
         }
 
         private bool CanExportVideo()
