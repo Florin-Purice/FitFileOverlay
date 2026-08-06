@@ -20,7 +20,10 @@ namespace GarminFitFilePaceOverlay.Pages
     {
         public HomePage()
         {
+            DataContext = ViewModel = new HomePageViewModel();
             InitializeComponent();
         }
+
+        internal HomePageViewModel ViewModel { get; }
     }
 }

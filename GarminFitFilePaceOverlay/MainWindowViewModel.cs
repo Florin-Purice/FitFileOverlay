@@ -1,15 +1,20 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace GarminFitFilePaceOverlay
 {
-    internal class MainWindowViewModel : INotifyPropertyChanged
+    internal partial class MainWindowViewModel : ObservableObject
     {
+        [ObservableProperty]
+        private UserControl currentPage;
+
         private bool isEnabled = true;
         private bool useFileLTHR;
         private string customLthr;
@@ -17,11 +22,12 @@ namespace GarminFitFilePaceOverlay
         private double snapshotActivityPercent = 0.5;
 
         public delegate void SnapshotActivityPercentChangedEventHandler(double newValue);
-        public event PropertyChangedEventHandler? PropertyChanged;
         public event SnapshotActivityPercentChangedEventHandler? SnapshotActivityPercentChanged;
 
         public MainWindowViewModel()
         {
+            CurrentPage = new Pages.HomePage();
+
             useFileLTHR = Settings.Get<bool>("UseFileLTHR");
             fps = Settings.Get<uint>("FPS");
             int customLthrValue = Settings.Get<int>("CustomLTHR");
@@ -74,11 +80,6 @@ namespace GarminFitFilePaceOverlay
                 Settings.Set("FPS", value);
                 OnPropertyChanged("FPS");
             }
-        }
-
-        private void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void OnSnapshotActivityPercentChanged(double value)

@@ -5,12 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GarminFitFilePaceOverlay.Pages"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.DataContext>
-        <local:SettingsPageViewModel/>
-    </UserControl.DataContext>
+             d:DataContext="{d:DesignInstance Type=local:SettingsPageViewModel}"
+             d:DesignHeight="450" d:DesignWidth="800" d:Background="AliceBlue">
     <UserControl.Resources>
-        <Style x:Key="LthrPanel" TargetType="StackPanel">
+        <Style x:Key="LthrPanelStyle" TargetType="StackPanel">
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding UseFileLTHR}" Value="False">
@@ -23,7 +21,7 @@
         <StackPanel Margin="10">
             <StackPanel Orientation="Horizontal">
                 <CheckBox Margin="10" IsChecked="{Binding UseFileLTHR}">Use FIT file lthr</CheckBox>
-                <StackPanel Style="{StaticResource LthrPanel}" Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel Style="{StaticResource LthrPanelStyle}" Orientation="Horizontal" VerticalAlignment="Center">
                     <Label>LTHR:</Label>
                     <TextBox VerticalContentAlignment="Center" Text="{Binding CustomLTHR}" Width="100"/>
                 </StackPanel>
