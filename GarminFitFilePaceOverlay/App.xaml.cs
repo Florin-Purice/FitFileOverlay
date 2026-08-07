@@ -1,4 +1,7 @@
-﻿using System.Configuration;
+﻿using GarminFitFilePaceOverlay.Navigation;
+using GarminFitFilePaceOverlay.Pages;
+using Microsoft.Extensions.DependencyInjection;
+using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Windows;
@@ -13,7 +16,21 @@ namespace GarminFitFilePaceOverlay
     /// </summary>
     public partial class App : Application
     {
-        string settingsFileName = "Settings.xaml";
+        private readonly string settingsFileName = "Settings.xaml";
+        private readonly IServiceProvider serviceProvider;
+
+        public App()
+        {
+            IServiceCollection services = new ServiceCollection();
+            services.AddSingleton<NavigationStore>();
+            services.AddSingleton<HomePageViewModel>(s => new HomePageViewModel(CreateSettingsNavigationService(s)));
+            services.AddSingleton<SettingsPageViewModel>(s => new SettingsPageViewModel(CreateHomeNavigationService(s)));
+            services.AddSingleton<INavigationService>(CreateHomeNavigationService);
+            services.AddSingleton<MainWindowViewModel>(s => new MainWindowViewModel(s.GetRequiredService<NavigationStore>()));
+            services.AddSingleton<MainWindow>(s => new MainWindow(s.GetRequiredService<MainWindowViewModel>()));
+
+            serviceProvider = services.BuildServiceProvider();
+        }
 
         public ResourceDictionary SettingsDictionary
         {
@@ -51,7 +68,7 @@ namespace GarminFitFilePaceOverlay
                         foreach (string key in templateDictionary.Keys)
                             SettingsDictionary.MergedDictionaries[0][key] = templateDictionary[key];
                     }
-                    catch (Exception ex) { }
+                    catch (Exception) { }
                 }
             }
         }
@@ -65,7 +82,7 @@ namespace GarminFitFilePaceOverlay
                 foreach (string key in templateDictionary.Keys)
                     SettingsDictionary.MergedDictionaries[0][key] = templateDictionary[key];
             }
-            catch (Exception ex) { }
+            catch (Exception) { }
         }
 
         public void SaveSettings()
@@ -89,6 +106,7 @@ namespace GarminFitFilePaceOverlay
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+            //loading save data
             string saveLocation = AppContext.BaseDirectory;
             Resources["SettingsFileLocation"] = saveLocation;
             string settingsFilePath = Path.Combine(saveLocation, settingsFileName);
@@ -112,14 +130,33 @@ namespace GarminFitFilePaceOverlay
                         SettingsDictionary.MergedDictionaries.Clear();
                         SettingsDictionary.MergedDictionaries.Add(resourceDictionary);
                     }
-                    catch (Exception ex) { }
+                    catch (Exception) { }
                 }
             }
+            //opening main window
+            INavigationService initialNav = serviceProvider.GetRequiredService<INavigationService>();
+            initialNav.Navigate();
+            MainWindow mainWindow = serviceProvider.GetRequiredService<MainWindow>();
+            mainWindow.Show();
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)
         {
             SaveSettings();
+        }
+
+        private INavigationService CreateHomeNavigationService(IServiceProvider serviceProvider)
+        {
+            return new NavigationService<HomePageViewModel>(
+                serviceProvider.GetRequiredService<NavigationStore>(),
+                () => serviceProvider.GetRequiredService<HomePageViewModel>());
+        }
+
+        private INavigationService CreateSettingsNavigationService(IServiceProvider serviceProvider)
+        {
+            return new NavigationService<SettingsPageViewModel>(
+                serviceProvider.GetRequiredService<NavigationStore>(),
+                () => serviceProvider.GetRequiredService<SettingsPageViewModel>());
         }
     }
 }

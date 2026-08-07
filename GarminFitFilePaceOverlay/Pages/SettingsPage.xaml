@@ -18,7 +18,14 @@
         </Style>
     </UserControl.Resources>
     <Grid>
-        <StackPanel Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="20" HorizontalAlignment="Left">
+            <Button Command="{Binding NavigateToHomePageCommand}" Content="Home"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Margin="10">
             <StackPanel Orientation="Horizontal">
                 <CheckBox Margin="10" IsChecked="{Binding UseFileLTHR}">Use FIT file lthr</CheckBox>
                 <StackPanel Style="{StaticResource LthrPanelStyle}" Orientation="Horizontal" VerticalAlignment="Center">

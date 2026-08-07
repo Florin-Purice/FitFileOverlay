@@ -36,25 +36,10 @@ namespace GarminFitFilePaceOverlay
     /// </summary>
     public partial class MainWindow : Window
     {
-        FitOverlayProcessor? fitProcessor;
-        bool snapshotLock = false;
-
-        public MainWindow()
+        public MainWindow(MainWindowViewModel viewModel)
         {
-            DataContext = ViewModel = new MainWindowViewModel();
+            DataContext = viewModel;
             InitializeComponent();
-        }
-
-        internal MainWindowViewModel ViewModel { get; }
-
-        //testing
-        bool xdd = true;
-        private void TestButton_Click(object sender, RoutedEventArgs e)
-        {
-            bool embedded = false;
-            string testTemplateFileName;
-            (testTemplateFileName, embedded) = (xdd = !xdd) ? ("TestTemplate.xaml", false) : ("DefaultTemplate.xaml", true);
-            Settings.LoadTemplate(testTemplateFileName, embedded);
         }
     }
 }

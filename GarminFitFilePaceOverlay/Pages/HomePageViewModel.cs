@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using GarminFitFilePaceOverlay.Navigation;
 using Microsoft.Win32;
 using SkiaSharp;
 using SkiaSharp.Views.WPF;
@@ -13,9 +14,10 @@ using System.Windows.Threading;
 
 namespace GarminFitFilePaceOverlay.Pages
 {
-    internal partial class HomePageViewModel : ObservableObject
+    internal partial class HomePageViewModel : ViewModelBase
     {
-        bool snapshotLock = false;
+        private INavigationService settingsPageNavigationService;
+        private bool snapshotLock = false;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(ExportVideoCommand))]
@@ -42,7 +44,15 @@ namespace GarminFitFilePaceOverlay.Pages
         [NotifyCanExecuteChangedFor(nameof(LoadFileCommand))]
         private bool isBusy = false;
 
+        public HomePageViewModel(INavigationService settingsPageNavigationService)
+        {
+            this.settingsPageNavigationService = settingsPageNavigationService;
+        }
+
         public bool IsNotBusy => !IsBusy;
+
+        [RelayCommand]
+        public void NavigateToSettingsPage() => settingsPageNavigationService.Navigate();
 
         [RelayCommand(CanExecute = nameof(CanLoadFile))]
         public async Task LoadFile()

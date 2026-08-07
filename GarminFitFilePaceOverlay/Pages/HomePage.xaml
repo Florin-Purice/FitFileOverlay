@@ -24,13 +24,25 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Margin="10">
-            <StackPanel Orientation="Horizontal" Margin="10">
-                <Button Command="{Binding LoadFileCommand}" Content="Load FIT File"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="10">
-                <Button Width="Auto" Command="{Binding ExportVideoCommand}" Content="Export Overlay Video"/>
-                <Button Style="{StaticResource ShowButtonWhenBusyStyle}" Command="{Binding ExportVideoCancelCommand}" Content="Cancel Export"/>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal" Margin="10">
+                        <Button Command="{Binding LoadFileCommand}" Content="Load FIT File"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="10">
+                        <Button Width="Auto" Command="{Binding ExportVideoCommand}" Content="Export Overlay Video"/>
+                        <Button Style="{StaticResource ShowButtonWhenBusyStyle}" Command="{Binding ExportVideoCancelCommand}" Content="Cancel Export"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <Button Command="{Binding NavigateToSettingsPageCommand}" Content="Settings"/>
+                </StackPanel>
+            </Grid>
             <RichTextBox Name="logBox" Height="30" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Background="#FFC2C2C2" FontSize="20">
                 <FlowDocument>
                     <Paragraph>
