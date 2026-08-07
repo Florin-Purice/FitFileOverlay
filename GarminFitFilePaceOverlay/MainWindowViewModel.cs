@@ -1,89 +1,33 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using GarminFitFilePaceOverlay.Navigation;
+using GarminFitFilePaceOverlay.Pages;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace GarminFitFilePaceOverlay
 {
-    internal class MainWindowViewModel : INotifyPropertyChanged
+    public partial class MainWindowViewModel : ViewModelBase
     {
-        private bool isEnabled = true;
-        private bool useFileLTHR;
-        private string customLthr;
-        private uint fps;
-        private double snapshotActivityPercent = 0.5;
+        private NavigationStore navigationStore;
 
-        public delegate void SnapshotActivityPercentChangedEventHandler(double newValue);
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public event SnapshotActivityPercentChangedEventHandler? SnapshotActivityPercentChanged;
-
-        public MainWindowViewModel()
+        public MainWindowViewModel(NavigationStore navigationStore)
         {
-            useFileLTHR = Settings.Get<bool>("UseFileLTHR");
-            fps = Settings.Get<uint>("FPS");
-            int customLthrValue = Settings.Get<int>("CustomLTHR");
-            customLthr = customLthrValue.ToString();
+            this.navigationStore = navigationStore;
+            navigationStore.CurrentViewModelChanged += Navigation_CurrentViewModelChanged;
         }
 
-        public bool IsEnabled { get => isEnabled; set { isEnabled = value; OnPropertyChanged("IsEnabled"); } }
-        public double SnapshotActivityPercent 
-        { 
-            get => snapshotActivityPercent; 
-            set 
-            { 
-                snapshotActivityPercent = value; 
-                OnPropertyChanged("SnapshotActivityPercent");
-                OnSnapshotActivityPercentChanged(value);
-            } 
-        }
+        public ViewModelBase? CurrentViewModel => navigationStore.CurrentViewModel;
 
-        public bool UseFileLTHR
+        private void Navigation_CurrentViewModelChanged()
         {
-            get => useFileLTHR;
-            set
-            {
-                useFileLTHR = value;
-                Settings.Set("UseFileLTHR", value);
-                OnPropertyChanged("UseFileLTHR");
-            }
-        }
-
-        public string CustomLTHR
-        {
-            get => customLthr;
-            set
-            {
-                if (int.TryParse(value, out int parsedValue))
-                {
-                    customLthr = value;
-                    Settings.Set("CustomLTHR", parsedValue);
-                    OnPropertyChanged("CustomLTHR");
-                }
-            }
-        }
-
-        public uint FPS
-        {
-            get => fps;
-            set
-            {
-                fps = value;
-                Settings.Set("FPS", value);
-                OnPropertyChanged("FPS");
-            }
-        }
-
-        private void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void OnSnapshotActivityPercentChanged(double value)
-        {
-            SnapshotActivityPercentChanged?.Invoke(value);
+            OnPropertyChanged(nameof(CurrentViewModel));
         }
     }
 }

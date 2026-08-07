@@ -79,7 +79,7 @@ namespace GarminFitFilePaceOverlay
         public string ErrorMessage { get; private set; } = string.Empty;
 
         #region PUBLIC METHODS
-        public async Task ExportVideo(string outputPath)
+        public async Task ExportVideo(string outputPath, CancellationToken? cancellationToken = null)
         {
             //Determine LTHR to use
             if (Settings.Get<bool>("UseFileLTHR"))
@@ -91,24 +91,21 @@ namespace GarminFitFilePaceOverlay
                     selectedLthr = lthr;
             }
             //Start video generation in background
-            await Task.Run(() =>
+            //Generate video frames and encode video using FFMpegCore
+            IEnumerable<IVideoFrame> frames = GenerateFrames();
+            RawVideoPipeSource framesSource = new RawVideoPipeSource(frames)
             {
-                //Generate video frames and encode video using FFMpegCore
-                IEnumerable<IVideoFrame> frames = GenerateFrames();
-                RawVideoPipeSource framesSource = new RawVideoPipeSource(frames)
-                {
-                    FrameRate = Settings.Get<uint>("FPS")
-                };
-                FFMpegArguments.FromPipeInput(framesSource)
-                    .OutputToFile(outputPath, true, opt => opt
-                        .WithFramerate(Settings.Get<uint>("FPS"))
-                        .WithVideoCodec("prores_ks")
-                        .ForcePixelFormat("yuva444p10le")
-                        .WithCustomArgument("-profile:v 4444")
-                        .WithConstantRateFactor(17)
-                        )
-                    .ProcessSynchronously();
-            });
+                FrameRate = Settings.Get<uint>("FPS")
+            };
+            await FFMpegArguments.FromPipeInput(framesSource)
+                .OutputToFile(outputPath, true, opt => opt
+                    .WithFramerate(Settings.Get<uint>("FPS"))
+                    .WithVideoCodec("prores_ks")
+                    .ForcePixelFormat("yuva444p10le")
+                    .WithCustomArgument("-profile:v 4444")
+                    .WithConstantRateFactor(17))
+                .CancellableThrough(cancellationToken ?? new CancellationToken())
+                .ProcessAsynchronously(throwOnError: true);
         }
 
         public SKBitmap GetSnapshotAtRecord(int recordIndex, int interpolationIndex = 0)
@@ -341,7 +338,6 @@ namespace GarminFitFilePaceOverlay
             //clear existing GPS overlay bitmap in case color settings have changed
             gpsOverlayBitmap?.Dispose();
             gpsOverlayBitmap = null;
-
             System.DateTime startTime = System.DateTime.Now;
             TimeSpan elapsed;
             List<GPSPoint> gpsPointsList = new List<GPSPoint>();
@@ -359,7 +355,9 @@ namespace GarminFitFilePaceOverlay
                 //Generate frames for current record, interpolating values from previous record if available
                 SKBitmap[] skframes = GenerateFramesFromRecord(recordIndex: i, previousPoints: ref gpsPointsList, previousPathOverlay: ref previousPathOverlay, record: fitMessages.RecordMesgs[i], previous: i > 0 ? fitMessages.RecordMesgs[i - 1] : null);
                 foreach (SKBitmap skFrame in skframes)
+                {
                     yield return new SKBitmapFrame(skFrame);
+                }
             }
         }
 
