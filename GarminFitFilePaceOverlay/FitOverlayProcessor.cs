@@ -203,8 +203,8 @@ namespace GarminFitFilePaceOverlay
                 if (recordA.GetPositionLat().HasValue && recordA.GetPositionLong().HasValue && recordB.GetPositionLat().HasValue && recordB.GetPositionLong().HasValue)
                 {
                     //Interpolate GPS points
-                    GPSPoint fitGpsPointA = new GPSPoint(recordA.GetPositionLat().Value, recordA.GetPositionLong().Value);
-                    GPSPoint fitGpsPointB = new GPSPoint(recordB.GetPositionLat().Value, recordB.GetPositionLong().Value);
+                    GPSPoint fitGpsPointA = new GPSPoint(recordA.GetPositionLat().GetValueOrDefault(), recordA.GetPositionLong().GetValueOrDefault());
+                    GPSPoint fitGpsPointB = new GPSPoint(recordB.GetPositionLat().GetValueOrDefault(), recordB.GetPositionLong().GetValueOrDefault());
                     int latStep = (int)((fitGpsPointB.Latitude - fitGpsPointA.Latitude) / fps);
                     int lonStep = (int)((fitGpsPointB.Longitude - fitGpsPointA.Longitude) / fps);
                     GPSPoint[] interpolatedPoints = new GPSPoint[fps];
@@ -259,10 +259,12 @@ namespace GarminFitFilePaceOverlay
                 canvas.DrawCircle((float)pointB.Longitude, (float)pointB.Latitude, gpsLineWidth, skPaint);
             }
             //Draw current position with a circle
-            GPSPoint currentPoint = GPSToXyAt(GPSToMeters(FitPointToGpsPoint(gpsPoints.First()), gpsCenterPoint), gpsAreaSize, drawAreaSize);
-            skPaint.Color = secondaryColor;
-            canvas.DrawCircle((float)currentPoint.Longitude, (float)currentPoint.Latitude, gpsLineWidth * 2, skPaint);
-
+            if(gpsPoints.Count > 0)
+            {
+                GPSPoint currentPoint = GPSToXyAt(GPSToMeters(FitPointToGpsPoint(gpsPoints.First()), gpsCenterPoint), gpsAreaSize, drawAreaSize);
+                skPaint.Color = secondaryColor;
+                canvas.DrawCircle((float)currentPoint.Longitude, (float)currentPoint.Latitude, gpsLineWidth * 2, skPaint);
+            }
             return bitmap;
         }
 
@@ -287,7 +289,7 @@ namespace GarminFitFilePaceOverlay
             {
                 if (record.GetPositionLat().HasValue && record.GetPositionLong().HasValue)
                 {
-                    GPSPoint fitGpsPoint = new GPSPoint(record.GetPositionLat().Value, record.GetPositionLong().Value);
+                    GPSPoint fitGpsPoint = new GPSPoint(record.GetPositionLat().GetValueOrDefault(), record.GetPositionLong().GetValueOrDefault());
                     GPSPoint gpsPoint = FitPointToGpsPoint(fitGpsPoint);
                     gpsPoints.Add(gpsPoint);
                     if (gpsPoint.Longitude < minLon)
