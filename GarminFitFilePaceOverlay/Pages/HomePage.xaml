@@ -40,7 +40,7 @@
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
-                    <Button Command="{Binding NavigateToSettingsPageCommand}" Content="Settings"/>
+                    <Button IsEnabled="{Binding IsNotBusy}" Command="{Binding NavigateToSettingsPageCommand}" Content="Settings"/>
                 </StackPanel>
             </Grid>
             <RichTextBox Name="logBox" Height="30" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Background="#FFC2C2C2" FontSize="20">
