@@ -51,7 +51,7 @@ namespace GarminFitFilePaceOverlay.Pages
 
         public bool IsNotBusy => !IsBusy;
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanNavigateToSettingsPage))]
         public void NavigateToSettingsPage() => settingsPageNavigationService.Navigate();
 
         [RelayCommand(CanExecute = nameof(CanLoadFile))]
@@ -83,6 +83,11 @@ namespace GarminFitFilePaceOverlay.Pages
             }
             //Re-enable window interaction
             IsBusy = false;
+        }
+
+        private bool CanNavigateToSettingsPage()
+        {
+            return IsNotBusy;
         }
 
         private bool CanLoadFile()
