@@ -23,12 +23,12 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="FFMpegCore" Version="5.4.0" />
-    <PackageReference Include="Garmin.FIT.Sdk" Version="21.205.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
+    <PackageReference Include="Garmin.FIT.Sdk" Version="21.213.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
     <PackageReference Include="OpenTK.GLWpfControl" Version="4.3.6" />
-    <PackageReference Include="SkiaSharp" Version="4.151.0" />
-    <PackageReference Include="SkiaSharp.Views.WPF" Version="4.151.0" />
+    <PackageReference Include="SkiaSharp" Version="4.151.1" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="4.151.1" />
   </ItemGroup>
 
 </Project>
