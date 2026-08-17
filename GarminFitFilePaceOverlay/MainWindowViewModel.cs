@@ -1,21 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using GarminFitFilePaceOverlay.Navigation;
-using GarminFitFilePaceOverlay.Pages;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+﻿using GarminFitFilePaceOverlay.Navigation;
 
 namespace GarminFitFilePaceOverlay
 {
     public partial class MainWindowViewModel : ViewModelBase
     {
-        private NavigationStore navigationStore;
+        private readonly NavigationStore navigationStore;
 
         public MainWindowViewModel(NavigationStore navigationStore)
         {

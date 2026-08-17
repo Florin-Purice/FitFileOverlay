@@ -1,34 +1,31 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GarminFitFilePaceOverlay.Navigation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GarminFitFilePaceOverlay.Pages
 {
-    internal partial class SettingsPageViewModel : ViewModelBase
+    public partial class SettingsPageViewModel : ViewModelBase
     {
-        private INavigationService homePageNavigationService;
+        private readonly INavigationManager navigationManager;
 
-        [ObservableProperty]
-        private bool useFileLTHR;
-        [ObservableProperty]
-        private string customLTHR;
-        [ObservableProperty]
-        private uint _FPS;
-
-        public SettingsPageViewModel(INavigationService homePageNavigationService)
+        public SettingsPageViewModel(INavigationManager navigationManager)
         {
-            this.homePageNavigationService = homePageNavigationService;
-            useFileLTHR = Settings.Get<bool>("UseFileLTHR");
-            _FPS = Settings.Get<uint>("FPS");
+            this.navigationManager = navigationManager;
+            UseFileLTHR = Settings.Get<bool>("UseFileLTHR");
+            FPS = Settings.Get<uint>("FPS");
             int customLthrValue = Settings.Get<int>("CustomLTHR");
-            customLTHR = customLthrValue.ToString();
+            CustomLTHR = customLthrValue.ToString();
         }
 
+        [ObservableProperty]
+        public partial bool UseFileLTHR { get; set; }
+        [ObservableProperty]
+        public partial string CustomLTHR { get; set; }
+        [ObservableProperty]
+        public partial uint FPS { get; set; }
+
         [RelayCommand]
-        private void NavigateToHomePage() => homePageNavigationService.Navigate();
+        private void NavigateToHomePage() => navigationManager.Navigate(NavigationTarget.HomePage);
 
         partial void OnUseFileLTHRChanged(bool value)
         {

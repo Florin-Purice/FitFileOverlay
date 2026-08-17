@@ -16,11 +16,10 @@ using DateTime = Dynastream.Fit.DateTime;
 
 namespace GarminFitFilePaceOverlay
 {
-    internal class FitOverlayProcessor
+    public class FitOverlayProcessor
     {
-        private readonly float _drawAreaPercent = 0.9f;
-        private FitMessages? fitMessages;
-        private int lthr;
+        private static readonly float _drawAreaPercent = 0.9f;
+        private readonly FitMessages? fitMessages;
         private int selectedLthr;
         private GPSPoint gpsCenterPoint;
         private double gpsAreaSize;
@@ -31,12 +30,12 @@ namespace GarminFitFilePaceOverlay
             try
             {
                 fitMessages = null;
-                lthr = 0; selectedLthr = 0;
+                FileLTHR = 0; selectedLthr = 0;
                 gpsOverlayBitmap = null;
-                using (FileStream fitFileStream = new FileStream(filePath, FileMode.Open))
+                using (FileStream fitFileStream = new(filePath, FileMode.Open))
                 {
-                    Decode decoder = new Decode();
-                    FitListener fitListener = new FitListener();
+                    Decode decoder = new();
+                    FitListener fitListener = new();
                     decoder.MesgEvent += fitListener.OnMesg;
                     decoder.Read(fitFileStream);
                     fitMessages = fitListener.FitMessages;
@@ -57,7 +56,7 @@ namespace GarminFitFilePaceOverlay
                 string minutePart = ((activityLengthSec % 3600) / 60) > 0 ? $"{(activityLengthSec % 3600) / 60}m " : "";
                 string secondPart = (activityLengthSec % 60) > 0 ? $"{(activityLengthSec % 60)}s" : "";
                 ZonesTargetMesg? zonesTargetMesg = fitMessages.ZonesTargetMesgs.FirstOrDefault();
-                lthr = zonesTargetMesg?.GetThresholdHeartRate() ?? 160;
+                FileLTHR = zonesTargetMesg?.GetThresholdHeartRate() ?? 160;
                 ActivityDurationString = $"{hourPart}{minutePart}{secondPart}";
                 IsValid = true;
             }
@@ -67,6 +66,10 @@ namespace GarminFitFilePaceOverlay
                 ErrorMessage = ex.Message;
                 IsValid = false;
             }
+            finally
+            {
+                gpsCenterPoint = new(0, 0);
+            }
         }
 
         public delegate void LogProgressDelegate(FitOverlayProcessor sender, LogProgressEventArgs e);
@@ -74,7 +77,7 @@ namespace GarminFitFilePaceOverlay
 
         public bool IsValid { get; private set; }
         public int RecordsCount { get; private set; }
-        public int FileLTHR => lthr;
+        public int FileLTHR { get; }
         public string ActivityDurationString { get; private set; } = string.Empty;
         public string ErrorMessage { get; private set; } = string.Empty;
 
@@ -83,17 +86,17 @@ namespace GarminFitFilePaceOverlay
         {
             //Determine LTHR to use
             if (Settings.Get<bool>("UseFileLTHR"))
-                selectedLthr = lthr;
+                selectedLthr = FileLTHR;
             else
             {
                 selectedLthr = Settings.Get<int>("CustomLTHR");
                 if (selectedLthr <= 0)
-                    selectedLthr = lthr;
+                    selectedLthr = FileLTHR;
             }
             //Start video generation in background
             //Generate video frames and encode video using FFMpegCore
             IEnumerable<IVideoFrame> frames = GenerateFrames();
-            RawVideoPipeSource framesSource = new RawVideoPipeSource(frames)
+            RawVideoPipeSource framesSource = new(frames)
             {
                 FrameRate = Settings.Get<uint>("FPS")
             };
@@ -108,24 +111,26 @@ namespace GarminFitFilePaceOverlay
                 .ProcessAsynchronously(throwOnError: true);
         }
 
-        public SKBitmap GetSnapshotAtRecord(int recordIndex, int interpolationIndex = 0)
+        public SKBitmap? GetSnapshotAtRecord(int recordIndex, int interpolationIndex = 0)
         {
+            if (fitMessages == null)
+                return null;
             if (Settings.Get<bool>("UseFileLTHR"))
-                selectedLthr = lthr;
+                selectedLthr = FileLTHR;
             else
             {
                 selectedLthr = Settings.Get<int>("CustomLTHR");
                 if (selectedLthr <= 0)
-                    selectedLthr = lthr;
+                    selectedLthr = FileLTHR;
             }
             //clear existing GPS overlay bitmap in case color settings have changed
             gpsOverlayBitmap?.Dispose();
             gpsOverlayBitmap = null;
 
-            List<GPSPoint> gpsPointsList = new List<GPSPoint>();
+            List<GPSPoint> gpsPointsList = [];
             int gpsOverlayWidth = Settings.Get<int>("GPSOverlayWidth");
             int gpsOverlayHeight = Settings.Get<int>("GPSOverlayHeight");
-            SKBitmap previousPathOverlay = new SKBitmap(gpsOverlayWidth, gpsOverlayHeight);
+            SKBitmap previousPathOverlay = new(gpsOverlayWidth, gpsOverlayHeight);
             SKBitmap[] frames = GenerateFramesFromRecord(recordIndex, ref gpsPointsList, ref previousPathOverlay, fitMessages.RecordMesgs[recordIndex], recordIndex > 0 ? fitMessages.RecordMesgs[recordIndex - 1] : null);
             if (interpolationIndex < frames.Length)
                 return frames[interpolationIndex];
@@ -135,19 +140,14 @@ namespace GarminFitFilePaceOverlay
         #endregion
 
         #region PRIVATE METHODS
-        private void OnLogProgress(float progress, TimeSpan elapsed, TimeSpan eta)
-        {
-            LogProgress?.Invoke(this, new LogProgressEventArgs(progress, elapsed, eta));
-        }
-
-        private GPSPoint FitPointToGpsPoint(GPSPoint fitGpsPoint)
+        private static GPSPoint FitPointToGpsPoint(GPSPoint fitGpsPoint)
         {
             double lat = fitGpsPoint.Latitude * (180d / Int32.MaxValue);
             double lon = fitGpsPoint.Longitude * (180d / Int32.MaxValue);
             return new GPSPoint(lat, lon);
         }
 
-        private GPSPoint GPSToMeters(GPSPoint gpsPointA, GPSPoint gpsPointB)
+        private static GPSPoint GPSToMeters(GPSPoint gpsPointA, GPSPoint gpsPointB)
         {
             double LatDegToMeter = 111320;
             double EarthCumference = 40075000;
@@ -159,7 +159,7 @@ namespace GarminFitFilePaceOverlay
             return new GPSPoint(x, y);
         }
 
-        private GPSPoint GPSToXyAt(GPSPoint gpsPoint, double gpsAreaSize, double drawSize = 1f)
+        private static GPSPoint GPSToXyAt(GPSPoint gpsPoint, double gpsAreaSize, double drawSize = 1f)
         {
             double scale = drawSize / gpsAreaSize;
             double lat = gpsPoint.Latitude;
@@ -173,21 +173,26 @@ namespace GarminFitFilePaceOverlay
             return new GPSPoint(lat, lon);
         }
 
+        private void OnLogProgress(float progress, TimeSpan elapsed, TimeSpan eta)
+        {
+            LogProgress?.Invoke(this, new LogProgressEventArgs(progress, elapsed, eta));
+        }
+
         private SKBitmap CreateGPSOverlay(int recordIndex, int interpolationIndex, ref List<GPSPoint> previousList, ref SKBitmap previousPathOverlay)
         {
             SolidColorBrush primaryColorX = Settings.Get<bool>("IsPrimaryOverlay") ? Settings.Get<SolidColorBrush>("PrimaryColor") : Settings.Get<SolidColorBrush>("AltPrimaryColor");
-            SKColor primaryColor = new SKColor(primaryColorX.Color.R, primaryColorX.Color.G, primaryColorX.Color.B, primaryColorX.Color.A);
+            SKColor primaryColor = new(primaryColorX.Color.R, primaryColorX.Color.G, primaryColorX.Color.B, primaryColorX.Color.A);
             SolidColorBrush secondaryColorX = Settings.Get<bool>("IsPrimaryOverlay") ? Settings.Get<SolidColorBrush>("SecondaryColor") : Settings.Get<SolidColorBrush>("AltSecondaryColor");
-            SKColor secondaryColor = new SKColor(secondaryColorX.Color.R, secondaryColorX.Color.G, secondaryColorX.Color.B, secondaryColorX.Color.A);
+            SKColor secondaryColor = new(secondaryColorX.Color.R, secondaryColorX.Color.G, secondaryColorX.Color.B, secondaryColorX.Color.A);
             // Create a bitmap with specified dimensions
             int gpsOverlayWidth = Settings.Get<int>("GPSOverlayWidth");
             int gpsOverlayHeight = Settings.Get<int>("GPSOverlayHeight");
-            SKBitmap bitmap = new SKBitmap(gpsOverlayWidth, gpsOverlayHeight);
+            SKBitmap bitmap = new(gpsOverlayWidth, gpsOverlayHeight);
             if (fitMessages == null || fitMessages.RecordMesgs.Count <= recordIndex)
                 return bitmap;
-            using SKCanvas canvas = new SKCanvas(bitmap);
+            using SKCanvas canvas = new(bitmap);
             canvas.Clear(SKColors.Transparent);
-            using SKPaint skPaint = new SKPaint();
+            using SKPaint skPaint = new();
             skPaint.IsAntialias = true;
             if (gpsOverlayBitmap == null)
                 CreateBaseGPSOverlay();
@@ -195,7 +200,7 @@ namespace GarminFitFilePaceOverlay
             uint fps = Settings.Get<uint>("FPS");
             int previousListCount = previousList.Count;
             int fadeDurationFrames = Settings.Get<int>("GpsFadeDurationSeconds") * (int)fps;
-            List<GPSPoint> gpsPoints = new List<GPSPoint>();
+            List<GPSPoint> gpsPoints = [];
             for (int ri = recordIndex; ri > 0; --ri)
             {
                 RecordMesg recordB = fitMessages.RecordMesgs[ri];
@@ -203,8 +208,8 @@ namespace GarminFitFilePaceOverlay
                 if (recordA.GetPositionLat().HasValue && recordA.GetPositionLong().HasValue && recordB.GetPositionLat().HasValue && recordB.GetPositionLong().HasValue)
                 {
                     //Interpolate GPS points
-                    GPSPoint fitGpsPointA = new GPSPoint(recordA.GetPositionLat().GetValueOrDefault(), recordA.GetPositionLong().GetValueOrDefault());
-                    GPSPoint fitGpsPointB = new GPSPoint(recordB.GetPositionLat().GetValueOrDefault(), recordB.GetPositionLong().GetValueOrDefault());
+                    GPSPoint fitGpsPointA = new(recordA.GetPositionLat().GetValueOrDefault(), recordA.GetPositionLong().GetValueOrDefault());
+                    GPSPoint fitGpsPointB = new(recordB.GetPositionLat().GetValueOrDefault(), recordB.GetPositionLong().GetValueOrDefault());
                     int latStep = (int)((fitGpsPointB.Latitude - fitGpsPointA.Latitude) / fps);
                     int lonStep = (int)((fitGpsPointB.Longitude - fitGpsPointA.Longitude) / fps);
                     GPSPoint[] interpolatedPoints = new GPSPoint[fps];
@@ -230,7 +235,7 @@ namespace GarminFitFilePaceOverlay
             float gpsLineWidth = Settings.Get<float>("GpsLineWidth");
             skPaint.StrokeWidth = gpsLineWidth * 2f;
             //Draw only new points since last frame and store in a separate bitmap to save processing power
-            SKCanvas previousPathCanvas = new SKCanvas(previousPathOverlay);
+            SKCanvas previousPathCanvas = new(previousPathOverlay);
             for (int frameIndex = 1; frameIndex < gpsPoints.Count && frameIndex <= gpsPoints.Count - previousListCount; ++frameIndex)
             {
                 GPSPoint pointB = GPSToXyAt(GPSToMeters(FitPointToGpsPoint(gpsPoints[frameIndex]), gpsCenterPoint), gpsAreaSize, drawAreaSize);
@@ -271,37 +276,38 @@ namespace GarminFitFilePaceOverlay
         private void CreateBaseGPSOverlay()
         {
             SolidColorBrush gpsOutlineColorX = Settings.Get<bool>("IsPrimaryOverlay") ? Settings.Get<SolidColorBrush>("GpsOutlineColor") : Settings.Get<SolidColorBrush>("AltGpsOutlineColor");
-            SKColor gpsOutlineColor = new SKColor(gpsOutlineColorX.Color.R, gpsOutlineColorX.Color.G, gpsOutlineColorX.Color.B, gpsOutlineColorX.Color.A);
+            SKColor gpsOutlineColor = new(gpsOutlineColorX.Color.R, gpsOutlineColorX.Color.G, gpsOutlineColorX.Color.B, gpsOutlineColorX.Color.A);
             // Create a bitmap with specified dimensions
             int gpsOverlayWidth = Settings.Get<int>("GPSOverlayWidth");
             int gpsOverlayHeight = Settings.Get<int>("GPSOverlayHeight");
             gpsOverlayBitmap = new SKBitmap(gpsOverlayWidth, gpsOverlayHeight);
-            using SKCanvas canvas = new SKCanvas(gpsOverlayBitmap);
+            using SKCanvas canvas = new(gpsOverlayBitmap);
             canvas.Clear(SKColors.Transparent);
-            using SKPaint skPaint = new SKPaint();
+            using SKPaint skPaint = new();
             skPaint.IsAntialias = true;
             //Make a list of all GPS point and calculate the extremities
-            List<GPSPoint> gpsPoints = new List<GPSPoint>();
+            List<GPSPoint> gpsPoints = [];
             double minLat, minLon, maxLat, maxLon;
             minLat = minLon = double.MaxValue;
             maxLat = maxLon = double.MinValue;
-            foreach (RecordMesg record in fitMessages.RecordMesgs)
-            {
-                if (record.GetPositionLat().HasValue && record.GetPositionLong().HasValue)
+            if(fitMessages != null)
+                foreach (RecordMesg record in fitMessages.RecordMesgs)
                 {
-                    GPSPoint fitGpsPoint = new GPSPoint(record.GetPositionLat().GetValueOrDefault(), record.GetPositionLong().GetValueOrDefault());
-                    GPSPoint gpsPoint = FitPointToGpsPoint(fitGpsPoint);
-                    gpsPoints.Add(gpsPoint);
-                    if (gpsPoint.Longitude < minLon)
-                        minLon = gpsPoint.Longitude;
-                    if (gpsPoint.Longitude > maxLon)
-                        maxLon = gpsPoint.Longitude;
-                    if (gpsPoint.Latitude < minLat)
-                        minLat = gpsPoint.Latitude;
-                    if (gpsPoint.Latitude > maxLat)
-                        maxLat = gpsPoint.Latitude;
+                    if (record.GetPositionLat().HasValue && record.GetPositionLong().HasValue)
+                    {
+                        GPSPoint fitGpsPoint = new(record.GetPositionLat().GetValueOrDefault(), record.GetPositionLong().GetValueOrDefault());
+                        GPSPoint gpsPoint = FitPointToGpsPoint(fitGpsPoint);
+                        gpsPoints.Add(gpsPoint);
+                        if (gpsPoint.Longitude < minLon)
+                            minLon = gpsPoint.Longitude;
+                        if (gpsPoint.Longitude > maxLon)
+                            maxLon = gpsPoint.Longitude;
+                        if (gpsPoint.Latitude < minLat)
+                            minLat = gpsPoint.Latitude;
+                        if (gpsPoint.Latitude > maxLat)
+                            maxLat = gpsPoint.Latitude;
+                    }
                 }
-            }
             //Determine the centerpoint and convert GPS points to meters relative to centerpoint, while recalculating extremities in meters
             gpsCenterPoint = new GPSPoint((minLat + maxLat) / 2, (minLon + maxLon) / 2);
             minLat = minLon = double.MaxValue;
@@ -342,15 +348,14 @@ namespace GarminFitFilePaceOverlay
             gpsOverlayBitmap = null;
             System.DateTime startTime = System.DateTime.Now;
             TimeSpan elapsed;
-            List<GPSPoint> gpsPointsList = new List<GPSPoint>();
+            List<GPSPoint> gpsPointsList = [];
             int gpsOverlayWidth = Settings.Get<int>("GPSOverlayWidth");
             int gpsOverlayHeight = Settings.Get<int>("GPSOverlayHeight");
-            SKBitmap previousPathOverlay = new SKBitmap(gpsOverlayWidth, gpsOverlayHeight);
-            float progress = 0f;
+            SKBitmap previousPathOverlay = new(gpsOverlayWidth, gpsOverlayHeight);
             for (int i = 0; i < fitMessages!.RecordMesgs.Count; ++i)
             {
                 //Log progress
-                progress = (float)i / fitMessages.RecordMesgs.Count;
+                float progress = (float)i / fitMessages.RecordMesgs.Count;
                 elapsed = System.DateTime.Now - startTime;
                 TimeSpan remaining = TimeSpan.FromSeconds(progress > 0 ? elapsed.TotalSeconds * (1d / progress - 1d) : 0d);
                 OnLogProgress(progress, elapsed, remaining);
@@ -379,7 +384,7 @@ namespace GarminFitFilePaceOverlay
                 if (secPerKm < 1 || secPerKm > 3600)
                     paceString = "--'--\"";
                 else
-                    paceString = $"{secPerKm / 60}'{(secPerKm % 60).ToString("D2")}\"";
+                    paceString = $"{secPerKm / 60}'{secPerKm % 60:D2}\"";
                 return [GenerateFrame(timestamp, paceString, heartRate ?? 0, distance ?? 0)];
             }
             else
@@ -394,7 +399,7 @@ namespace GarminFitFilePaceOverlay
                 //interpolate values for each frame
                 for (int i = 1; i <= frameCount; ++i)
                 {
-                    DateTime timestamp = new DateTime((previous.GetTimestamp().GetTimeStamp() + (uint)(timestampStep * i)));
+                    DateTime timestamp = new((previous.GetTimestamp().GetTimeStamp() + (uint)(timestampStep * i)));
                     float distance = (previous.GetDistance() ?? 0f) + distanceStep * i;
                     float enhancedSpeed = (previous.GetEnhancedSpeed() ?? 0f) + enhancedSpeedStep * i;
                     int heartRate = (int)((previous.GetHeartRate() ?? 0) + heartRateStep * i);
@@ -404,11 +409,11 @@ namespace GarminFitFilePaceOverlay
                     if (secPerKm < 1 || secPerKm > 3600)
                         paceString = "--'--\"";
                     else
-                        paceString = $"{secPerKm / 60}'{(secPerKm % 60).ToString("D2")}\"";
+                        paceString = $"{secPerKm / 60}'{secPerKm % 60:D2}\"";
                     SKBitmap frame = GenerateFrame(timestamp, paceString, heartRate, distance);
                     //add gps overlay
                     SKBitmap gpsOverlay = CreateGPSOverlay(recordIndex, i - 1, ref previousPoints, ref previousPathOverlay);
-                    SKCanvas canvas = new SKCanvas(frame);
+                    SKCanvas canvas = new(frame);
                     canvas.DrawBitmap(gpsOverlay, Settings.Get<int>("OverlayWidth") - Settings.Get<int>("GPSOverlayWidth"), 0, SKSamplingOptions.Default);
                     frames[i - 1] = frame;
                 }
@@ -424,28 +429,28 @@ namespace GarminFitFilePaceOverlay
             string labelFontFamily = Settings.Get<string>("LabelFontFamily");
             string valueFontFamily = Settings.Get<string>("ValueFontFamily");
             SKTypeface valueTypeface = SKTypeface.FromFamilyName(valueFontFamily, SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Italic);
-            SKFont labelFont = new SKFont(SKTypeface.FromFamilyName(labelFontFamily), fontSizeSmall);
-            SKFont valueFont = new SKFont(valueTypeface, fontSizeBig);
-            SKFont unitFont = new SKFont(valueTypeface, fontSizeSmall);
-            SKFont timestampFont = new SKFont(valueTypeface, fontSizeSmall);
+            SKFont labelFont = new(SKTypeface.FromFamilyName(labelFontFamily), fontSizeSmall);
+            SKFont valueFont = new(valueTypeface, fontSizeBig);
+            SKFont unitFont = new(valueTypeface, fontSizeSmall);
+            SKFont timestampFont = new(valueTypeface, fontSizeSmall);
             string hrValue = heartRate.ToString();
             string distanceValue = (distance / 1000).ToString("0.00");
             string timestampText = timestamp.ToString();
             SolidColorBrush hrColorX = Settings.Get<SolidColorBrush[]>("ZoneBrushes")[GetHeartRateZone(heartRate)];
             hrColorX.Dispatcher?.Invoke(() => hrColorX.Freeze());
-            SKColor hrColor = new SKColor(hrColorX.Color.R, hrColorX.Color.G, hrColorX.Color.B, hrColorX.Color.A);
+            SKColor hrColor = new(hrColorX.Color.R, hrColorX.Color.G, hrColorX.Color.B, hrColorX.Color.A);
             SolidColorBrush primaryColorX = Settings.Get<SolidColorBrush>("PrimaryColor");
-            SKColor primaryColor = new SKColor(primaryColorX.Color.R, primaryColorX.Color.G, primaryColorX.Color.B, primaryColorX.Color.A);
+            SKColor primaryColor = new(primaryColorX.Color.R, primaryColorX.Color.G, primaryColorX.Color.B, primaryColorX.Color.A);
             SolidColorBrush secondaryColorX = Settings.Get<SolidColorBrush>("SecondaryColor");
-            SKColor secondaryColor = new SKColor(secondaryColorX.Color.R, secondaryColorX.Color.G, secondaryColorX.Color.B, secondaryColorX.Color.A);
+            SKColor secondaryColor = new(secondaryColorX.Color.R, secondaryColorX.Color.G, secondaryColorX.Color.B, secondaryColorX.Color.A);
             // Create a bitmap with specified dimensions
             int overlayWidth = Settings.Get<int>("OverlayWidth");
             int overlayHeight = Settings.Get<int>("OverlayHeight");
-            SKBitmap bitmap = new SKBitmap(overlayWidth, overlayHeight);
+            SKBitmap bitmap = new(overlayWidth, overlayHeight);
             // Use SKCanvas to draw on the bitmap
-            using SKCanvas canvas = new SKCanvas(bitmap);
+            using SKCanvas canvas = new(bitmap);
             canvas.Clear(SKColors.Transparent);
-            using SKPaint skPaint = new SKPaint();
+            using SKPaint skPaint = new();
             skPaint.IsAntialias = true;
             // Define rectangles for text placement and draw text
             //pace
@@ -511,28 +516,13 @@ namespace GarminFitFilePaceOverlay
         }
         #endregion
 
-        public struct GPSPoint
-        {
-            public double Latitude { get; set; }
-            public double Longitude { get; set; }
-            public GPSPoint(double latitude, double longitude)
-            {
-                Latitude = latitude;
-                Longitude = longitude;
-            }
-        }
+        public record GPSPoint(double Latitude, double Longitude);
 
-        public class LogProgressEventArgs : EventArgs
+        public class LogProgressEventArgs(float progress, TimeSpan elapsed, TimeSpan remaining) : EventArgs
         {
-            public float Progress { get; set; }
-            public TimeSpan Elapsed { get; set; }
-            public TimeSpan Remaining { get; set; }
-            public LogProgressEventArgs(float progress, TimeSpan elapsed, TimeSpan remaining)
-            {
-                Progress = progress;
-                Elapsed = elapsed;
-                Remaining = remaining;
-            }
+            public float Progress { get; set; } = progress;
+            public TimeSpan Elapsed { get; set; } = elapsed;
+            public TimeSpan Remaining { get; set; } = remaining;
         }
     }
 }

@@ -1,40 +1,28 @@
 ﻿using FFMpegCore.Pipes;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GarminFitFilePaceOverlay
 {
-    internal class SKBitmapFrame : IVideoFrame, IDisposable
+    internal class SKBitmapFrame(SKBitmap bitmap) : IVideoFrame, IDisposable
     {
-        public int Width => Source.Width;
-        public int Height => Source.Height;
+        public int Width => bitmap.Width;
+        public int Height => bitmap.Height;
         public string Format => "bgra";
-
-        private SKBitmap Source;
-
-        public SKBitmapFrame(SKBitmap bitmap)
-        {
-            Source = bitmap;
-        }
 
         public void Dispose()
         {
-            Source.Dispose();
+            bitmap.Dispose();
         }
 
         public void Serialize(Stream pipe)
         {
-            pipe.Write(Source.Bytes, 0, Source.Bytes.Length);
+            pipe.Write(bitmap.Bytes, 0, bitmap.Bytes.Length);
         }
 
         public Task SerializeAsync(Stream pipe, CancellationToken token)
         {
-            return pipe.WriteAsync(Source.Bytes, 0, Source.Bytes.Length, token);
+            return pipe.WriteAsync(bitmap.Bytes, 0, bitmap.Bytes.Length, token);
         }
     }
 }

@@ -4,76 +4,60 @@ using GarminFitFilePaceOverlay.Navigation;
 using Microsoft.Win32;
 using SkiaSharp;
 using SkiaSharp.Views.WPF;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Windows;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace GarminFitFilePaceOverlay.Pages
 {
-    internal partial class HomePageViewModel : ViewModelBase
+    public partial class HomePageViewModel(INavigationManager navigationManager) : ViewModelBase
     {
-        private INavigationService settingsPageNavigationService;
         private bool snapshotLock = false;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(ExportVideoCommand))]
-        private FitOverlayProcessor? fitProcessor;
-
+        public partial FitOverlayProcessor? FitProcessor { get; set; }
         [ObservableProperty]
-        private string logText = string.Empty;
-
+        public partial string LogText { get; set; } = string.Empty;
         [ObservableProperty]
-        private System.Windows.Media.Brush logTextColor = System.Windows.Media.Brushes.Black;
-
+        public partial System.Windows.Media.Brush LogTextColor { get; set; } = System.Windows.Media.Brushes.Black;
         [ObservableProperty]
-        private WriteableBitmap? snapshotImage;
-
+        public partial WriteableBitmap? SnapshotImage { get; set; }
         [ObservableProperty]
-        private double snapshotActivityPercent = 0.5;
-
+        public partial double SnapshotActivityPercent { get; set; } = 0.5;
         [ObservableProperty]
-        private bool isExportingVideo = false;
-
+        public partial bool IsExportingVideo { get; set; } = false;
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsNotBusy))]
         [NotifyCanExecuteChangedFor(nameof(ExportVideoCommand))]
         [NotifyCanExecuteChangedFor(nameof(LoadFileCommand))]
-        private bool isBusy = false;
-
-        public HomePageViewModel(INavigationService settingsPageNavigationService)
-        {
-            this.settingsPageNavigationService = settingsPageNavigationService;
-        }
-
+        public partial bool IsBusy { get; set; } = false;
         public bool IsNotBusy => !IsBusy;
 
         [RelayCommand(CanExecute = nameof(CanNavigateToSettingsPage))]
-        public void NavigateToSettingsPage() => settingsPageNavigationService.Navigate();
+        public void NavigateToSettingsPage() => navigationManager.Navigate(NavigationTarget.SettingsPage);
 
         [RelayCommand(CanExecute = nameof(CanLoadFile))]
         public async Task LoadFile()
         {
             //Disable window interraction
             IsBusy = true;
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "FIT Files|*.fit";
+            OpenFileDialog ofd = new()
+            {
+                Filter = "FIT Files|*.fit"
+            };
             if (ofd.ShowDialog() == true)
             {
                 await Task.Run(() =>
                 {
-                    FitOverlayProcessor fop = new FitOverlayProcessor(ofd.FileName);
+                    FitOverlayProcessor fop = new(ofd.FileName);
                     if (fop.IsValid)
                     {
                         int recordIndex = (int)(fop.RecordsCount * SnapshotActivityPercent);
                         if (recordIndex >= fop.RecordsCount)
                             recordIndex = fop.RecordsCount - 1;
-                        SKBitmap snapshot = fop.GetSnapshotAtRecord(recordIndex);
+                        SKBitmap? snapshot = fop.GetSnapshotAtRecord(recordIndex);
                         RunOnMainThread(() => FitProcessor = fop);
-                        RunOnMainThread(() => SnapshotImage = snapshot.ToWriteableBitmap());
+                        RunOnMainThread(() => SnapshotImage = snapshot?.ToWriteableBitmap());
                         //log result
                         RunOnMainThread(() => LogMessage($"FIT file loaded successfully. Activity duration: {fop.ActivityDurationString} LTHR: {fop.FileLTHR}", System.Windows.Media.Brushes.Green));
                     }
@@ -102,8 +86,10 @@ namespace GarminFitFilePaceOverlay.Pages
             //Disable window interraction
             IsBusy = true;
             IsExportingVideo = true;
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "mov Video|*.mov";
+            SaveFileDialog sfd = new()
+            {
+                Filter = "mov Video|*.mov"
+            };
             if (sfd.ShowDialog() == true)
             {
                 //set up progress logging
@@ -115,11 +101,11 @@ namespace GarminFitFilePaceOverlay.Pages
                     await FitProcessor.ExportVideo(outputPath, cancellationToken);
                     //remove progress log handler and log completion
                     TimeSpan elapsed = System.DateTime.Now - startTime;
-                    RunOnMainThread(() => LogMessage($"Finished exporting video in {elapsed.ToString("%h'h'%m'm'%s's'")}.", System.Windows.Media.Brushes.Green));
+                    RunOnMainThread(() => LogMessage($"Finished exporting video in {elapsed:%h'h'%m'm'%s's'}.", System.Windows.Media.Brushes.Green));
                 }
                 catch (OperationCanceledException)
                 {
-                    if(File.Exists(sfd.FileName))
+                    if (File.Exists(sfd.FileName))
                     {
                         try
                         {
@@ -160,7 +146,7 @@ namespace GarminFitFilePaceOverlay.Pages
 
         private void FitProcessor_LogProgress(FitOverlayProcessor sender, FitOverlayProcessor.LogProgressEventArgs e)
         {
-            RunOnMainThread(() => LogMessage($"Exporting video: {(e.Progress * 100f).ToString("0.0")}% | Elapsed: {e.Elapsed.ToString("%h'h'%m'm'%s's'")} | Remaining: {e.Remaining.ToString("%h'h'%m'm'%s's'")}", System.Windows.Media.Brushes.Blue));
+            RunOnMainThread(() => LogMessage($"Exporting video: {e.Progress * 100f:0.0}% | Elapsed: {e.Elapsed:%h'h'%m'm'%s's'} | Remaining: {e.Remaining:%h'h'%m'm'%s's'}", System.Windows.Media.Brushes.Blue));
         }
 
         private void LogMessage(string message, System.Windows.Media.Brush color)
@@ -176,12 +162,12 @@ namespace GarminFitFilePaceOverlay.Pages
                 int recordIndex = (int)(FitProcessor.RecordsCount * value);
                 if (recordIndex >= FitProcessor.RecordsCount)
                     recordIndex = FitProcessor.RecordsCount - 1;
-                SKBitmap snapshot = await Task.Run<SKBitmap>(() => FitProcessor.GetSnapshotAtRecord(recordIndex));
-                RunOnMainThread(() => SnapshotImage = snapshot.ToWriteableBitmap());
+                SKBitmap? snapshot = await Task.Run(() => FitProcessor.GetSnapshotAtRecord(recordIndex));
+                RunOnMainThread(() => SnapshotImage = snapshot?.ToWriteableBitmap());
             }
         }
 
-        private void RunOnMainThread(Action action)
+        private static void RunOnMainThread(Action action)
         {
             App.Current.Dispatcher.Invoke(action);
         }

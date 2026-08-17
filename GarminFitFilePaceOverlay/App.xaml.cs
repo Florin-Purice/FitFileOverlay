@@ -1,11 +1,9 @@
 ﻿using GarminFitFilePaceOverlay.Navigation;
 using GarminFitFilePaceOverlay.Pages;
 using Microsoft.Extensions.DependencyInjection;
-using System.Configuration;
-using System.Data;
+using Microsoft.Extensions.Hosting;
 using System.IO;
 using System.Windows;
-using System.Windows.Markup;
 using System.Xaml;
 using System.Xml;
 
@@ -17,20 +15,33 @@ namespace GarminFitFilePaceOverlay
     public partial class App : Application
     {
         private readonly string settingsFileName = "Settings.xaml";
-        private readonly IServiceProvider serviceProvider;
 
-        public App()
+        [STAThread]
+        private static void Main(string[] args)
         {
-            IServiceCollection services = new ServiceCollection();
-            services.AddSingleton<NavigationStore>();
-            services.AddSingleton<HomePageViewModel>(s => new HomePageViewModel(CreateSettingsNavigationService(s)));
-            services.AddSingleton<SettingsPageViewModel>(s => new SettingsPageViewModel(CreateHomeNavigationService(s)));
-            services.AddSingleton<INavigationService>(CreateHomeNavigationService);
-            services.AddSingleton<MainWindowViewModel>(s => new MainWindowViewModel(s.GetRequiredService<NavigationStore>()));
-            services.AddSingleton<MainWindow>(s => new MainWindow(s.GetRequiredService<MainWindowViewModel>()));
-
-            serviceProvider = services.BuildServiceProvider();
+            using IHost host = CreateHostBuilder(args).Build();
+            host.Start();
+            App app = new();
+            app.InitializeComponent();
+            app.LoadSettings();
+            app.MainWindow = host.Services.GetRequiredService<MainWindow>();
+            app.MainWindow.Visibility = Visibility.Visible;
+            host.Services.GetRequiredService<INavigationService>().Navigate();
+            app.Run();
         }
+
+        private static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args).ConfigureServices(services =>
+            {
+                services.AddSingleton<NavigationStore>();
+                services.AddSingleton<INavigationManager>(CreateNavigationManager);
+                services.AddSingleton<INavigationService>(CreateHomeNavigationService);
+
+                services.AddSingleton<HomePageViewModel>();
+                services.AddSingleton<SettingsPageViewModel>();
+                services.AddSingleton<MainWindowViewModel>();
+                services.AddSingleton<MainWindow>();
+            });
 
         public ResourceDictionary SettingsDictionary
         {
@@ -104,7 +115,7 @@ namespace GarminFitFilePaceOverlay
             }
         }
 
-        private void Application_Startup(object sender, StartupEventArgs e)
+        private void LoadSettings()
         {
             //loading save data
             string saveLocation = AppContext.BaseDirectory;
@@ -133,11 +144,6 @@ namespace GarminFitFilePaceOverlay
                     catch (Exception) { }
                 }
             }
-            //opening main window
-            INavigationService initialNav = serviceProvider.GetRequiredService<INavigationService>();
-            initialNav.Navigate();
-            MainWindow mainWindow = serviceProvider.GetRequiredService<MainWindow>();
-            mainWindow.Show();
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)
@@ -145,14 +151,22 @@ namespace GarminFitFilePaceOverlay
             SaveSettings();
         }
 
-        private INavigationService CreateHomeNavigationService(IServiceProvider serviceProvider)
+        private static INavigationManager CreateNavigationManager(IServiceProvider provider)
+        {
+            NavigationManager navigationManager = new();
+            navigationManager.Register(NavigationTarget.HomePage, CreateHomeNavigationService(provider));
+            navigationManager.Register(NavigationTarget.SettingsPage, CreateSettingsNavigationService(provider));
+            return navigationManager;
+        }
+
+        private static INavigationService CreateHomeNavigationService(IServiceProvider serviceProvider)
         {
             return new NavigationService<HomePageViewModel>(
                 serviceProvider.GetRequiredService<NavigationStore>(),
                 () => serviceProvider.GetRequiredService<HomePageViewModel>());
         }
 
-        private INavigationService CreateSettingsNavigationService(IServiceProvider serviceProvider)
+        private static INavigationService CreateSettingsNavigationService(IServiceProvider serviceProvider)
         {
             return new NavigationService<SettingsPageViewModel>(
                 serviceProvider.GetRequiredService<NavigationStore>(),
