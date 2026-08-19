@@ -7,7 +7,6 @@
 
     <UseWPF>true</UseWPF>
     <StartupObject>FitFileOverlay.App</StartupObject>
-    <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <!--
@@ -33,14 +32,16 @@
 
   <ItemGroup>
     <ApplicationDefinition Remove="App.xaml" />
-    <Content Include="Resources\AppIcon.ico" />
     <Page Include="App.xaml" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" />
-    <PackageReference Include="MaterialDesignThemes" />
+    <PackageReference Include="FFMpegCore" />
+    <PackageReference Include="Garmin.FIT.Sdk" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="OpenTK.GLWpfControl" />
+    <PackageReference Include="SkiaSharp.Views.WPF" />
   </ItemGroup>
 </Project>

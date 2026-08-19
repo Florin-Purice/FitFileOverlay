@@ -1,5 +1,5 @@
 {
-    "IndentSize": 2,
+    "IndentSize": 4,
     "AttributesTolerance": 2,
     "KeepFirstAttributeOnSameLine": true,
     "MaxAttributeCharactersPerLine": 0,
@@ -29,7 +29,7 @@
     "OrderAttributesByName": true,
     "PutEndingBracketOnNewLine": false,
     "RemoveEndingTagOfEmptyElement": true,
-    "SpaceBeforeClosingSlash": true,
+    "SpaceBeforeClosingSlash": false,
     "RootElementLineBreakRule": "Always",
     "ReorderVSM": "First",
     "ReorderGridChildren": false,
