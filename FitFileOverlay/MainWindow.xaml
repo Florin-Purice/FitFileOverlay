@@ -3,30 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:pages="clr-namespace:FitFileOverlay.Pages"
         xmlns:local="clr-namespace:FitFileOverlay"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel, IsDesignTimeCreatable=False}"
-        Style="{StaticResource MaterialDesignWindow}"
         Title="Demo App" Height="450" Width="800">
+  <Window.Resources>
+    <DataTemplate DataType="{x:Type pages:HomePageViewModel}">
+      <pages:HomePage/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type pages:SettingsPageViewModel}">
+      <pages:SettingsPage/>
+    </DataTemplate>
+  </Window.Resources>
   <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition />
-      <RowDefinition Height="Auto"/>
-    </Grid.RowDefinitions>
-
-    <Menu>
-      <MenuItem Header="_File">
-        <MenuItem Header="_Clear Count" Command="{Binding ClearCountCommand}"/>
-        <Separator />
-        <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
-      </MenuItem>
-    </Menu>
-    
-    <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Image />
-      <TextBlock Text="{Binding Count, StringFormat='{}{0} Clicks'}" Margin="0,10"/>
-      <Button Content="_Click Me" Command="{Binding IncrementCountCommand}" />
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <StackPanel>
+      <Button Content="Home Page"
+              Command="{Binding NavigateToHomeCommand}"/>
+      <Button Content="Settings Page"
+              Command="{Binding NavigateToSettingsCommand}"/>
     </StackPanel>
+    <ContentControl Grid.Column="1" 
+                    Content="{Binding NavigationManager.CurrentViewModel}"/>
   </Grid>
 </Window>

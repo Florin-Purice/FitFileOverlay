@@ -1,6 +1,4 @@
-﻿using System.Windows.Input;
-
-namespace FitFileOverlay;
+﻿namespace FitFileOverlay;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
@@ -11,11 +9,5 @@ public partial class MainWindow
     {
         DataContext = viewModel;
         InitializeComponent();
-        CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, OnClose));
-    }
-
-    private void OnClose(object sender, ExecutedRoutedEventArgs e)
-    {
-        Close();
     }
 }

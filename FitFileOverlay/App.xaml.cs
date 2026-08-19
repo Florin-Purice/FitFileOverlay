@@ -1,10 +1,13 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using MaterialDesignThemes.Wpf;
+﻿using System.Windows;
+
+using CommunityToolkit.Mvvm.Messaging;
+
+using FitFileOverlay.Navigation;
+using FitFileOverlay.Pages;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Windows;
-using System.Windows.Threading;
 
 namespace FitFileOverlay;
 
@@ -28,6 +31,7 @@ public partial class App : Application
         app.InitializeComponent();
         app.MainWindow = host.Services.GetRequiredService<MainWindow>();
         app.MainWindow.Visibility = Visibility.Visible;
+        host.Services.GetRequiredService<INavigationManager>().NavigateTo(NavigationTarget.Home);
         app.Run();
 
         await host.StopAsync().ConfigureAwait(true);
@@ -39,18 +43,18 @@ public partial class App : Application
             => configurationBuilder.AddUserSecrets(typeof(App).Assembly))
         .ConfigureServices((hostContext, services) =>
         {
-            services.AddSingleton<MainWindow>();
+            services.AddSingleton<INavigationManager>(s => CreateNavigationManager(s));
+            services.AddSingleton<HomePageViewModel>();
+            services.AddSingleton<SettingsPageViewModel>();
             services.AddSingleton<MainWindowViewModel>();
-
-            services.AddSingleton<WeakReferenceMessenger>();
-            services.AddSingleton<IMessenger, WeakReferenceMessenger>(provider => provider.GetRequiredService<WeakReferenceMessenger>());
-
-            services.AddSingleton(_ => Current.Dispatcher);
-
-            services.AddTransient<ISnackbarMessageQueue>(provider =>
-            {
-                Dispatcher dispatcher = provider.GetRequiredService<Dispatcher>();
-                return new SnackbarMessageQueue(TimeSpan.FromSeconds(3.0), dispatcher);
-            });
+            services.AddSingleton<MainWindow>();
         });
+
+    private static SimpleNavigationManager CreateNavigationManager(IServiceProvider s)
+    {
+        SimpleNavigationManager manager = new();
+        manager.RegisterViewModelFactory(NavigationTarget.Home, () => s.GetRequiredService<HomePageViewModel>());
+        manager.RegisterViewModelFactory(NavigationTarget.Settings, () => s.GetRequiredService<SettingsPageViewModel>());
+        return manager;
+    }
 }

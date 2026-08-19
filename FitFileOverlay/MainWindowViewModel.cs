@@ -1,36 +1,21 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
+
+using FitFileOverlay.Navigation;
 
 namespace FitFileOverlay;
 
-public partial class MainWindowViewModel : ObservableObject
+public partial class MainWindowViewModel : ViewModelBase
 {
-    //This is using the source generators from CommunityToolkit.Mvvm to generate an ObservableProperty
-    //See: https://learn.microsoft.com/dotnet/communitytoolkit/mvvm/generators/observableproperty
-    //and: https://learn.microsoft.com/windows/communitytoolkit/mvvm/observableobject
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(IncrementCountCommand))]
-    private int _count;
-    
-    public MainWindowViewModel()
+    public MainWindowViewModel(INavigationManager navigationManager)
     {
-        
+        NavigationManager = navigationManager;
     }
 
-    //This is using the source generators from CommunityToolkit.Mvvm to generate a RelayCommand
-    //See: https://learn.microsoft.com/dotnet/communitytoolkit/mvvm/generators/relaycommand
-    //and: https://learn.microsoft.com/windows/communitytoolkit/mvvm/relaycommand
-    [RelayCommand(CanExecute = nameof(CanIncrementCount))]
-    private void IncrementCount()
-    {
-        Count++;
-    }
-
-    private bool CanIncrementCount() => Count < 5;
+    public INavigationManager NavigationManager { get; private set; }
 
     [RelayCommand]
-    private void ClearCount()
-    {
-        Count = 0;
-    }
+    public void NavigateToHome() => NavigationManager.NavigateTo(NavigationTarget.Home);
+
+    [RelayCommand]
+    public void NavigateToSettings() => NavigationManager.NavigateTo(NavigationTarget.Settings);
 }
