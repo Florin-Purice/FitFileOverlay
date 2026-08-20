@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Controls;
-using System.Windows.Media;
-
-using FitFileOverlay.Utils;
-
-using SkiaSharp;
+﻿using SkiaSharp;
 
 namespace FitFileOverlay.Overlay;
 
 public class DataFieldRenderer
 {
-    public static SKBitmap Render(RendererOptions options, string label, string value, string unit)
+    public static SKBitmap Render(DataFieldRendererOptions options, string label, string value, string unit)
     {
         SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
         using SKCanvas canvas = new(bitmap);
@@ -38,18 +30,18 @@ public class DataFieldRenderer
 
         return bitmap;
     }
-}
 
-public struct RendererOptions
-{
-    public int BitmapWidth { get; set; }
-    public int BitmapHeight { get; set; }
-    public SKColor Background { get; set; }
-    public SKColor LabelColor { get; set; }
-    public SKColor ValueColor { get; set; }
-    public SKColor UnitColor { get; set; }
-    public SKFont LabelFont { get; set; }
-    public SKFont ValueFont { get; set; }
-    public SKFont UnitFont { get; set; }
-    public float LineSpacing { get; set; }
+    public struct DataFieldRendererOptions
+    {
+        public int BitmapWidth { get; set; }
+        public int BitmapHeight { get; set; }
+        public SKColor Background { get; set; }
+        public SKColor LabelColor { get; set; }
+        public SKColor ValueColor { get; set; }
+        public SKColor UnitColor { get; set; }
+        public SKFont LabelFont { get; set; }
+        public SKFont ValueFont { get; set; }
+        public SKFont UnitFont { get; set; }
+        public float LineSpacing { get; set; }
+    }
 }
