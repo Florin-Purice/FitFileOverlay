@@ -8,6 +8,11 @@
              d:DataContext="{d:DesignInstance Type=local:HomePageViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
   <Grid>
-    <TextBlock Text="{Binding PageLabel}"/>
+    <StackPanel>
+      <Button Content="Load File"
+              Command="{Binding LoadFileCommand}"/>
+      <Button Content="Export Video"
+              Command="{Binding ExportVideoCommand}"/>
+    </StackPanel>
   </Grid>
 </UserControl>

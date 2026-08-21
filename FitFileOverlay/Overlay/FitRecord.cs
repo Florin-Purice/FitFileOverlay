@@ -6,17 +6,22 @@ namespace FitFileOverlay.Overlay;
 
 public class FitRecord : IActivityRecord
 {
+    public FitRecord()
+    {
+    }
+
     public FitRecord(RecordMesg recordMesg)
     {
         TimeStamp = recordMesg.GetTimestamp().GetDateTime();
         Distance = recordMesg.GetDistance();
         Speed = recordMesg.GetEnhancedSpeed();
         HeartRate = recordMesg.GetHeartRate();
+        GPSPoint = GpsPoint.FromFitRecord(recordMesg);
     }
 
-    public DateTime TimeStamp { get; private set; }
-    public GPSPoint? GPSPoint { get; private set; }
-    public int? HeartRate { get; private set; }
-    public float? Speed { get; private set; }
-    public float? Distance { get; private set; }
+    public DateTime TimeStamp { get; set; }
+    public GpsPoint? GPSPoint { get; set; }
+    public int? HeartRate { get; set; }
+    public float? Speed { get; set; }
+    public float? Distance { get; set; }
 }

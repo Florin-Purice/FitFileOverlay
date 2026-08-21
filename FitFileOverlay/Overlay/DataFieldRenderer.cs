@@ -8,7 +8,7 @@ public class DataFieldRenderer
     {
         SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
         using SKCanvas canvas = new(bitmap);
-        canvas.Clear(options.Background);
+        canvas.Clear(SKColors.Transparent);
         using SKPaint skPaint = new();
         skPaint.IsAntialias = true;
 
@@ -35,7 +35,6 @@ public class DataFieldRenderer
     {
         public int BitmapWidth { get; set; }
         public int BitmapHeight { get; set; }
-        public SKColor Background { get; set; }
         public SKColor LabelColor { get; set; }
         public SKColor ValueColor { get; set; }
         public SKColor UnitColor { get; set; }

@@ -10,7 +10,7 @@ public interface IActivityRecord
     /// <summary>
     /// Current location
     /// </summary>
-    public GPSPoint? GPSPoint { get; }
+    public GpsPoint? GPSPoint { get; }
 
     /// <summary>
     /// Current heart rate in beats/minute

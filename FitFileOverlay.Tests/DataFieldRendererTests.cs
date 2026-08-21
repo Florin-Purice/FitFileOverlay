@@ -47,7 +47,6 @@ public static class DataFieldRendererTestDataSources
         {
             BitmapHeight = 400,
             BitmapWidth = 400,
-            Background = SKColors.Transparent,
             LabelColor = SKColors.White,
             LabelFont = new SKFont(SKTypeface.FromFamilyName("Arial"), size: 48),
             ValueColor = SKColors.White,
@@ -62,7 +61,6 @@ public static class DataFieldRendererTestDataSources
         yield return () => new DataFieldRendererTestData(rendererOptions, "HeartRate", "187", "BPM", "./DataFieldTestOutput/DataFieldTest2.png");
 
         rendererOptions.ValueColor = SKColors.White;
-        rendererOptions.Background = SKColors.DarkCyan;
         yield return () => new DataFieldRendererTestData(rendererOptions, "Distance", "4.21", "KM", "./DataFieldTestOutput/DataFieldTest3.png");
 
         rendererOptions.ValueFont = new SKFont(SKTypeface.FromFamilyName("Impact", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Italic), 48);

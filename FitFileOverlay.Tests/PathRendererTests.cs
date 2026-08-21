@@ -52,9 +52,9 @@ internal class PathRendererTests
     }
 }
 
-public record PathRendererRenderFullTestData(PathRendererOptions RendererOptions, List<SKPoint> Points, string FileName);
+public record PathRendererRenderFullTestData(PathRendererOptions RendererOptions, List<SKPoint?> Points, string FileName);
 
-public record PathRendererRenderUntilPointTestData(PathRendererOptions RendererOptions, List<SKPoint> Points, int CurrentPointIndex, string FileName);
+public record PathRendererRenderUntilPointTestData(PathRendererOptions RendererOptions, List<SKPoint?> Points, int CurrentPointIndex, string FileName);
 
 public static class PathRendererTestDataSources
 {
@@ -64,11 +64,10 @@ public static class PathRendererTestDataSources
         {
             BitmapHeight = 400,
             BitmapWidth = 400,
-            Background = SKColors.Transparent,
             PrimaryColor = SKColors.White,
             StrokeWidth = 6
         };
-        List<SKPoint> points = 
+        List<SKPoint?> points = 
         [
             new SKPoint(100, 100),
             new SKPoint(200, 100),
@@ -83,7 +82,6 @@ public static class PathRendererTestDataSources
         ];
         yield return () => new PathRendererRenderFullTestData(rendererOptions, points, "./PathRenderTestOutput/RenderFullTest1.png");
 
-        rendererOptions.Background = SKColors.White;
         rendererOptions.PrimaryColor = new SKColor(250, 0, 0, 50);
         yield return () => new PathRendererRenderFullTestData(rendererOptions, points, "./PathRenderTestOutput/RenderFullTest2_transparency.png");
     }
@@ -94,13 +92,12 @@ public static class PathRendererTestDataSources
         {
             BitmapHeight = 400,
             BitmapWidth = 400,
-            Background = SKColors.Transparent,
             PrimaryColor = SKColors.White,
             SecondaryColor = SKColors.Orange,
             StrokeWidth = 6,
             FadePointCount = 6
         };
-        List<SKPoint> points =
+        List<SKPoint?> points =
         [
             new SKPoint(100, 100),
             new SKPoint(200, 100),
@@ -115,7 +112,6 @@ public static class PathRendererTestDataSources
         ];
         yield return () => new PathRendererRenderUntilPointTestData(rendererOptions, points, 8, "./PathRenderTestOutput/RenderUntilPointTest1.png");
 
-        rendererOptions.Background = SKColors.White;
         rendererOptions.PrimaryColor = new SKColor(250, 0, 0, 50);
         yield return () => new PathRendererRenderUntilPointTestData(rendererOptions, points, 9, "./PathRenderTestOutput/RenderUntilPointTest2_transparency.png");
     }
