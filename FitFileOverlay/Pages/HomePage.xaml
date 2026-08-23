@@ -7,12 +7,50 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=local:HomePageViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
-  <Grid>
-    <StackPanel>
-      <Button Content="Load File"
-              Command="{Binding LoadFileCommand}"/>
-      <Button Content="Export Video"
-              Command="{Binding ExportVideoCommand}"/>
-    </StackPanel>
-  </Grid>
+    <UserControl.Resources>
+        <Style x:Key="ShowButtonWhenExportingStyle" TargetType="Button">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsExportingVideo}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <Button Content="Load File"
+                    Command="{Binding LoadFileCommand}"/>
+            <Button Content="Export Video"
+                    Command="{Binding ExportVideoCommand}"/>
+            <Button Content="Cancel Export"
+                    Style="{StaticResource ShowButtonWhenExportingStyle}"
+                    Command="{Binding ExportVideoCancelCommand}"/>
+            <TextBlock Text="{Binding ExportVideoProgress}"/>
+            <TextBlock Text="{Binding ExportVideoElapsedTime}"/>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.Background>
+                <ImageBrush ImageSource="../Images/white_cross_on_black_background.png"/>
+            </Grid.Background>
+            <Border BorderBrush="Fuchsia"
+                    BorderThickness="3"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <Image Source="{Binding SnapshotImage}"/>
+            </Border>
+        </Grid>
+        <Slider Grid.Row="2"
+                Margin="10" 
+                IsEnabled="{Binding IsNotBusy}" 
+                VerticalAlignment="Center" 
+                Minimum="0" Maximum="1" 
+                IsMoveToPointEnabled="True" 
+                Value="{Binding SnapshotActivityPercent}"/>
+    </Grid>
 </UserControl>

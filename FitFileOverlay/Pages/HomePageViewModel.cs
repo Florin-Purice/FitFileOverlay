@@ -1,21 +1,34 @@
-﻿using System.IO;
-
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-
 using FitFileOverlay.Navigation;
 using FitFileOverlay.Overlay;
-
 using Microsoft.Win32;
-
 using SkiaSharp;
+using SkiaSharp.Views.WPF;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace FitFileOverlay.Pages;
 
 public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
 {
+    private bool _snapshotLock = false;
+    private DateTime _exportVideoStartTime;
+
+    [ObservableProperty]
+    public partial WriteableBitmap? SnapshotImage { get; set; }
+
+    [ObservableProperty]
+    public partial string ExportVideoProgress { get; set; }
+
+    [ObservableProperty]
+    public partial string ExportVideoElapsedTime { get; set; }
+
     [ObservableProperty]
     public partial bool IsExportingVideo { get; set; } = false;
+
+    [ObservableProperty]
+    public partial double SnapshotActivityPercent { get; set; } = 0.5;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotBusy))]
@@ -44,7 +57,12 @@ public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
         {
             await Task.Run(() =>
             {
-                OverlayProcessor = new(ofd.FileName);
+                try
+                {
+                    OverlayProcessor = new(ofd.FileName);
+                    RunOnMainThread(() => SnapshotImage = OverlayProcessor.GetSnapshotAtActivityPercent(new OverlaySettings(), 0.5).ToWriteableBitmap());
+                }
+                catch { }
             });
         }
         //Re-enable window interaction
@@ -66,9 +84,9 @@ public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
         {
             try
             {
-                string outputPath = sfd.FileName;
-                OverlaySettings settings = new();
-                await OverlayProcessor.ExportVideo(settings, outputPath, cancellationToken);
+                _exportVideoStartTime = DateTime.Now;
+                await OverlayProcessor.ExportVideo(new OverlaySettings(), sfd.FileName, ReportExportViewProgress, cancellationToken);
+                ReportExportViewProgress(1d);
             }
             catch (OperationCanceledException)
             {
@@ -90,5 +108,38 @@ public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
     private bool CanExportVideo()
     {
         return IsNotBusy && OverlayProcessor != null;
+    }
+
+    partial void OnSnapshotActivityPercentChanged(double value)
+    {
+        Task.Run(async () =>
+        {
+            if (!_snapshotLock)
+            {
+                _snapshotLock = true;
+                await UpdateSnapshotImage(value);
+                _snapshotLock = false;
+            }
+        });
+    }
+
+    private async Task UpdateSnapshotImage(double value)
+    {
+        if (OverlayProcessor != null)
+        {
+            SKBitmap? snapshot = await Task.Run(() => OverlayProcessor.GetSnapshotAtActivityPercent(new OverlaySettings(), SnapshotActivityPercent));
+            RunOnMainThread(() => SnapshotImage = snapshot?.ToWriteableBitmap());
+        }
+    }
+
+    private void ReportExportViewProgress(double progress)
+    {
+        ExportVideoProgress = (progress * 100).ToString("0.00");
+        ExportVideoElapsedTime = (DateTime.Now - _exportVideoStartTime).TotalSeconds.ToString("Elapsed seconds 0");
+    }
+
+    private static void RunOnMainThread(Action action)
+    {
+        App.Current.Dispatcher.Invoke(action);
     }
 }

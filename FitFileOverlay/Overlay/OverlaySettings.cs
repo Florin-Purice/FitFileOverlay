@@ -1,6 +1,5 @@
-﻿using System.Drawing;
-
-using SkiaSharp;
+﻿using SkiaSharp;
+using System.Drawing;
 
 namespace FitFileOverlay.Overlay;
 
@@ -14,7 +13,7 @@ public class OverlaySettings
     public string HrUnit { get; set; } = "BPM";
     public string DistanceLabel { get; set; } = "Distance";
     public string DistanceUnit { get; set; } = "KM";
-    public int LineSpacing { get; set; } = 20;
+    public int LineSpacing { get; set; } = 15;
     public float FontSizeSmall { get; set; } = 48f;
     public float FontSizeBig { get; set; } = 96f;
     public float GpsLineWidth { get; set; } = 6f;
@@ -29,7 +28,7 @@ public class OverlaySettings
     public Size Size { get; set; } = new Size(1600, 800);
     public int GPSOverlayWidth { get; set; } = 800;
     public int DataOverlayColumnCount = 1;
-    public int DataOverlayVerticalSpacing = 30;
+    public int DataOverlayVerticalSpacing = 40;
     public SKColor[] ZoneBrushes { get; set; } =
     [
         new SKColor(166, 166, 166, 255), // Zone 1 - Gray

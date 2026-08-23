@@ -30,12 +30,29 @@ internal class PathRendererTests
         //Arrange
 
         //Act
-        SKBitmap result = PathRenderer.RenderUntilPoint(testData.RendererOptions, testData.Points, testData.CurrentPointIndex);
+        SKBitmap? pathCache = null;
+        SKBitmap result = PathRenderer.RenderUntilPoint(testData.RendererOptions, testData.Points, testData.CurrentPointIndex, ref pathCache);
 
         //Assert
         await Assert.That(result).IsNotNull();
         //save to file to check manually if it's correct
         TrySaveImageToFile(result, testData.FileName);
+    }
+
+    [Test]
+    [MethodDataSource(typeof(PathRendererTestDataSources), nameof(PathRendererTestDataSources.RenderUntilPointTestData))]
+    public async Task RenderUntilPoint_ValidInputWithPathCache_ExpectedResult(PathRendererRenderUntilPointTestData testData)
+    {
+        //Arrange
+
+        //Act
+        SKBitmap? pathCache = null;
+        _ = PathRenderer.RenderUntilPoint(testData.RendererOptions, testData.Points, testData.CurrentPointIndex - 1, ref pathCache);
+        SKBitmap result = PathRenderer.RenderUntilPoint(testData.RendererOptions, testData.Points, testData.CurrentPointIndex, ref pathCache);
+
+        //Assert
+        await Assert.That(pathCache).IsNotNull();
+        await Assert.That(result).IsNotNull();
     }
 
     private static void TrySaveImageToFile(SKBitmap bitmap, string fileName)

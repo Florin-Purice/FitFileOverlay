@@ -1,8 +1,6 @@
-﻿using System.IO;
-
-using FFMpegCore.Pipes;
-
+﻿using FFMpegCore.Pipes;
 using SkiaSharp;
+using System.IO;
 
 namespace FitFileOverlay.Overlay;
 
