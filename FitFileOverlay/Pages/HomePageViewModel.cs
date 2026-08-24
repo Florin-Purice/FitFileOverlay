@@ -10,7 +10,7 @@ using System.Windows.Media.Imaging;
 
 namespace FitFileOverlay.Pages;
 
-public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
+public partial class HomePageViewModel(OverlaySettings OverlaySettings) : ViewModelBase, INavigableViewModel
 {
     private bool _snapshotLock = false;
     private DateTime _exportVideoStartTime;
@@ -85,7 +85,7 @@ public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
             try
             {
                 _exportVideoStartTime = DateTime.Now;
-                await OverlayProcessor.ExportVideo(OverlaySettings.FromAppResources(), sfd.FileName, ReportExportViewProgress, cancellationToken);
+                await OverlayProcessor.ExportVideo(OverlaySettings, sfd.FileName, ReportExportViewProgress, cancellationToken);
                 ReportExportViewProgress(1d);
             }
             catch (OperationCanceledException)
@@ -127,7 +127,7 @@ public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
     {
         if (OverlayProcessor != null)
         {
-            SKBitmap? snapshot = await Task.Run(() => OverlayProcessor.GetSnapshotAtActivityPercent(OverlaySettings.FromAppResources(), SnapshotActivityPercent));
+            SKBitmap? snapshot = await Task.Run(() => OverlayProcessor.GetSnapshotAtActivityPercent(OverlaySettings, SnapshotActivityPercent));
             RunOnMainThread(() => SnapshotImage = snapshot?.ToWriteableBitmap());
         }
     }

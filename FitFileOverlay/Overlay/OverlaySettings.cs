@@ -1,5 +1,8 @@
-﻿using SkiaSharp;
+﻿using FitFileOverlay.Utils;
+using SkiaSharp;
 using System.Drawing;
+using System.IO;
+using System.Text.Json;
 
 namespace FitFileOverlay.Overlay;
 
@@ -39,9 +42,22 @@ public class OverlaySettings
     ];
     public float[] ZoneMaxPercent { get; set; } = [0.8f, 0.89f, 0.95f, 1f, float.MaxValue];
 
-    public static OverlaySettings FromAppResources()
+    public void ToFile(string fileName)
     {
-        //to be implemented
-        return new OverlaySettings();
+        string jsonString = CustomJsonSerializer.Serialize(this);
+        File.WriteAllText(fileName, jsonString);
+    }
+
+    public static OverlaySettings? FromFile(string fileName)
+    {
+        try
+        {
+            string jsonString = File.ReadAllText(fileName);
+            return CustomJsonSerializer.Deserialize<OverlaySettings>(jsonString);
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

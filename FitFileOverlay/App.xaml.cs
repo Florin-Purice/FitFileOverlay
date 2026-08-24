@@ -1,13 +1,10 @@
-﻿using System.Windows;
-
-using CommunityToolkit.Mvvm.Messaging;
-
-using FitFileOverlay.Navigation;
+﻿using FitFileOverlay.Navigation;
+using FitFileOverlay.Overlay;
 using FitFileOverlay.Pages;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Windows;
 
 namespace FitFileOverlay;
 
@@ -16,6 +13,8 @@ namespace FitFileOverlay;
 /// </summary>
 public partial class App : Application
 {
+    private static readonly string _overlaySettingsFilename = "overlay_settings.json";
+
     [STAThread]
     private static void Main(string[] args)
     {
@@ -29,6 +28,8 @@ public partial class App : Application
 
         App app = new();
         app.InitializeComponent();
+        app.Exit += (s, e) =>
+            host.Services.GetRequiredService<OverlaySettings>().ToFile(_overlaySettingsFilename);
         app.MainWindow = host.Services.GetRequiredService<MainWindow>();
         app.MainWindow.Visibility = Visibility.Visible;
         host.Services.GetRequiredService<INavigationManager>().NavigateTo(NavigationTarget.Home);
@@ -43,6 +44,7 @@ public partial class App : Application
             => configurationBuilder.AddUserSecrets(typeof(App).Assembly))
         .ConfigureServices((hostContext, services) =>
         {
+            services.AddSingleton<OverlaySettings>(s => OverlaySettings.FromFile(_overlaySettingsFilename) ?? new OverlaySettings());
             services.AddSingleton<INavigationManager>(s => CreateNavigationManager(s));
             services.AddSingleton<HomePageViewModel>();
             services.AddSingleton<SettingsPageViewModel>();
