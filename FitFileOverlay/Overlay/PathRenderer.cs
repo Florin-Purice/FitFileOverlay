@@ -21,7 +21,7 @@ public class PathRenderer
                 canvas.DrawLine(points[i] ?? new(), points[i + 1] ?? new(), skPaint);
                 //smooth corners by drawing circles at points
                 canvas.DrawCircle(points[i] ?? new(), options.StrokeWidth / 2f, skPaint);
-                canvas.DrawCircle(points[i + 1] ?? new(), options.StrokeWidth / 2f, skPaint);
+                //canvas.DrawCircle(points[i + 1] ?? new(), options.StrokeWidth / 2f, skPaint);
             }
 
         return bitmap;
@@ -56,7 +56,6 @@ public class PathRenderer
                     baseCanvas.DrawLine(points[i] ?? new(), points[i + 1] ?? new(), skPaint);
                     //smooth corners by drawing circles at points
                     baseCanvas.DrawCircle(points[i] ?? new(), options.StrokeWidth, skPaint);
-                    baseCanvas.DrawCircle(points[i + 1] ?? new(), options.StrokeWidth, skPaint);
                 }
         }
         else if (currentPointIndex > 0)
@@ -68,7 +67,6 @@ public class PathRenderer
                 baseCanvas.DrawLine(points[currentPointIndex] ?? new(), points[currentPointIndex - 1] ?? new(), skPaint);
                 //smooth corners by drawing circles at points
                 baseCanvas.DrawCircle(points[currentPointIndex] ?? new(), options.StrokeWidth, skPaint);
-                baseCanvas.DrawCircle(points[currentPointIndex - 1] ?? new(), options.StrokeWidth, skPaint);
             }
         }
         else basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
@@ -76,20 +74,25 @@ public class PathRenderer
         previousPathBitmap = basePathBitmap;
 
         //Draw fading path
-        for (int i = currentPointIndex, fade = 0; i > 0 && fade < options.FadePointCount; --i, ++fade)
-            if (points[i] != null && points[i - 1] != null)
-            {
-                float fadePercent = (float)fade / options.FadePointCount;
-                skPaint.Color = new SKColor(
-                    (byte)((1f - fadePercent) * options.SecondaryColor.Red + fadePercent * options.PrimaryColor.Red),
-                    (byte)((1f - fadePercent) * options.SecondaryColor.Green + fadePercent * options.PrimaryColor.Green),
-                    (byte)((1f - fadePercent) * options.SecondaryColor.Blue + fadePercent * options.PrimaryColor.Blue),
-                    (byte)((1f - fadePercent) * options.SecondaryColor.Alpha + fadePercent * options.PrimaryColor.Alpha));
-                canvas.DrawLine(points[i] ?? new(), points[i - 1] ?? new(), skPaint);
-                //smooth corners by drawing circles at points
-                canvas.DrawCircle(points[i] ?? new(), options.StrokeWidth, skPaint);
-                canvas.DrawCircle(points[i - 1] ?? new(), options.StrokeWidth, skPaint);
-            }
+        if (currentPointIndex > 0)
+        {
+            int fadeFrames = Math.Min(currentPointIndex, options.FadePointCount) - 1;
+            int f = options.FadePointCount - fadeFrames;
+            for (int i = currentPointIndex - fadeFrames; i <= currentPointIndex; ++i)
+                if (points[i] != null && points[i - 1] != null)
+                {
+                    float fadePercent = (float)f++ / options.FadePointCount;
+                    skPaint.Color = new SKColor(
+                        (byte)((1f - fadePercent) * options.PrimaryColor.Red + fadePercent * options.SecondaryColor.Red),
+                        (byte)((1f - fadePercent) * options.PrimaryColor.Green + fadePercent * options.SecondaryColor.Green),
+                        (byte)((1f - fadePercent) * options.PrimaryColor.Blue + fadePercent * options.SecondaryColor.Blue),
+                        (byte)((1f - fadePercent) * options.PrimaryColor.Alpha + fadePercent * options.SecondaryColor.Alpha));
+                    canvas.DrawLine(points[i] ?? new(), points[i - 1] ?? new(), skPaint);
+                    //smooth corners by drawing circles at points
+                    canvas.DrawCircle(points[i - 1] ?? new(), options.StrokeWidth, skPaint);
+                }
+        }
+
         //Mark current position with a circle
         if (points[currentPointIndex] != null)
         {

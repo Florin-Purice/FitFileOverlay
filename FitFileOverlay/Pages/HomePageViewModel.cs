@@ -60,10 +60,10 @@ public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
                 try
                 {
                     OverlayProcessor = new(ofd.FileName);
-                    RunOnMainThread(() => SnapshotImage = OverlayProcessor.GetSnapshotAtActivityPercent(OverlaySettings.FromAppResources(), 0.5).ToWriteableBitmap());
                 }
                 catch { }
             });
+            await UpdateSnapshotImage(SnapshotActivityPercent);
         }
         //Re-enable window interaction
         IsBusy = false;

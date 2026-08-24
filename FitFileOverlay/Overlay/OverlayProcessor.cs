@@ -56,6 +56,7 @@ public class OverlayProcessor
         List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(_fitFile.Records, out double gpsAspectRatio);
         //define layout
         PathRendererOptions pathRendererOptions = CreatePathRendererOptionsFromSettings(settings);
+        pathRendererOptions.FadePointCount = settings.GpsFadeDurationSeconds;
         float gpsDrawAreaPadding = settings.GpsLineWidth * 2;//add some padding so the points on the border dont get cut off
         double gpsDrawAreaAspectRatio = (double)(pathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2) / (pathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2);
         double scale;
