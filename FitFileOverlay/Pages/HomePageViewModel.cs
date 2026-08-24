@@ -60,7 +60,7 @@ public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
                 try
                 {
                     OverlayProcessor = new(ofd.FileName);
-                    RunOnMainThread(() => SnapshotImage = OverlayProcessor.GetSnapshotAtActivityPercent(new OverlaySettings(), 0.5).ToWriteableBitmap());
+                    RunOnMainThread(() => SnapshotImage = OverlayProcessor.GetSnapshotAtActivityPercent(OverlaySettings.FromAppResources(), 0.5).ToWriteableBitmap());
                 }
                 catch { }
             });
@@ -85,7 +85,7 @@ public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
             try
             {
                 _exportVideoStartTime = DateTime.Now;
-                await OverlayProcessor.ExportVideo(new OverlaySettings(), sfd.FileName, ReportExportViewProgress, cancellationToken);
+                await OverlayProcessor.ExportVideo(OverlaySettings.FromAppResources(), sfd.FileName, ReportExportViewProgress, cancellationToken);
                 ReportExportViewProgress(1d);
             }
             catch (OperationCanceledException)
@@ -127,7 +127,7 @@ public partial class HomePageViewModel : ViewModelBase, INavigableViewModel
     {
         if (OverlayProcessor != null)
         {
-            SKBitmap? snapshot = await Task.Run(() => OverlayProcessor.GetSnapshotAtActivityPercent(new OverlaySettings(), SnapshotActivityPercent));
+            SKBitmap? snapshot = await Task.Run(() => OverlayProcessor.GetSnapshotAtActivityPercent(OverlaySettings.FromAppResources(), SnapshotActivityPercent));
             RunOnMainThread(() => SnapshotImage = snapshot?.ToWriteableBitmap());
         }
     }

@@ -38,4 +38,10 @@ public class OverlaySettings
         new SKColor(211, 32, 32, 255) // Zone 5 - Red
     ];
     public float[] ZoneMaxPercent { get; set; } = [0.8f, 0.89f, 0.95f, 1f, float.MaxValue];
+
+    public static OverlaySettings FromAppResources()
+    {
+        //to be implemented
+        return new OverlaySettings();
+    }
 }
