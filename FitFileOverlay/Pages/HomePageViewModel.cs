@@ -10,19 +10,12 @@ using System.Windows.Media.Imaging;
 
 namespace FitFileOverlay.Pages;
 
-public partial class HomePageViewModel(OverlaySettings OverlaySettings) : ViewModelBase, INavigableViewModel
+public partial class HomePageViewModel(IOverlayService overlayService) : ViewModelBase, INavigableViewModel
 {
-    private bool _snapshotLock = false;
     private DateTime _exportVideoStartTime;
 
     [ObservableProperty]
-    public partial WriteableBitmap? SnapshotImage { get; set; }
-
-    [ObservableProperty]
-    public partial string ExportVideoProgress { get; set; }
-
-    [ObservableProperty]
-    public partial string ExportVideoElapsedTime { get; set; }
+    public partial string ExportVideoProgress { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial bool IsExportingVideo { get; set; } = false;
@@ -37,7 +30,9 @@ public partial class HomePageViewModel(OverlaySettings OverlaySettings) : ViewMo
     public partial bool IsBusy { get; set; } = false;
 
     public bool IsNotBusy => !IsBusy;
-    public OverlayProcessor? OverlayProcessor { get; set; }
+
+    [ObservableProperty]
+    public partial IOverlayService OverlayService { get; private set; } = overlayService;
 
     private bool CanLoadFile()
     {
@@ -59,11 +54,11 @@ public partial class HomePageViewModel(OverlaySettings OverlaySettings) : ViewMo
             {
                 try
                 {
-                    OverlayProcessor = new(ofd.FileName);
+                    _ = OverlayService.Load(ofd.FileName);
                 }
                 catch { }
             });
-            await UpdateSnapshotImage(SnapshotActivityPercent);
+            //await UpdateSnapshotImage();
         }
         //Re-enable window interaction
         IsBusy = false;
@@ -72,7 +67,7 @@ public partial class HomePageViewModel(OverlaySettings OverlaySettings) : ViewMo
     [RelayCommand(CanExecute = nameof(CanExportVideo), IncludeCancelCommand = true)]
     public async Task ExportVideo(CancellationToken cancellationToken)
     {
-        if (OverlayProcessor == null) return;
+        if (OverlayService.File == null) return;
         //Disable window interraction
         IsBusy = true;
         IsExportingVideo = true;
@@ -85,8 +80,7 @@ public partial class HomePageViewModel(OverlaySettings OverlaySettings) : ViewMo
             try
             {
                 _exportVideoStartTime = DateTime.Now;
-                await OverlayProcessor.ExportVideo(OverlaySettings, sfd.FileName, ReportExportViewProgress, cancellationToken);
-                ReportExportViewProgress(1d);
+                await OverlayService.Export(sfd.FileName, ReportExportViewProgress, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -103,43 +97,26 @@ public partial class HomePageViewModel(OverlaySettings OverlaySettings) : ViewMo
         //Re-enable window interaction
         IsBusy = false;
         IsExportingVideo = false;
+        //If exporting was canceled display a message else report success
+        if(cancellationToken.IsCancellationRequested)
+            ExportVideoProgress = "Export canceled.";
+        else
+        {
+            TimeSpan exportDuration = DateTime.Now - _exportVideoStartTime;
+            string durationString = exportDuration.TotalHours < 1 ? exportDuration.ToString(@"mm\:ss") : exportDuration.ToString(@"h\:mm\:ss");
+            ExportVideoProgress = $"Export finished in {durationString}";
+        }
     }
 
     private bool CanExportVideo()
     {
-        return IsNotBusy && OverlayProcessor != null;
-    }
-
-    partial void OnSnapshotActivityPercentChanged(double value)
-    {
-        Task.Run(async () =>
-        {
-            if (!_snapshotLock)
-            {
-                _snapshotLock = true;
-                await UpdateSnapshotImage(value);
-                _snapshotLock = false;
-            }
-        });
-    }
-
-    private async Task UpdateSnapshotImage(double value)
-    {
-        if (OverlayProcessor != null)
-        {
-            SKBitmap? snapshot = await Task.Run(() => OverlayProcessor.GetSnapshotAtActivityPercent(OverlaySettings, SnapshotActivityPercent));
-            RunOnMainThread(() => SnapshotImage = snapshot?.ToWriteableBitmap());
-        }
+        return IsNotBusy && OverlayService.File != null;
     }
 
     private void ReportExportViewProgress(double progress)
     {
-        ExportVideoProgress = (progress * 100).ToString("0.00");
-        ExportVideoElapsedTime = (DateTime.Now - _exportVideoStartTime).TotalSeconds.ToString("Elapsed seconds 0");
-    }
-
-    private static void RunOnMainThread(Action action)
-    {
-        App.Current.Dispatcher.Invoke(action);
+        TimeSpan exportDuration = DateTime.Now - _exportVideoStartTime;
+        string durationString = exportDuration.TotalHours < 1 ? exportDuration.ToString(@"mm\:ss") : exportDuration.ToString(@"h\:mm\:ss");
+        ExportVideoProgress = progress.ToString("P1") + " Elapsed time " + durationString;
     }
 }

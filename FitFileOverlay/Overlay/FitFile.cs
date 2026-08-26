@@ -1,12 +1,12 @@
 ﻿using System.IO;
-
+using CommunityToolkit.Mvvm.ComponentModel;
 using Dynastream.Fit;
 
 using DateTime = Dynastream.Fit.DateTime;
 
 namespace FitFileOverlay.Overlay;
 
-public class FitFile
+public partial class FitFile : ObservableObject
 {
     public FitFile(string filePath)
     {
@@ -27,12 +27,14 @@ public class FitFile
             if (activityLengthSec == null || activityLengthSec < 1)
                 throw new Exception($"Activity too short: {activityLengthSec} seconds");
             ActivityDuration = TimeSpan.FromSeconds(activityLengthSec.Value);
+            ActivityDistance = fitMessages.RecordMesgs.Last().GetDistance()/1000f ?? 0f;
             //Get LTHR if present
             ZonesTargetMesg? zonesTargetMesg = fitMessages.ZonesTargetMesgs.FirstOrDefault();
             LactateThresholdHeartRate = zonesTargetMesg?.GetThresholdHeartRate();
             //Create records
             foreach (RecordMesg recordMesg in fitMessages.RecordMesgs)
                 Records.Add(new FitRecord(recordMesg));
+            FileName = Path.GetFileName(filePath);
             IsValid = true;
         }
         catch (Exception ex)
@@ -44,9 +46,22 @@ public class FitFile
 
     public List<IActivityRecord> Records { get; } = [];
 
-    public TimeSpan ActivityDuration { get; } = TimeSpan.Zero;
+    [ObservableProperty]
+    public partial string FileName { get; private set; } = string.Empty;
 
-    public int? LactateThresholdHeartRate { get; }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ActivityDurationString))]
+    public partial TimeSpan ActivityDuration { get; private set; } = TimeSpan.Zero;
+    public string ActivityDurationString => ActivityDuration.TotalHours >= 1 ? ActivityDuration.ToString(@"h\:mm\:ss") : ActivityDuration.ToString(@"mm\:ss");
+
+    /// <summary>
+    /// Total activity distance in kilometers
+    /// </summary>
+    [ObservableProperty]
+    public partial float ActivityDistance { get; private set; } = 0f;
+
+    [ObservableProperty]
+    public partial int? LactateThresholdHeartRate { get; private set; }
 
     /// <summary>
     /// Represents if the file was read and parsed successfully.

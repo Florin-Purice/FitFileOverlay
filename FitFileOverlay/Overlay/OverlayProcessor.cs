@@ -8,14 +8,14 @@ namespace FitFileOverlay.Overlay;
 
 public class OverlayProcessor
 {
-    private readonly FitFile _fitFile;
 
     public OverlayProcessor(string sourceFilePath)
     {
-        _fitFile = new FitFile(sourceFilePath);
-        if (!_fitFile.IsValid)
-            throw new Exception(_fitFile.ErrorMessage);
+        FitFile = new FitFile(sourceFilePath);
+        if (!FitFile.IsValid)
+            throw new Exception(FitFile.ErrorMessage);
     }
+    public FitFile FitFile { get; }
 
     public async Task ExportVideo(
         OverlaySettings settings,
@@ -26,9 +26,9 @@ public class OverlayProcessor
         //insert interpolated records if needed
         List<IActivityRecord> records;
         if (settings.FPS > 1)
-            records = InsertInterpolatedRecord(_fitFile.Records, settings.FPS);
+            records = InsertInterpolatedRecord(FitFile.Records, settings.FPS);
         else
-            records = _fitFile.Records;
+            records = FitFile.Records;
         //create list of unitary screenspace gps points
         List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(records, out double gpsAspectRatio);
         //Generate video frames and encode video using FFMpegCore
@@ -50,10 +50,10 @@ public class OverlayProcessor
 
     public SKBitmap? GetSnapshotAtRecord(OverlaySettings settings, int recordIndex)
     {
-        if (recordIndex < 0 || recordIndex >= _fitFile.Records.Count)
+        if (recordIndex < 0 || recordIndex >= FitFile.Records.Count)
             return null;
         //create list of unitary screenspace gps points
-        List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(_fitFile.Records, out double gpsAspectRatio);
+        List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(FitFile.Records, out double gpsAspectRatio);
         //define layout
         PathRendererOptions pathRendererOptions = CreatePathRendererOptionsFromSettings(settings);
         pathRendererOptions.FadePointCount = settings.GpsFadeDurationSeconds;
@@ -95,7 +95,7 @@ public class OverlayProcessor
         SKBitmap gpsPathOverlay = PathRenderer.RenderUntilPoint(pathRendererOptions, drawPoints, recordIndex, ref pathCacheBitmap);
         sKCanvas.DrawBitmap(gpsPathOverlay, settings.Size.Width - settings.GPSOverlayWidth, 0, SKSamplingOptions.Default);
         //create data fields overlay and apply
-        SKBitmap dataFieldsOverlay = CreateDataFieldsOverlay(_fitFile.Records[recordIndex], settings);
+        SKBitmap dataFieldsOverlay = CreateDataFieldsOverlay(FitFile.Records[recordIndex], settings);
         sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
         return sKBitmap;
     }
@@ -106,9 +106,9 @@ public class OverlayProcessor
     /// <returns></returns>
     public SKBitmap? GetSnapshotAtActivityPercent(OverlaySettings settings, double activityPercent)
     {
-        int recordIndex = (int)(activityPercent * _fitFile.Records.Count);
+        int recordIndex = (int)(activityPercent * FitFile.Records.Count);
         if (recordIndex < 0) recordIndex = 0;
-        if (recordIndex >= _fitFile.Records.Count) recordIndex = _fitFile.Records.Count - 1;
+        if (recordIndex >= FitFile.Records.Count) recordIndex = FitFile.Records.Count - 1;
         return GetSnapshotAtRecord(settings, recordIndex);
     }
 

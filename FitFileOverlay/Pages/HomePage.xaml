@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FitFileOverlay.Pages"
+             xmlns:custom="clr-namespace:FitFileOverlay.Controls"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=local:HomePageViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -21,7 +22,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel>
             <Button Content="Load File"
@@ -32,25 +32,9 @@
                     Style="{StaticResource ShowButtonWhenExportingStyle}"
                     Command="{Binding ExportVideoCancelCommand}"/>
             <TextBlock Text="{Binding ExportVideoProgress}"/>
-            <TextBlock Text="{Binding ExportVideoElapsedTime}"/>
         </StackPanel>
-        <Grid Grid.Row="1">
-            <Grid.Background>
-                <ImageBrush ImageSource="../Images/white_cross_on_black_background.png"/>
-            </Grid.Background>
-            <Border BorderBrush="Fuchsia"
-                    BorderThickness="3"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center">
-                <Image Source="{Binding SnapshotImage}"/>
-            </Border>
-        </Grid>
-        <Slider Grid.Row="2"
-                Margin="10" 
-                IsEnabled="{Binding IsNotBusy}" 
-                VerticalAlignment="Center" 
-                Minimum="0" Maximum="1" 
-                IsMoveToPointEnabled="True" 
-                Value="{Binding SnapshotActivityPercent}"/>
+        <custom:OverlayPreview Grid.Row="1" 
+                               OverlayService="{Binding OverlayService}"
+                               ActivityPercent="{Binding SnapshotActivityPercent}"/>
     </Grid>
 </UserControl>

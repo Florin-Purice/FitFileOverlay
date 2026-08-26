@@ -45,6 +45,7 @@ public partial class App : Application
         .ConfigureServices((hostContext, services) =>
         {
             services.AddSingleton<OverlaySettings>(s => OverlaySettings.FromFile(_overlaySettingsFilename) ?? new OverlaySettings());
+            services.AddSingleton<IOverlayService, OverlayService>();
             services.AddSingleton<INavigationManager>(s => CreateNavigationManager(s));
             services.AddSingleton<HomePageViewModel>();
             services.AddSingleton<SettingsPageViewModel>();
