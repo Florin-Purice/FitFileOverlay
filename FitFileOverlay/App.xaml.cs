@@ -74,6 +74,8 @@ public partial class App
     /// </summary>
     private async void OnExit(object sender, ExitEventArgs e)
     {
+        Services.GetRequiredService<OverlaySettings>().ToFile(_overlaySettingsFilename);
+
         await _host.StopAsync();
 
         _host.Dispose();
