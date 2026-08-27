@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="FitFileOverlay.Controls.OverlayPreview"
+<UserControl x:Class="FitFileOverlay.Controls.OverlayPreview"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -43,7 +43,7 @@
                 <ImageBrush ImageSource="../Assets/white_cross_on_black_background.png"/>
             </Border.Background>
             <Grid >
-                <Border BorderBrush="Fuchsia"
+                <Border BorderBrush="{DynamicResource AccentTextFillColorTertiaryBrush}"
                         BorderThickness="3"
                         CornerRadius="8"
                         VerticalAlignment="Center"

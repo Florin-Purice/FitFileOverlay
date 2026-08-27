@@ -40,8 +40,7 @@
         <ContentPresenter x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2" />
         <ui:TitleBar x:Name="TitleBar"
                      Title="{Binding ViewModel.ApplicationTitle}"
-                     Grid.Row="0"
-                     CloseWindowByDoubleClickOnIcon="True">
+                     Grid.Row="0">
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="/Assets/fit_overlay_256.png" />
             </ui:TitleBar.Icon>
