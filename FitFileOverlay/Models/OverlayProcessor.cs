@@ -1,0 +1,367 @@
+﻿using FFMpegCore;
+using FFMpegCore.Pipes;
+using FitFileOverlay.Enums;
+using FitFileOverlay.Helpers;
+using SkiaSharp;
+
+namespace FitFileOverlay.Models;
+
+public class OverlayProcessor
+{
+
+    public OverlayProcessor(string sourceFilePath)
+    {
+        FitFile = new FitFile(sourceFilePath);
+        if (!FitFile.IsValid)
+            throw new Exception(FitFile.ErrorMessage);
+    }
+    public FitFile FitFile { get; }
+
+    public async Task ExportVideo(
+        OverlaySettings settings,
+        string outFileName,
+        Action<double>? progressReportCallback = null,
+        CancellationToken? cancellationToken = null)
+    {
+        //insert interpolated records if needed
+        List<IActivityRecord> records;
+        if (settings.FPS > 1)
+            records = InsertInterpolatedRecord(FitFile.Records, settings.FPS);
+        else
+            records = FitFile.Records;
+        //create list of unitary screenspace gps points
+        List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(records, out double gpsAspectRatio);
+        //Generate video frames and encode video using FFMpegCore
+        IEnumerable<IVideoFrame> frames = CreateVideoFrames(settings, records, normalizedPoints, gpsAspectRatio, progressReportCallback);
+        RawVideoPipeSource framesSource = new(frames)
+        {
+            FrameRate = settings.FPS,
+        };
+        await FFMpegArguments.FromPipeInput(framesSource)
+            .OutputToFile(outFileName, true, opt => opt
+                .WithFramerate(settings.FPS)
+                .WithVideoCodec("prores_ks")
+                .ForcePixelFormat("yuva444p10le")
+                .WithCustomArgument("-profile:v 4444")
+                .WithConstantRateFactor(17))
+            .CancellableThrough(cancellationToken ?? new CancellationToken())
+            .ProcessAsynchronously(throwOnError: true);
+    }
+
+    public SKBitmap? GetSnapshotAtRecord(OverlaySettings settings, int recordIndex)
+    {
+        if (recordIndex < 0 || recordIndex >= FitFile.Records.Count)
+            return null;
+        //create list of unitary screenspace gps points
+        List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(FitFile.Records, out double gpsAspectRatio);
+        //define layout
+        PathRendererOptions pathRendererOptions = CreatePathRendererOptionsFromSettings(settings);
+        pathRendererOptions.FadePointCount = settings.GpsFadeDurationSeconds;
+        float gpsDrawAreaPadding = settings.GpsLineWidth * 2;//add some padding so the points on the border dont get cut off
+        double gpsDrawAreaAspectRatio = (double)(pathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2) / (pathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2);
+        double scale;
+        if (gpsDrawAreaAspectRatio > gpsAspectRatio)
+        {
+            //points cover the full height
+            scale = pathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2;
+        }
+        else
+        {
+            //points cover the full width
+            scale = pathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2;
+        }
+        //transform points into actual draw points
+        List<SKPoint?> drawPoints = [];
+        foreach ((double x, double y)? point in normalizedPoints)
+            if (point is null)
+                drawPoints.Add(null);
+            else
+            {
+                float x = (float)((point?.x ?? 0) * scale + gpsDrawAreaPadding);
+                float y = (float)((point?.y ?? 0) * scale + gpsDrawAreaPadding);
+                drawPoints.Add(new SKPoint(x, y));
+            }
+        //create base gps overlay
+        SKBitmap gpsBaseBitmap = PathRenderer.RenderFull(pathRendererOptions, drawPoints);
+        pathRendererOptions.PrimaryColor = settings.PrimaryColor;
+        SKBitmap? pathCacheBitmap = null;
+        //create underlying bitmap
+        SKBitmap sKBitmap = new(settings.Size.Width, settings.Size.Height);
+        SKCanvas sKCanvas = new(sKBitmap);
+        sKCanvas.Clear(settings.Background);
+        //apply base gps overlay
+        sKCanvas.DrawBitmap(gpsBaseBitmap, settings.Size.Width - settings.GPSOverlayWidth, 0, SKSamplingOptions.Default);
+        //create partial gps path and apply over base gps overlay
+        SKBitmap gpsPathOverlay = PathRenderer.RenderUntilPoint(pathRendererOptions, drawPoints, recordIndex, ref pathCacheBitmap);
+        sKCanvas.DrawBitmap(gpsPathOverlay, settings.Size.Width - settings.GPSOverlayWidth, 0, SKSamplingOptions.Default);
+        //create data fields overlay and apply
+        SKBitmap dataFieldsOverlay = CreateDataFieldsOverlay(FitFile.Records[recordIndex], settings);
+        sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
+        return sKBitmap;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="activityPercent">Value between 0 and 1</param>
+    /// <returns></returns>
+    public SKBitmap? GetSnapshotAtActivityPercent(OverlaySettings settings, double activityPercent)
+    {
+        int recordIndex = (int)(activityPercent * FitFile.Records.Count);
+        if (recordIndex < 0) recordIndex = 0;
+        if (recordIndex >= FitFile.Records.Count) recordIndex = FitFile.Records.Count - 1;
+        return GetSnapshotAtRecord(settings, recordIndex);
+    }
+
+    private static IEnumerable<IVideoFrame> CreateVideoFrames(
+        OverlaySettings settings,
+        List<IActivityRecord> records,
+        List<(double x, double y)?> normalizedPoints,
+        double gpsAspectRatio,
+        Action<double>? progressReportCallback = null)
+    {
+        //define layout
+        PathRendererOptions pathRendererOptions = CreatePathRendererOptionsFromSettings(settings);
+        float gpsDrawAreaPadding = settings.GpsLineWidth * 2;//add some padding so the points on the border dont get cut off
+        double gpsDrawAreaAspectRatio = (double)(pathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2) / (pathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2);
+        double scale;
+        if (gpsDrawAreaAspectRatio > gpsAspectRatio)
+        {
+            //points cover the full height
+            scale = pathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2;
+        }
+        else
+        {
+            //points cover the full width
+            scale = pathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2;
+        }
+        //transform points into actual draw points
+        List<SKPoint?> drawPoints = [];
+        foreach ((double x, double y)? point in normalizedPoints)
+            if (point is null)
+                drawPoints.Add(null);
+            else
+            {
+                float x = (float)((point?.x ?? 0) * scale + gpsDrawAreaPadding);
+                float y = (float)((point?.y ?? 0) * scale + gpsDrawAreaPadding);
+                drawPoints.Add(new SKPoint(x, y));
+            }
+        //create base gps overlay
+        SKBitmap gpsBaseBitmap = PathRenderer.RenderFull(pathRendererOptions, drawPoints);
+        pathRendererOptions.PrimaryColor = settings.PrimaryColor;
+        SKBitmap? pathCacheBitmap = null;
+        for (int i = 0; i < records.Count; ++i)
+        {
+            //create underlying bitmap
+            SKBitmap sKBitmap = new(settings.Size.Width, settings.Size.Height);
+            SKCanvas sKCanvas = new(sKBitmap);
+            sKCanvas.Clear(settings.Background);
+            //apply base gps overlay
+            sKCanvas.DrawBitmap(gpsBaseBitmap, settings.Size.Width - settings.GPSOverlayWidth, 0, SKSamplingOptions.Default);
+            //create partial gps path and apply over base gps overlay
+            SKBitmap gpsPathOverlay = PathRenderer.RenderUntilPoint(pathRendererOptions, drawPoints, i, ref pathCacheBitmap);
+            sKCanvas.DrawBitmap(gpsPathOverlay, settings.Size.Width - settings.GPSOverlayWidth, 0, SKSamplingOptions.Default);
+            //create data fields overlay and apply
+            SKBitmap dataFieldsOverlay = CreateDataFieldsOverlay(records[i], settings);
+            sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
+            //create frame and return
+            progressReportCallback?.Invoke((double)i / records.Count);
+            yield return new SKBitmapFrame(sKBitmap);
+        }
+    }
+
+    private static SKBitmap CreateDataFieldsOverlay(IActivityRecord record, OverlaySettings settings)
+    {
+        DataFieldRendererOptions rendererOptions = CreateDataFieldRendererOptionsFromSettings(settings);
+        int dataFieldCount = 4;
+        int dataFieldsPerColumn = (int)Math.Ceiling((double)dataFieldCount / settings.DataOverlayColumnCount);
+        SKBitmap sKBitmap = new(settings.Size.Width - settings.GPSOverlayWidth, settings.Size.Height);
+        SKCanvas sKCanvas = new(sKBitmap);
+        //create data field overlays and apply them in the correct place
+        int row = 0, col = 0;
+        //pace
+        SKBitmap? paceBitmap = CreateDataFieldBitmap(record, settings, rendererOptions, DataFieldType.Pace);
+        if (paceBitmap != null)
+            sKCanvas.DrawBitmap(paceBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
+        if (++row >= dataFieldsPerColumn)
+        {
+            row = 0;
+            ++col;
+        }
+        //heart rate
+        SKBitmap? heartRateBitmap = CreateDataFieldBitmap(record, settings, rendererOptions, DataFieldType.HeartRate);
+        if (heartRateBitmap != null)
+            sKCanvas.DrawBitmap(heartRateBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
+        if (++row >= dataFieldsPerColumn)
+        {
+            row = 0;
+            ++col;
+        }
+        //distance
+        SKBitmap? distanceBitmap = CreateDataFieldBitmap(record, settings, rendererOptions, DataFieldType.Distance);
+        if (distanceBitmap != null)
+            sKCanvas.DrawBitmap(distanceBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
+        if (++row >= dataFieldsPerColumn)
+        {
+            row = 0;
+            ++col;
+        }
+        //timestamp
+        SKBitmap? timestampBitmap = CreateDataFieldBitmap(record, settings, rendererOptions, DataFieldType.Timestamp);
+        if (timestampBitmap != null)
+            sKCanvas.DrawBitmap(timestampBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
+        return sKBitmap;
+    }
+
+    private static SKBitmap? CreateDataFieldBitmap(IActivityRecord record, OverlaySettings settings, DataFieldRendererOptions rendererOptionsBase, DataFieldType dataField)
+    {
+        string label, value, unit;
+        switch (dataField)
+        {
+            case DataFieldType.Pace:
+                label = settings.PaceLabel;
+                value = CreatePaceStringFromSpeed(record.Speed);
+                unit = settings.PaceUnit;
+                break;
+            case DataFieldType.HeartRate:
+                label = settings.HrLabel;
+                value = record.HeartRate.ToString() ?? string.Empty;
+                unit = settings.HrUnit;
+                rendererOptionsBase.ValueColor = settings.ZoneBrushes[GetHeartRateZone(record.HeartRate ?? 0, settings)];
+                break;
+            case DataFieldType.Distance:
+                label = settings.DistanceLabel;
+                value = (record.Distance / 1000)?.ToString("0.00") ?? string.Empty;
+                unit = settings.DistanceUnit;
+                break;
+            case DataFieldType.Timestamp:
+                label = string.Empty;
+                value = record.TimeStamp.ToLocalTime().ToString("dd-MMM-yy H:mm:ss");
+                unit = string.Empty;
+                rendererOptionsBase.ValueFont.Size = settings.FontSizeSmall;
+                break;
+            default:
+                return null;
+        }
+        return DataFieldRenderer.Render(rendererOptionsBase, label, value, unit);
+    }
+
+    public static DataFieldRendererOptions CreateDataFieldRendererOptionsFromSettings(OverlaySettings settings)
+    {
+        int dataOverlayWidth = (settings.Size.Width - settings.GPSOverlayWidth) / settings.DataOverlayColumnCount;
+        int dataOverlayHeight = (int)(settings.FontSizeSmall + settings.FontSizeBig + settings.LineSpacing + settings.DataOverlayVerticalSpacing);
+        DataFieldRendererOptions dataFieldRendererOptions = new()
+        {
+            BitmapHeight = dataOverlayHeight,
+            BitmapWidth = dataOverlayWidth,
+            LabelColor = settings.PrimaryColor,
+            LabelFont = new SKFont(SKTypeface.FromFamilyName(settings.LabelFontFamily), settings.FontSizeSmall),
+            ValueColor = settings.PrimaryColor,
+            ValueFont = new SKFont(SKTypeface.FromFamilyName(settings.ValueFontFamily, SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Italic), settings.FontSizeBig),
+            UnitColor = settings.SecondaryColor,
+            UnitFont = new SKFont(SKTypeface.FromFamilyName(settings.UnitFontFamily, SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Italic), settings.FontSizeSmall),
+            LineSpacing = settings.LineSpacing
+        };
+        return dataFieldRendererOptions;
+    }
+
+    public static PathRendererOptions CreatePathRendererOptionsFromSettings(OverlaySettings settings)
+    {
+        int gpsOverlayWidth = settings.GPSOverlayWidth;
+        int gpsOverlayHeight = settings.Size.Height;
+        PathRendererOptions pathRendererOptions = new()
+        {
+            BitmapWidth = gpsOverlayWidth,
+            BitmapHeight = gpsOverlayHeight,
+            PrimaryColor = settings.GpsOutlineColor,
+            SecondaryColor = settings.SecondaryColor,
+            StrokeWidth = settings.GpsLineWidth,
+            FadePointCount = (int)(settings.GpsFadeDurationSeconds * settings.FPS)
+        };
+        return pathRendererOptions;
+    }
+
+    private static int GetHeartRateZone(int heartRate, OverlaySettings settings)
+    {
+        float percentLthr = (float)heartRate / settings.LTHR;
+        for (int i = 0; i < settings.ZoneMaxPercent.Length; ++i)
+            if (percentLthr <= settings.ZoneMaxPercent[i])
+                return i;
+        return 0;
+    }
+
+    private static string CreatePaceStringFromSpeed(float? speed)
+    {
+        int secPerKm = (int)(1000 / (speed ?? 0f));
+        string paceString;
+        if (secPerKm < 1 || secPerKm > 3600)
+            paceString = "--'--\"";
+        else
+            paceString = $"{secPerKm / 60}'{secPerKm % 60:D2}\"";
+        return paceString;
+    }
+
+    /// <summary>
+    /// Excludes last original record from output list
+    /// </summary>
+    /// <param name="originalList"></param>
+    /// <param name="fps">Determines the number of inserted records.
+    ///                   Normally the number of output records for one record will be equal to fps value,
+    ///                   but in case the time gap between two consecutive records is greater than 1 second the number 
+    ///                   of output records between those two records will be multiplied by the time gap</param>
+    /// <returns></returns>
+    private static List<IActivityRecord> InsertInterpolatedRecord(List<IActivityRecord> originalList, uint fps)
+    {
+        List<IActivityRecord> newList = [];
+        for (int i = 0; i < originalList.Count - 1; ++i)
+        {
+            int secondsBetweenRecords = (originalList[i + 1].TimeStamp - originalList[i].TimeStamp).Seconds;
+            int interpolatedRecordCount = (int)fps * secondsBetweenRecords;
+            //define interpolation step values
+            double timeStampStep = secondsBetweenRecords / (double)interpolatedRecordCount;
+            float heartRateStep = (float)((originalList[i + 1].HeartRate - originalList[i].HeartRate) ?? 0) / interpolatedRecordCount;
+            float speedStep = ((originalList[i + 1].Speed - originalList[i].Speed) ?? 0f) / interpolatedRecordCount;
+            float distanceStep = ((originalList[i + 1].Distance - originalList[i].Distance) ?? 0f) / interpolatedRecordCount;
+            double gpsLatitudeStep = ((originalList[i + 1].GPSPoint?.Latitude - originalList[i].GPSPoint?.Latitude) ?? 0d) / interpolatedRecordCount;
+            double gpsLongitudeStep = ((originalList[i + 1].GPSPoint?.Longitude - originalList[i].GPSPoint?.Longitude) ?? 0d) / interpolatedRecordCount;
+            //create the records
+            for (int j = 0; j < interpolatedRecordCount; ++j)
+            {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                GpsPoint? newPoint;
+                double newRecordLatitude, newRecordLongitude;
+                if (originalList[i].GPSPoint != null)
+                {
+                    newRecordLatitude = originalList[i].GPSPoint.Latitude + gpsLatitudeStep * j;
+                    newRecordLongitude = originalList[i].GPSPoint.Longitude + gpsLongitudeStep * j;
+                    newPoint = new GpsPoint(newRecordLatitude, newRecordLongitude);
+                }
+                else if (originalList[i + 1].GPSPoint != null)
+                {
+                    newRecordLatitude = originalList[i + 1].GPSPoint.Latitude;
+                    newRecordLongitude = originalList[i + 1].GPSPoint.Longitude;
+                    newPoint = new GpsPoint(newRecordLatitude, newRecordLongitude);
+                }
+                else
+                    newPoint = null;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                newList.Add(new FitRecord()
+                {
+                    TimeStamp = originalList[i].TimeStamp.AddSeconds(timeStampStep * j),
+                    HeartRate = (int)(originalList[i].HeartRate ?? 0 + heartRateStep * j),
+                    Speed = (originalList[i].Speed ?? 0f) + speedStep * j,
+                    Distance = (originalList[i].Distance ?? 0f) + distanceStep * j,
+                    GPSPoint = newPoint
+                });
+            }
+        }
+        return newList;
+    }
+
+    private static List<(double x, double y)?> ProcessGpsPoints(List<IActivityRecord> records, out double gpsAspectRatio)
+    {
+        List<GpsPoint?> points = [];
+        foreach (IActivityRecord record in records)
+            points.Add(record.GPSPoint);
+        return GpsPoint.PointsListToUnitaryScreenSpace(points, out gpsAspectRatio);
+    }
+}

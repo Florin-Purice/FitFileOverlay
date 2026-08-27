@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FitFileOverlay.Tests/FitFileOverlay.Tests.csproj" Id="d750296b-f95e-4ab1-b575-1e77d5ec6ae6" />
+  <Project Path="FitFileOverlay/FitFileOverlay.csproj" />
+</Solution>
