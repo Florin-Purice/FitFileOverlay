@@ -9,7 +9,10 @@ public partial class HomePageViewModel(IOverlayService overlayService) : Observa
     private DateTime _exportVideoStartTime;
 
     [ObservableProperty]
-    public partial string ExportVideoProgress { get; set; } = string.Empty;
+    public partial string ExportVideoLog { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial double ExportVideoProgress { get; set; } = 0d;
 
     [ObservableProperty]
     public partial bool IsExportingVideo { get; set; } = false;
@@ -64,7 +67,6 @@ public partial class HomePageViewModel(IOverlayService overlayService) : Observa
         if (OverlayService.File == null) return;
         //Disable window interraction
         IsBusy = true;
-        IsExportingVideo = true;
         SaveFileDialog sfd = new()
         {
             Filter = "mov Video|*.mov"
@@ -73,6 +75,7 @@ public partial class HomePageViewModel(IOverlayService overlayService) : Observa
         {
             try
             {
+                IsExportingVideo = true;
                 _exportVideoStartTime = DateTime.Now;
                 await OverlayService.Export(sfd.FileName, ReportExportViewProgress, cancellationToken);
             }
@@ -87,19 +90,19 @@ public partial class HomePageViewModel(IOverlayService overlayService) : Observa
                     catch (Exception) { }
                 }
             }
+            //If exporting was canceled display a message else report success
+            if (cancellationToken.IsCancellationRequested)
+                ExportVideoLog = "Export canceled";
+            else
+            {
+                TimeSpan exportDuration = DateTime.Now - _exportVideoStartTime;
+                string durationString = exportDuration.TotalHours < 1 ? exportDuration.ToString(@"mm\:ss") : exportDuration.ToString(@"h\:mm\:ss");
+                ExportVideoLog = $"Export finished in {durationString}";
+            }
         }
         //Re-enable window interaction
         IsBusy = false;
         IsExportingVideo = false;
-        //If exporting was canceled display a message else report success
-        if (cancellationToken.IsCancellationRequested)
-            ExportVideoProgress = "Export canceled.";
-        else
-        {
-            TimeSpan exportDuration = DateTime.Now - _exportVideoStartTime;
-            string durationString = exportDuration.TotalHours < 1 ? exportDuration.ToString(@"mm\:ss") : exportDuration.ToString(@"h\:mm\:ss");
-            ExportVideoProgress = $"Export finished in {durationString}";
-        }
     }
 
     private bool CanExportVideo()
@@ -111,6 +114,7 @@ public partial class HomePageViewModel(IOverlayService overlayService) : Observa
     {
         TimeSpan exportDuration = DateTime.Now - _exportVideoStartTime;
         string durationString = exportDuration.TotalHours < 1 ? exportDuration.ToString(@"mm\:ss") : exportDuration.ToString(@"h\:mm\:ss");
-        ExportVideoProgress = progress.ToString("P1") + " Elapsed time " + durationString;
+        ExportVideoLog = "Elapsed time " + durationString;
+        ExportVideoProgress = progress;
     }
 }

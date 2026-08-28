@@ -14,8 +14,24 @@
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       mc:Ignorable="d">
     <Page.Resources>
-        <Style x:Key="ShowButtonWhenExportingStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"> 
-            <Setter Property="Visibility" Value="Collapsed"/>
+        <Style x:Key="ShowWhenExportingStyle" TargetType="FrameworkElement">
+            <Setter Property="Visibility" Value="Hidden"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ViewModel.IsExportingVideo}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="HideWhenExportingStyle" TargetType="FrameworkElement">
+            <Setter Property="Visibility" Value="Visible"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ViewModel.IsExportingVideo}" Value="True">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ShowProgressWhenExportingStyle" TargetType="ProgressBar" BasedOn="{StaticResource {x:Type ProgressBar}}">
+            <Setter Property="Visibility" Value="Hidden"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding ViewModel.IsExportingVideo}" Value="True">
                     <Setter Property="Visibility" Value="Visible"/>
@@ -26,21 +42,49 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <Button Content="Load file"
-                    Margin="0,0,5,0"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0"
+                    Style="{StaticResource HideWhenExportingStyle}"
+                    Orientation="Horizontal">
+            <ui:Button Content="Load file" Icon="{ui:SymbolIcon ArrowDownload24}" Margin="0,0,5,0"
                     Command="{Binding ViewModel.LoadFileCommand}"/>
-            <Button Content="Export video"
-                    Margin="0,0,5,0"
-                    Command="{Binding ViewModel.ExportVideoCommand}"/>
-            <Button Content="Cancel export"
-                    Style="{StaticResource ShowButtonWhenExportingStyle}"
-                    Command="{Binding ViewModel.ExportVideoCancelCommand}"/>
-            <TextBlock Text="{Binding ViewModel.ExportVideoProgress}"/>
+            <ui:Button Content="Export video" Icon="{ui:SymbolIcon ArrowExportLtr24}"
+                       Command="{Binding ViewModel.ExportVideoCommand}"/>
         </StackPanel>
-        <custom:OverlayPreview Grid.Row="1" 
+        <StackPanel Grid.Row="0" Grid.Column="0"
+                    Style="{StaticResource ShowWhenExportingStyle}"
+                    Orientation="Horizontal">
+            <ui:Button Icon="{ui:SymbolIcon VideoClipOff24}"
+                       Command="{Binding ViewModel.ExportVideoCancelCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Cancel export"/>
+                    <TextBlock Text="{Binding ViewModel.ExportVideoProgress, StringFormat={}{0:P1}}"
+                               Margin="5,0,0,0"/>
+                </StackPanel>
+            </ui:Button>
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="1"
+                    Orientation="Horizontal">
+            <TextBlock Text="{Binding ViewModel.ExportVideoLog}"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                     Style="{StaticResource ShowProgressWhenExportingStyle}"
+                     Value="{Binding ViewModel.ExportVideoProgress}"
+                     Minimum="0" Maximum="1"
+                     Margin="0,4,0,0"
+                     Height="6"/>
+
+        <custom:OverlayPreview Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
                                OverlayService="{Binding ViewModel.OverlayService}"
                                ActivityPercent="{Binding ViewModel.SnapshotActivityPercent}"/>
     </Grid>

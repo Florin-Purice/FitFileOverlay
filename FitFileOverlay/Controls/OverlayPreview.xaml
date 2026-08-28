@@ -14,31 +14,39 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0"
-              TextBlock.FontSize="14"
-              TextBlock.FontWeight="DemiBold">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" 
-                        HorizontalAlignment="Left"
-                        Margin="5,0">
-                <TextBlock Text="{Binding OverlayService.File.FileName, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"/>
-                <TextBlock Text="{Binding OverlayService.File.LactateThresholdHeartRate, StringFormat={}File LTHR: {0} BPM, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"/>
-            </StackPanel>
-            <StackPanel Grid.Column="2" 
-                        HorizontalAlignment="Right"
-                        Margin="5,0">
-                <TextBlock Text="{Binding OverlayService.File.ActivityDurationString, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"
-                           HorizontalAlignment="Right"/>
-                <TextBlock Text="{Binding OverlayService.File.ActivityDistance, StringFormat={}{0:F2}km, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"
-                           HorizontalAlignment="Right"/>
-            </StackPanel>
-        </Grid>
+        <Border Grid.Row="0"
+                Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                CornerRadius="8,8,0,0"
+                Margin="0,0,0,2"
+                Padding="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" 
+                            HorizontalAlignment="Left"
+                            Margin="5,0">
+                    <ui:TextBlock Text="{Binding OverlayService.File.FileName, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"
+                                  FontTypography="BodyStrong"/>
+                    <ui:TextBlock Text="{Binding OverlayService.File.LactateThresholdHeartRate, StringFormat={}File LTHR: {0} BPM, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"
+                                  FontTypography="BodyStrong"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" 
+                            HorizontalAlignment="Right"
+                            Margin="5,0">
+                    <ui:TextBlock Text="{Binding OverlayService.File.ActivityDurationString, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"
+                                  HorizontalAlignment="Right"
+                                  FontTypography="BodyStrong"/>
+                    <ui:TextBlock Text="{Binding OverlayService.File.ActivityDistance, StringFormat={}{0:F2}km, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"
+                                  HorizontalAlignment="Right"
+                                  FontTypography="BodyStrong"/>
+                </StackPanel>
+            </Grid>
+        </Border>
 
-        <Border Grid.Row="1" CornerRadius="8">
+        <Border Grid.Row="1">
             <Border.Background>
                 <ImageBrush ImageSource="../Assets/white_cross_on_black_background.png"/>
             </Border.Background>
@@ -53,11 +61,15 @@
         </Grid>
         </Border>
 
-        <Slider Grid.Row="2"
-                Margin="10" 
-                VerticalAlignment="Center" 
-                Minimum="0" Maximum="1" 
-                IsMoveToPointEnabled="True" 
-                Value="{Binding ActivityPercent, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"/>
+        <Border Grid.Row="2"
+                Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                CornerRadius="0,0,8,8"
+                Margin="0,2,0,0">
+            <Slider Margin="10"
+                    VerticalAlignment="Center"
+                    Minimum="0" Maximum="1"
+                    IsMoveToPointEnabled="True"
+                    Value="{Binding ActivityPercent, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"/>
+        </Border>
     </Grid>
 </UserControl>

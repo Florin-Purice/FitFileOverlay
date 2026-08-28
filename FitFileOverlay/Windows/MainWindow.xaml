@@ -6,7 +6,7 @@
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
                  Title="{Binding ViewModel.ApplicationTitle, Mode=OneWay}"
-                 Width="1100" Height="650"
+                 Width="1100" Height="850"
                  d:DataContext="{d:DesignInstance local:MainWindow, IsDesignTimeCreatable=True}"
                  d:DesignHeight="450" d:DesignWidth="800"
                  ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
@@ -24,7 +24,7 @@
         </Grid.RowDefinitions>
         <ui:NavigationView x:Name="RootNavigation"
                            Grid.Row="1"
-                           Padding="42,30,42,30"
+                           Padding="28"
                            FooterMenuItemsSource="{Binding ViewModel.FooterMenuItems, Mode=OneWay}"
                            FrameMargin="0"
                            IsBackButtonVisible="Visible"
@@ -40,6 +40,7 @@
         <ContentPresenter x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2" />
         <ui:TitleBar x:Name="TitleBar"
                      Title="{Binding ViewModel.ApplicationTitle}"
+                     Height="35"
                      Grid.Row="0">
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="/Assets/fit_overlay_256.png" />

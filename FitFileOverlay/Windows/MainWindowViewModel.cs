@@ -15,7 +15,7 @@ public partial class MainWindowViewModel : ObservableObject
         new NavigationViewItem()
         {
             Content = "Home",
-            Icon = new SymbolIcon { Symbol = SymbolRegular.Home24 },
+            Icon = new SymbolIcon { Symbol = SymbolRegular.VideoClip24 },
             TargetPageType = typeof(HomePage)
         }
     ];
