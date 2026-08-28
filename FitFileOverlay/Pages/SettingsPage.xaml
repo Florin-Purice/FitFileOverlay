@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:FitFileOverlay.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
       Title="SettingsPage"
       d:DataContext="{d:DesignInstance local:SettingsPage, IsDesignTimeCreatable=False}"
       d:DesignHeight="450" d:DesignWidth="800"
@@ -17,6 +18,124 @@
         <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
     </Page.Resources>
     <StackPanel>
+        <TextBlock FontSize="20" FontWeight="Medium" Text="Overlay settings" />
+
+        <!--FPS-->
+        <ui:CardControl Icon="{ui:SymbolIcon DesktopPulse24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="FPS"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBlock Appearance="Secondary"
+                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                  Text="Framerate of the output video."
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="1" Maximum="60" 
+                          ClearButtonEnabled="False" 
+                          Value="5"/>
+        </ui:CardControl>
+        <!--LTHR-->
+        <ui:CardExpander Icon="{ui:SymbolIcon HeartPulse24}"
+                         Margin="0,8,0,0">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Use custom LTHR"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:ToggleSwitch Grid.Column="1" 
+                                     Margin="0,0,5,0"
+                                     LabelPosition="Left"
+                                     OnContent="On"
+                                     OffContent="Off"/>
+                </Grid>
+            </ui:CardExpander.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ui:SymbolIcon Symbol="DocumentHeartPulse24"/>
+                <ui:TextBlock Grid.Column="1" 
+                              FontTypography="BodyStrong"
+                              VerticalAlignment="Center"
+                              Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                              Text="Custom value"
+                              TextWrapping="WrapWithOverflow" />
+                <ui:NumberBox Grid.Column="2" 
+                              Minimum="50" Maximum="300" 
+                              ClearButtonEnabled="False" 
+                              Value="145"/>
+            </Grid>
+        </ui:CardExpander>
+        <!--Overlay width/height-->
+        <ui:CardControl Icon="{ui:SymbolIcon AutoFitWidth24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Width"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="100" Maximum="3000" 
+                          ClearButtonEnabled="False" 
+                          Value="1600"/>
+        </ui:CardControl>
+        <ui:CardControl Icon="{ui:SymbolIcon AutoFitHeight24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Height"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="100" Maximum="3000" 
+                          ClearButtonEnabled="False" 
+                          Value="800"/>
+        </ui:CardControl>
+        <!--Colors-->
+        <ui:CardControl Icon="{ui:SymbolIcon Color24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Primary color"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}" 
+                                             Width="50" Height="25"/>
+        </ui:CardControl>
+        <ui:CardControl Icon="{ui:SymbolIcon Color24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Secondary color"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}" 
+                                             Width="50" Height="25"/>
+        </ui:CardControl>
+
         <TextBlock FontSize="20" FontWeight="Medium" Text="Personalization" />
         <TextBlock Margin="0,12,0,0" Text="Theme" />
         <RadioButton Margin="0,12,0,0"
