@@ -1,4 +1,9 @@
-﻿using Wpf.Ui.Abstractions.Controls;
+﻿using FitFileOverlay.Services;
+using FitFileOverlay.Windows;
+using SkiaSharp;
+using System.Collections.ObjectModel;
+using System.Reflection;
+using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Appearance;
 
 namespace FitFileOverlay.Pages;
@@ -6,35 +11,56 @@ namespace FitFileOverlay.Pages;
 public partial class SettingsViewModel : ObservableObject, INavigationAware
 {
     private bool _isInitialized = false;
+    private readonly PreviewWindowViewModel _previewWindowViewModel;
+    private PreviewWindow? _previewWindow;
+
+    public SettingsViewModel(IOverlayService overlayService)
+    {
+        OverlayService = overlayService;
+        _previewWindowViewModel = new PreviewWindowViewModel(OverlayService);
+        FontFamilies = new ObservableCollection<string>(SKFontManager.Default.FontFamilies);
+    }
 
     [ObservableProperty]
-    private string _appVersion = String.Empty;
+    public partial IOverlayService OverlayService { get; private set; }
 
     [ObservableProperty]
-    private ApplicationTheme _currentTheme = ApplicationTheme.Unknown;
+    public partial string AppVersion { get; set; } = String.Empty;
+
+    [ObservableProperty]
+    public partial ApplicationTheme CurrentTheme { get; set; } = ApplicationTheme.Unknown;
+
+    [ObservableProperty]
+    public partial ObservableCollection<string> FontFamilies { get; set; }
 
     public Task OnNavigatedToAsync()
     {
         if (!_isInitialized)
             InitializeViewModel();
+        //open a preview window
+        _previewWindow = new PreviewWindow(_previewWindowViewModel);
+        _previewWindow.Show();
 
         return Task.CompletedTask;
     }
 
-    public Task OnNavigatedFromAsync() => Task.CompletedTask;
+    public Task OnNavigatedFromAsync()
+    {
+        _previewWindow?.Close();
+        return Task.CompletedTask;
+    }
 
     private void InitializeViewModel()
     {
         CurrentTheme = ApplicationThemeManager.GetAppTheme();
-        AppVersion = $"UiDesktopApp1 - {GetAssemblyVersion()}";
+        AppVersion = $"FitFileOverlay - {GetAssemblyVersion()}";
 
         _isInitialized = true;
     }
 
     private static string GetAssemblyVersion()
     {
-        return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-            ?? String.Empty;
+        return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? String.Empty;
     }
 
     [RelayCommand]

@@ -8,8 +8,6 @@ namespace FitFileOverlay.Windows;
 
 public partial class MainWindow : INavigationWindow
 {
-    public MainWindowViewModel ViewModel { get; }
-
     public MainWindow(
         MainWindowViewModel viewModel,
         INavigationViewPageProvider navigationViewPageProvider,
@@ -26,6 +24,8 @@ public partial class MainWindow : INavigationWindow
 
         navigationService.SetNavigationControl(RootNavigation);
     }
+    public MainWindowViewModel ViewModel { get; }
+
 
     #region INavigationWindow methods
 
