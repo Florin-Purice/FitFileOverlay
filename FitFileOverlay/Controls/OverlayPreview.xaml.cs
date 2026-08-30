@@ -63,6 +63,12 @@ public partial class OverlayPreview : UserControl
         OverlayPreview op = (OverlayPreview)d;
         IOverlayService os = (IOverlayService)e.NewValue;
         os?.NewFileLoaded += op.OnNewFileLoaded;
+        os?.Settings?.PropertyChanged += op.OnOverlayPreviewPropertyChanged;
+    }
+
+    private void OnOverlayPreviewPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        _ = Task.Run(UpdateSnapshotImage);
     }
 
     private void OnNewFileLoaded()

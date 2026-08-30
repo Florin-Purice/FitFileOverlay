@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:FitFileOverlay.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
       Title="SettingsPage"
       d:DataContext="{d:DesignInstance local:SettingsPage, IsDesignTimeCreatable=False}"
       d:DesignHeight="450" d:DesignWidth="800"
@@ -15,9 +16,927 @@
       mc:Ignorable="d">
     <Page.Resources>
         <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <helpers:SKColorToColorConverter x:Key="SKColorToColorConverter"/>
     </Page.Resources>
     <StackPanel>
-        <TextBlock FontSize="20" FontWeight="Medium" Text="Personalization" />
+        <TextBlock FontSize="20" FontWeight="Medium" Text="Overlay settings" />
+        <!--FPS-->
+        <ui:CardControl Icon="{ui:SymbolIcon DesktopPulse24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="FPS"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBlock Appearance="Secondary"
+                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                  Text="Framerate of the output video."
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="1" Maximum="60" 
+                          ClearButtonEnabled="False" 
+                          Value="{Binding ViewModel.OverlayService.Settings.FPS, UpdateSourceTrigger=PropertyChanged}"/>
+        </ui:CardControl>
+        <!--LTHR-->
+        <ui:CardExpander Icon="{ui:SymbolIcon HeartPulse24}"
+                         Margin="0,8,0,0">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Use custom LTHR"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:ToggleSwitch Grid.Column="1" 
+                                     Margin="0,0,5,0"
+                                     LabelPosition="Left"
+                                     OnContent="On"
+                                     OffContent="Off"
+                                     IsChecked="{Binding ViewModel.OverlayService.Settings.UseCustomLTHR}"/>
+                </Grid>
+            </ui:CardExpander.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ui:SymbolIcon Symbol="DocumentHeartPulse24"/>
+                <ui:TextBlock Grid.Column="1" 
+                              FontTypography="BodyStrong"
+                              VerticalAlignment="Center"
+                              Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                              Text="Custom value"
+                              TextWrapping="WrapWithOverflow" />
+                <ui:NumberBox Grid.Column="2" 
+                              Minimum="50" Maximum="300" 
+                              ClearButtonEnabled="False" 
+                              Value="{Binding ViewModel.OverlayService.Settings.LTHR}"/>
+            </Grid>
+        </ui:CardExpander>
+        <!--Overlay width/height-->
+        <ui:CardControl Icon="{ui:SymbolIcon AutoFitWidth24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Width"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="100" Maximum="3000" 
+                          ClearButtonEnabled="False" 
+                          Value="{Binding ViewModel.OverlayService.Settings.OverlayWidth, UpdateSourceTrigger=PropertyChanged}"/>
+        </ui:CardControl>
+        <ui:CardControl Icon="{ui:SymbolIcon AutoFitHeight24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Height"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="100" Maximum="3000" 
+                          ClearButtonEnabled="False" 
+                          Value="{Binding ViewModel.OverlayService.Settings.OverlayHeight, UpdateSourceTrigger=PropertyChanged}"/>
+        </ui:CardControl>
+        <!--Colors-->
+        <ui:CardControl Icon="{ui:SymbolIcon Color24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Background"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}" 
+                                             Width="50" Height="25"
+                                             SelectedColor="{Binding ViewModel.OverlayService.Settings.Background, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}"/>
+        </ui:CardControl>
+        <ui:CardControl Icon="{ui:SymbolIcon Color24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Primary color"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}" 
+                                             Width="50" Height="25"
+                                             SelectedColor="{Binding ViewModel.OverlayService.Settings.PrimaryColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}"/>
+        </ui:CardControl>
+        <ui:CardControl Icon="{ui:SymbolIcon Color24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Secondary color"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}" 
+                                             Width="50" Height="25"
+                                             SelectedColor="{Binding ViewModel.OverlayService.Settings.SecondaryColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}"/>
+        </ui:CardControl>
+        
+        <TextBlock FontSize="20" FontWeight="Medium" Text="Map specific settings" 
+                   Margin="0,25,0,0"/>
+        <!--Map width-->
+        <ui:CardControl Icon="{ui:SymbolIcon AutoFitWidth24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Map overlay width"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="50" Maximum="2000" 
+                          ClearButtonEnabled="False" 
+                          Value="{Binding ViewModel.OverlayService.Settings.GPSOverlayWidth, UpdateSourceTrigger=PropertyChanged}"/>
+        </ui:CardControl>
+        <!--Line width-->
+        <ui:CardControl Icon="{ui:SymbolIcon InkStroke24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Line width"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="1" Maximum="1000" 
+                          ClearButtonEnabled="False" 
+                          Value="{Binding ViewModel.OverlayService.Settings.GpsLineWidth, UpdateSourceTrigger=PropertyChanged}"/>
+        </ui:CardControl>
+        <!--Fade duration-->
+        <ui:CardControl Icon="{ui:SymbolIcon Clock24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Fade duration"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBlock Appearance="Secondary"
+                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                  Text="The length of the fading path, in seconds."
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="1" Maximum="10000" 
+                          ClearButtonEnabled="False" 
+                          Value="{Binding ViewModel.OverlayService.Settings.GpsFadeDurationSeconds, UpdateSourceTrigger=PropertyChanged}"/>
+        </ui:CardControl>
+        <!--Outline color-->
+        <ui:CardControl Icon="{ui:SymbolIcon Color24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Outline color"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBlock Appearance="Secondary"
+                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                  Text="Color of the underlying/unrun GPS path."
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}" 
+                                             Width="50" Height="25"
+                                             SelectedColor="{Binding ViewModel.OverlayService.Settings.GpsOutlineColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}"/>
+        </ui:CardControl>
+
+        <TextBlock FontSize="20" FontWeight="Medium" Text="Data field specific settings" 
+                   Margin="0,25,0,0"/>
+        <!--Line spacing-->
+        <ui:CardControl Icon="{ui:SymbolIcon TextLineSpacing24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Line spacing"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="1" Maximum="1000" 
+                          ClearButtonEnabled="False" 
+                          Value="{Binding ViewModel.OverlayService.Settings.LineSpacing, UpdateSourceTrigger=PropertyChanged}"/>
+        </ui:CardControl>
+        <!--Column count-->
+        <ui:CardControl Icon="{ui:SymbolIcon TextColumnTwo24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Column count"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="1" Maximum="100" 
+                          ClearButtonEnabled="False" 
+                          Value="{Binding ViewModel.OverlayService.Settings.DataOverlayColumnCount, UpdateSourceTrigger=PropertyChanged}"/>
+        </ui:CardControl>
+        <!--Vertical spacing-->
+        <ui:CardControl Icon="{ui:SymbolIcon RowTriple24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Vertical spacing"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:NumberBox Minimum="1" Maximum="1000" 
+                          ClearButtonEnabled="False" 
+                          Value="{Binding ViewModel.OverlayService.Settings.DataOverlayVerticalSpacing, UpdateSourceTrigger=PropertyChanged}"/>
+        </ui:CardControl>
+        <!--Label settings-->
+        <ui:CardExpander Icon="{ui:SymbolIcon DocumentHeader24}" ContentPadding="0"
+                         Margin="0,8,0,0">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Label settings"
+                                  TextWrapping="WrapWithOverflow" />
+                </Grid>
+            </ui:CardExpander.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0"
+                      Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextFontSize24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Font size"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:NumberBox Grid.Column="2"  
+                                  Minimum="1" Maximum="1000" 
+                                  ClearButtonEnabled="False" 
+                                  Value="{Binding ViewModel.OverlayService.Settings.LabelFontSize, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+                <Border Grid.Row="1" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="2"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextMore24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Font family"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ComboBox Grid.Column="2"
+                              ItemsSource="{Binding ViewModel.FontFamilies}"
+                              SelectedValue="{Binding ViewModel.OverlayService.Settings.LabelFontFamily}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontFamily="{Binding}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </Grid>
+                <Border Grid.Row="3" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="4"
+                      Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextEditStyle24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Font style"
+                                  TextWrapping="WrapWithOverflow" />
+                    <StackPanel Grid.Column="2" 
+                                Orientation="Horizontal">
+                        <ToggleButton Height="35" Margin="2,0,0,0"
+                                      IsChecked="{Binding ViewModel.OverlayService.Settings.IsLabelFontBold}">
+                            <ui:SymbolIcon Symbol="TextBold20"/>
+                        </ToggleButton>
+                        <ToggleButton Height="35" Margin="2,0,0,0"
+                                      IsChecked="{Binding ViewModel.OverlayService.Settings.IsLabelFontItalic}">
+                            <ui:SymbolIcon Symbol="TextItalic20"/>
+                        </ToggleButton>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </ui:CardExpander>
+        <!--Value settings-->
+        <ui:CardExpander Icon="{ui:SymbolIcon TextNumberFormat24}" ContentPadding="0"
+                         Margin="0,8,0,0">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Value settings"
+                                  TextWrapping="WrapWithOverflow" />
+                </Grid>
+            </ui:CardExpander.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0"
+                      Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextFontSize24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Font size"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:NumberBox Grid.Column="2"  
+                                  Minimum="1" Maximum="1000" 
+                                  ClearButtonEnabled="False" 
+                                  Value="{Binding ViewModel.OverlayService.Settings.ValueFontSize, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+                <Border Grid.Row="1" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="2"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextMore24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Font family"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ComboBox Grid.Column="2"
+                              ItemsSource="{Binding ViewModel.FontFamilies}"
+                              SelectedValue="{Binding ViewModel.OverlayService.Settings.ValueFontFamily}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontFamily="{Binding}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </Grid>
+                <Border Grid.Row="3" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="4"
+                      Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextEditStyle24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Font style"
+                                  TextWrapping="WrapWithOverflow" />
+                    <StackPanel Grid.Column="2" 
+                                Orientation="Horizontal">
+                        <ToggleButton Height="35" Margin="2,0,0,0"
+                                      IsChecked="{Binding ViewModel.OverlayService.Settings.IsValueFontBold}">
+                            <ui:SymbolIcon Symbol="TextBold20"/>
+                        </ToggleButton>
+                        <ToggleButton Height="35" Margin="2,0,0,0"
+                                      IsChecked="{Binding ViewModel.OverlayService.Settings.IsValueFontItalic}">
+                            <ui:SymbolIcon Symbol="TextItalic20"/>
+                        </ToggleButton>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </ui:CardExpander>
+        <!--Unit settings-->
+        <ui:CardExpander Icon="{ui:SymbolIcon Ruler24}" ContentPadding="0"
+                         Margin="0,8,0,0">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Unit settings"
+                                  TextWrapping="WrapWithOverflow" />
+                </Grid>
+            </ui:CardExpander.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0"
+                      Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextFontSize24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Font size"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:NumberBox Grid.Column="2"  
+                                  Minimum="1" Maximum="1000" 
+                                  ClearButtonEnabled="False"
+                                  Value="{Binding ViewModel.OverlayService.Settings.UnitFontSize, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+                <Border Grid.Row="1" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="2"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextMore24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Font family"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ComboBox Grid.Column="2"
+                              ItemsSource="{Binding ViewModel.FontFamilies}"
+                              SelectedValue="{Binding ViewModel.OverlayService.Settings.UnitFontFamily}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontFamily="{Binding}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </Grid>
+                <Border Grid.Row="3" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="4"
+                      Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextEditStyle24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Font style"
+                                  TextWrapping="WrapWithOverflow" />
+                    <StackPanel Grid.Column="2" 
+                                Orientation="Horizontal">
+                        <ToggleButton Height="35" Margin="2,0,0,0"
+                                      IsChecked="{Binding ViewModel.OverlayService.Settings.IsUnitFontBold}">
+                            <ui:SymbolIcon Symbol="TextBold20"/>
+                        </ToggleButton>
+                        <ToggleButton Height="35" Margin="2,0,0,0"
+                                      IsChecked="{Binding ViewModel.OverlayService.Settings.IsUnitFontItalic}">
+                            <ui:SymbolIcon Symbol="TextItalic20"/>
+                        </ToggleButton>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </ui:CardExpander>
+        <!--Pace field-->
+        <ui:CardExpander Icon="{ui:SymbolIcon PersonRunning20}" ContentPadding="0"
+                         Margin="0,8,0,0">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Pace field"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:ToggleSwitch Grid.Column="1" 
+                                     Margin="0,0,5,0"
+                                     LabelPosition="Left"
+                                     OnContent="On"
+                                     OffContent="Off"
+                                     IsChecked="{Binding ViewModel.OverlayService.Settings.IsPaceDrawn}"/>
+                </Grid>
+            </ui:CardExpander.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0"
+                      Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextEditStyle24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Label"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBox Grid.Column="2" Width="110" 
+                                Text="{Binding ViewModel.OverlayService.Settings.PaceLabel, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+                <Border Grid.Row="1" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="2"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="Check24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Unit"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBox Grid.Column="2" Width="110" 
+                                Text="{Binding ViewModel.OverlayService.Settings.PaceUnit, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+            </Grid>
+        </ui:CardExpander>
+        <!--Distance field-->
+        <ui:CardExpander Icon="{ui:SymbolIcon ArrowTrending24}" ContentPadding="0"
+                         Margin="0,8,0,0">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Distance field"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:ToggleSwitch Grid.Column="1" 
+                                     Margin="0,0,5,0"
+                                     LabelPosition="Left"
+                                     OnContent="On"
+                                     OffContent="Off"
+                                     IsChecked="{Binding ViewModel.OverlayService.Settings.IsDistanceDrawn}"/>
+                </Grid>
+            </ui:CardExpander.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0"
+                      Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextEditStyle24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Label"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBox Grid.Column="2" Width="110" 
+                                Text="{Binding ViewModel.OverlayService.Settings.DistanceLabel, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+                <Border Grid.Row="1" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="2"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="Check24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Unit"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBox Grid.Column="2" Width="110" 
+                                Text="{Binding ViewModel.OverlayService.Settings.DistanceUnit, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+            </Grid>
+        </ui:CardExpander>
+        <!--HR field-->
+        <ui:CardExpander Icon="{ui:SymbolIcon HeartPulse24}" ContentPadding="0"
+                         Margin="0,8,0,0">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Heartrate field"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:ToggleSwitch Grid.Column="1" 
+                                     Margin="0,0,5,0"
+                                     LabelPosition="Left"
+                                     OnContent="On"
+                                     OffContent="Off"
+                                     IsChecked="{Binding ViewModel.OverlayService.Settings.IsHrDrawn}"/>
+                </Grid>
+            </ui:CardExpander.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0"
+                      Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="TextEditStyle24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Label"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBox Grid.Column="2" Width="110" 
+                                Text="{Binding ViewModel.OverlayService.Settings.HrLabel, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+                <Border Grid.Row="1" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="2"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="Check24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Unit"
+                                  TextWrapping="WrapWithOverflow" />
+                    <ui:TextBox Grid.Column="2" Width="110" 
+                                Text="{Binding ViewModel.OverlayService.Settings.HrUnit, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+                <Border Grid.Row="3" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="4"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="Color24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Zone 1 color"
+                                  TextWrapping="WrapWithOverflow" />
+                    <colorpicker:PortableColorPicker Grid.Column="2" 
+                                                     Style="{StaticResource DefaultColorPickerStyle}" 
+                                                     Width="50" Height="25"
+                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.Zone1Brush, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}"/>
+                </Grid>
+                <Border Grid.Row="5" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="6"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="Color24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Zone 2 color"
+                                  TextWrapping="WrapWithOverflow" />
+                    <colorpicker:PortableColorPicker Grid.Column="2" 
+                                                     Style="{StaticResource DefaultColorPickerStyle}" 
+                                                     Width="50" Height="25"
+                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.Zone2Brush, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}"/>
+                </Grid>
+                <Border Grid.Row="7" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="8"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="Color24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Zone 3 color"
+                                  TextWrapping="WrapWithOverflow" />
+                    <colorpicker:PortableColorPicker Grid.Column="2" 
+                                                     Style="{StaticResource DefaultColorPickerStyle}" 
+                                                     Width="50" Height="25"
+                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.Zone3Brush, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}"/>
+                </Grid>
+                <Border Grid.Row="9" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="10"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="Color24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Zone 4 color"
+                                  TextWrapping="WrapWithOverflow" />
+                    <colorpicker:PortableColorPicker Grid.Column="2" 
+                                                     Style="{StaticResource DefaultColorPickerStyle}" 
+                                                     Width="50" Height="25"
+                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.Zone4Brush, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}"/>
+                </Grid>
+                <Border Grid.Row="11" 
+                        BorderBrush="{DynamicResource ApplicationBackgroundBrush}" 
+                        BorderThickness="0,0,0,1"/>
+                <Grid  Grid.Row="12"
+                       Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" 
+                                   Symbol="Color24"/>
+                    <ui:TextBlock Grid.Column="1" 
+                                  FontTypography="BodyStrong"
+                                  VerticalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Zone 5 color"
+                                  TextWrapping="WrapWithOverflow" />
+                    <colorpicker:PortableColorPicker Grid.Column="2" 
+                                                     Style="{StaticResource DefaultColorPickerStyle}" 
+                                                     Width="50" Height="25"
+                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.Zone5Brush, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}"/>
+                </Grid>
+            </Grid>
+        </ui:CardExpander>
+        <!--Timestamp-->
+        <ui:CardControl Icon="{ui:SymbolIcon TimePicker24}"
+                        Margin="0,8,0,0">
+            <ui:CardControl.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="BodyStrong"
+                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                  Text="Timestamp"
+                                  TextWrapping="WrapWithOverflow" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch Grid.Column="1" 
+                             Margin="0,0,20,0"
+                             LabelPosition="Left"
+                             OnContent="On"
+                             OffContent="Off"
+                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsTimestampDrawn}"/>
+        </ui:CardControl>
+
+
+
+        <TextBlock FontSize="20" FontWeight="Medium" Text="Personalization" Margin="0,30,0,0"/>
         <TextBlock Margin="0,12,0,0" Text="Theme" />
         <RadioButton Margin="0,12,0,0"
                      Command="{Binding ViewModel.ChangeThemeCommand, Mode=OneWay}"

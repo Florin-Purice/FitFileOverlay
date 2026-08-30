@@ -46,19 +46,20 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="1">
-            <Border.Background>
-                <ImageBrush ImageSource="../Assets/white_cross_on_black_background.png"/>
-            </Border.Background>
+        <Border Grid.Row="1"
+                Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}">
             <Grid >
+                <Grid.Background>
+                    <ImageBrush ImageSource="../Assets/gray_x_transparent_background.png"/>
+                </Grid.Background>
                 <Border BorderBrush="{DynamicResource AccentTextFillColorTertiaryBrush}"
                         BorderThickness="3"
                         CornerRadius="8"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center">
-                <Image Source="{Binding SnapshotImage, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"/>
-            </Border>
-        </Grid>
+                    <Image Source="{Binding SnapshotImage, RelativeSource={RelativeSource AncestorType=local:OverlayPreview}}"/>
+                </Border>
+            </Grid>
         </Border>
 
         <Border Grid.Row="2"

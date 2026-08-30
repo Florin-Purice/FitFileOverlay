@@ -1,44 +1,107 @@
 ﻿using FitFileOverlay.Helpers;
 using SkiaSharp;
-using System.Drawing;
+using System.Collections.ObjectModel;
 using System.IO;
 
 namespace FitFileOverlay.Models;
 
-public class OverlaySettings
+public partial class OverlaySettings : ObservableObject
 {
-    public int LTHR { get; set; } = 182;
-    public uint FPS { get; set; } = 5;
-    public string PaceLabel { get; set; } = "Pace";
-    public string PaceUnit { get; set; } = "/KM";
-    public string HrLabel { get; set; } = "Heart Rate";
-    public string HrUnit { get; set; } = "BPM";
-    public string DistanceLabel { get; set; } = "Distance";
-    public string DistanceUnit { get; set; } = "KM";
-    public int LineSpacing { get; set; } = 15;
-    public float FontSizeSmall { get; set; } = 48f;
-    public float FontSizeBig { get; set; } = 96f;
-    public float GpsLineWidth { get; set; } = 6f;
-    public int GpsFadeDurationSeconds { get; set; } = 180;
-    public string LabelFontFamily { get; set; } = "Arial";
-    public string ValueFontFamily { get; set; } = "Impact";
-    public string UnitFontFamily { get; set; } = "Impact";
-    public SKColor Background { get; set; } = SKColors.Transparent;
-    public SKColor PrimaryColor { get; set; } = SKColors.White;
-    public SKColor SecondaryColor { get; set; } = SKColors.Orange;
-    public SKColor GpsOutlineColor { get; set; } = new SKColor(127, 127, 127, 200);
-    public Size Size { get; set; } = new Size(1600, 800);
-    public int GPSOverlayWidth { get; set; } = 800;
-    public int DataOverlayColumnCount = 1;
-    public int DataOverlayVerticalSpacing = 40;
-    public SKColor[] ZoneBrushes { get; set; } =
-    [
-        new SKColor(166, 166, 166, 255), // Zone 1 - Gray
-        new SKColor(59, 151, 243, 255), // Zone 2 - Blue
-        new SKColor(130, 201, 30, 255), // Zone 3 - Green
-        new SKColor(249, 137, 37, 255), // Zone 4 - Orange
-        new SKColor(211, 32, 32, 255) // Zone 5 - Red
-    ];
+    #region GENERAL
+    [ObservableProperty]
+    public partial int LTHR { get; set; } = 182;
+    [ObservableProperty]
+    public partial bool UseCustomLTHR { get; set; } = false;
+    [ObservableProperty]
+    public partial uint FPS { get; set; } = 5;
+    [ObservableProperty]
+    public partial int OverlayWidth { get; set; } = 1600;
+    [ObservableProperty]
+    public partial int OverlayHeight { get; set; } = 800;
+    [ObservableProperty]
+    public partial SKColor Background { get; set; } = SKColors.Transparent;
+    [ObservableProperty]
+    public partial SKColor PrimaryColor { get; set; } = SKColors.White;
+    [ObservableProperty]
+    public partial SKColor SecondaryColor { get; set; } = SKColors.Orange;
+    #endregion
+    #region MAP
+    [ObservableProperty]
+    public partial int GPSOverlayWidth { get; set; } = 800;
+    [ObservableProperty]
+    public partial float GpsLineWidth { get; set; } = 6f;
+    [ObservableProperty]
+    public partial int GpsFadeDurationSeconds { get; set; } = 180;
+    [ObservableProperty]
+    public partial SKColor GpsOutlineColor { get; set; } = new SKColor(127, 127, 127, 200);
+    #endregion
+    #region DATA_FIELD
+    [ObservableProperty]
+    public partial int LineSpacing { get; set; } = 15;
+    [ObservableProperty]
+    public partial int DataOverlayColumnCount { get; set; } = 1;
+    [ObservableProperty]
+    public partial int DataOverlayVerticalSpacing { get; set; } = 40;
+    [ObservableProperty]
+    public partial string LabelFontFamily { get; set; } = "Arial";
+    [ObservableProperty]
+    public partial float LabelFontSize { get; set; } = 48f;
+    [ObservableProperty]
+    public partial bool IsLabelFontBold { get; set; } = false;
+    [ObservableProperty]
+    public partial bool IsLabelFontItalic { get; set; } = false;
+    [ObservableProperty]
+    public partial string ValueFontFamily { get; set; } = "Impact";
+    [ObservableProperty]
+    public partial float ValueFontSize { get; set; } = 96f;
+    [ObservableProperty]
+    public partial bool IsValueFontBold { get; set; } = false;
+    [ObservableProperty]
+    public partial bool IsValueFontItalic { get; set; } = true;
+
+    [ObservableProperty]
+    public partial string UnitFontFamily { get; set; } = "Impact";
+    [ObservableProperty]
+    public partial float UnitFontSize { get; set; } = 48f;
+    [ObservableProperty]
+    public partial bool IsUnitFontBold { get; set; } = false;
+    [ObservableProperty]
+    public partial bool IsUnitFontItalic { get; set; } = true;
+    //Pace stuff
+    [ObservableProperty]
+    public partial bool IsPaceDrawn { get; set; } = true;
+    [ObservableProperty]
+    public partial string PaceLabel { get; set; } = "Pace";
+    [ObservableProperty]
+    public partial string PaceUnit { get; set; } = "/KM";
+    //Distance stuff
+    [ObservableProperty]
+    public partial bool IsDistanceDrawn { get; set; } = true;
+    [ObservableProperty]
+    public partial string DistanceLabel { get; set; } = "Distance";
+    [ObservableProperty]
+    public partial string DistanceUnit { get; set; } = "KM";
+    //HR stuff
+    [ObservableProperty]
+    public partial bool IsHrDrawn { get; set; } = true;
+    [ObservableProperty]
+    public partial string HrLabel { get; set; } = "Heart Rate";
+    [ObservableProperty]
+    public partial string HrUnit { get; set; } = "BPM";
+    [ObservableProperty]
+    public partial SKColor Zone1Brush { get; set; } = new SKColor(166, 166, 166, 255); // Zone 1 - Gray
+    [ObservableProperty]
+    public partial SKColor Zone2Brush { get; set; } = new SKColor(59, 151, 243, 255); // Zone 2 - Blue
+    [ObservableProperty]
+    public partial SKColor Zone3Brush { get; set; } = new SKColor(130, 201, 30, 255); // Zone 3 - Green
+    [ObservableProperty]
+    public partial SKColor Zone4Brush { get; set; } = new SKColor(249, 137, 37, 255); // Zone 4 - Orange
+    [ObservableProperty]
+    public partial SKColor Zone5Brush { get; set; } = new SKColor(211, 32, 32, 255); // Zone 5 - Red
+    //Timestamp
+    [ObservableProperty]
+    public partial bool IsTimestampDrawn { get; set; } = true;
+    #endregion
     public float[] ZoneMaxPercent { get; set; } = [0.8f, 0.89f, 0.95f, 1f, float.MaxValue];
 
     public void ToFile(string fileName)
