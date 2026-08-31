@@ -117,7 +117,7 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
                 Title = "Are you sure you want to cancel?",
                 Content = content,
                 PrimaryButtonText = "Yes",
-                CloseButtonText = "Cancel",
+                CloseButtonText = "No",
             }
         );
         if (result == ContentDialogResult.Primary)
