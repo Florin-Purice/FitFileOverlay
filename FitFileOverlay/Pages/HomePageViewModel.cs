@@ -1,10 +1,14 @@
 ﻿using FitFileOverlay.Services;
 using Microsoft.Win32;
 using System.IO;
+using System.Reflection.Metadata;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
 
 namespace FitFileOverlay.Pages;
 
-public partial class HomePageViewModel(IOverlayService overlayService) : ObservableObject
+public partial class HomePageViewModel(IOverlayService overlayService, IContentDialogService contentDialogService) : ObservableObject
 {
     private DateTime _exportVideoStartTime;
 
@@ -103,6 +107,23 @@ public partial class HomePageViewModel(IOverlayService overlayService) : Observa
         //Re-enable window interaction
         IsBusy = false;
         IsExportingVideo = false;
+    }
+
+    [RelayCommand]
+    public async Task CancelExport(object content)
+    {
+        ContentDialogResult result = await contentDialogService.ShowSimpleDialogAsync(
+            new SimpleContentDialogCreateOptions()
+            {
+                Title = "Are you sure you want to cancel?",
+                Content = content,
+                PrimaryButtonText = "Yes",
+                CloseButtonText = "Cancel",
+            }
+        );
+        if (result == ContentDialogResult.Primary)
+            if(ExportVideoCancelCommand?.CanExecute(null) == true)
+                ExportVideoCancelCommand?.Execute(null);
     }
 
     private bool CanExportVideo()
