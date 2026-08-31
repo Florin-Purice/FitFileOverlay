@@ -7,7 +7,9 @@
                  xmlns:custom="clr-namespace:FitFileOverlay.Controls"
                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
                  mc:Ignorable="d"
-                 Title="Fit Overlay - Preview" Height="450" Width="800"
+                 Title="Fit Overlay - Preview"
+                 Height="600"
+                 Width="750"
                  d:DataContext="{d:DesignInstance Type=local:PreviewWindow, IsDesignTimeCreatable=False}"
                  ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
                  ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -17,16 +19,16 @@
                  WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ui:TitleBar Grid.Row="0" 
+        <ui:TitleBar Grid.Row="0"
                      Title="Fit Overlay - Preview"
                      Icon="pack://application:,,,/Assets/fit_overlay_256.png" />
         <Border Grid.Row="1"
                 Margin="20,10,20,20">
             <custom:OverlayPreview OverlayService="{Binding ViewModel.OverlayService}"
-                                   ActivityPercent="{Binding ViewModel.SnapshotPercent}"/>
+                                   ActivityPercent="{Binding ViewModel.SnapshotPercent}" />
         </Border>
     </Grid>
 </ui:FluentWindow>

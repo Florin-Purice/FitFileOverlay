@@ -51,8 +51,7 @@ public partial class App
             services.AddSingleton<SettingsPage>();
             services.AddSingleton<SettingsViewModel>();
 
-            services.AddSingleton<OverlaySettings>(s => OverlaySettings.FromFile(_overlaySettingsFilename) ?? new OverlaySettings());
-            services.AddSingleton<IOverlayService, OverlayService>();
+            services.AddSingleton<IOverlayService>(s => new OverlayService(OverlaySettings.FromFile(_overlaySettingsFilename) ?? new OverlaySettings()));
         }).Build();
 
     /// <summary>
@@ -76,7 +75,7 @@ public partial class App
     /// </summary>
     private async void OnExit(object sender, ExitEventArgs e)
     {
-        Services.GetRequiredService<OverlaySettings>().ToFile(_overlaySettingsFilename);
+        Services.GetRequiredService<IOverlayService>().Settings?.ToFile(_overlaySettingsFilename);
 
         await _host.StopAsync();
 

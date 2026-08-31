@@ -52,7 +52,7 @@
                 <Grid.Background>
                     <ImageBrush ImageSource="../Assets/gray_x_transparent_background.png"/>
                 </Grid.Background>
-                <Border BorderBrush="{DynamicResource AccentTextFillColorTertiaryBrush}"
+                <Border BorderBrush="{DynamicResource AccentButtonBackground}"
                         BorderThickness="3"
                         CornerRadius="8"
                         VerticalAlignment="Center"

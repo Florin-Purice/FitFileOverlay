@@ -9,13 +9,13 @@ public partial class OverlaySettings : ObservableObject
 {
     #region GENERAL
     [ObservableProperty]
-    public partial int LTHR { get; set; } = 182;
+    public partial int LTHR { get; set; } = 145;
     [ObservableProperty]
     public partial bool UseCustomLTHR { get; set; } = false;
     [ObservableProperty]
     public partial uint FPS { get; set; } = 5;
     [ObservableProperty]
-    public partial int OverlayWidth { get; set; } = 1600;
+    public partial int OverlayWidth { get; set; } = 1300;
     [ObservableProperty]
     public partial int OverlayHeight { get; set; } = 800;
     [ObservableProperty]
@@ -101,6 +101,8 @@ public partial class OverlaySettings : ObservableObject
     //Timestamp
     [ObservableProperty]
     public partial bool IsTimestampDrawn { get; set; } = true;
+    [ObservableProperty]
+    public partial float TimestampFontSize { get; set; } = 32f;
     #endregion
 
     public float[] ZoneMaxPercent { get; set; } = [0.8f, 0.89f, 0.95f, 1f, float.MaxValue];
@@ -108,6 +110,9 @@ public partial class OverlaySettings : ObservableObject
     public void ToFile(string fileName)
     {
         string jsonString = CustomJsonSerializer.Serialize(this);
+        string? directory = Path.GetDirectoryName(fileName);
+        if(!string.IsNullOrWhiteSpace(directory))
+            Directory.CreateDirectory(directory!);
         File.WriteAllText(fileName, jsonString);
     }
 

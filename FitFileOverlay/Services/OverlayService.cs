@@ -11,6 +11,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
     }
 
     public event Action? NewFileLoaded;
+    public event NewSettingsAppiedEventHandler? NewSettingsApplied;
 
     [ObservableProperty]
     public partial OverlayProcessor? Processor { get; private set; }
@@ -43,5 +44,10 @@ public partial class OverlayService : ObservableObject, IOverlayService
     public SKBitmap? GetSnapshot(double activityPercent)
     {
         return Processor?.GetSnapshotAtActivityPercent(Settings ?? new OverlaySettings(), activityPercent);
+    }
+
+    partial void OnSettingsChanged(OverlaySettings? oldValue, OverlaySettings? newValue)
+    {
+        NewSettingsApplied?.Invoke(oldValue, newValue);
     }
 }

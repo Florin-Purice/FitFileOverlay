@@ -1,92 +1,117 @@
 ﻿<Page x:Class="FitFileOverlay.Pages.HomePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:FitFileOverlay.Pages"
       xmlns:custom="clr-namespace:FitFileOverlay.Controls"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       Title="HomePage"
       d:DataContext="{d:DesignInstance local:HomePage, IsDesignTimeCreatable=False}"
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="450"
+      d:DesignWidth="800"
       ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
       ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       ScrollViewer.CanContentScroll="False"
       mc:Ignorable="d">
     <Page.Resources>
-        <Style x:Key="ShowWhenExportingStyle" TargetType="FrameworkElement">
-            <Setter Property="Visibility" Value="Hidden"/>
+        <Style x:Key="ShowWhenExportingStyle"
+               TargetType="FrameworkElement">
+            <Setter Property="Visibility"
+                    Value="Hidden" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding ViewModel.IsExportingVideo}" Value="True">
-                    <Setter Property="Visibility" Value="Visible"/>
+                <DataTrigger Binding="{Binding ViewModel.IsExportingVideo}"
+                             Value="True">
+                    <Setter Property="Visibility"
+                            Value="Visible" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        <Style x:Key="HideWhenExportingStyle" TargetType="FrameworkElement">
-            <Setter Property="Visibility" Value="Visible"/>
+        <Style x:Key="HideWhenExportingStyle"
+               TargetType="FrameworkElement">
+            <Setter Property="Visibility"
+                    Value="Visible" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding ViewModel.IsExportingVideo}" Value="True">
-                    <Setter Property="Visibility" Value="Hidden"/>
+                <DataTrigger Binding="{Binding ViewModel.IsExportingVideo}"
+                             Value="True">
+                    <Setter Property="Visibility"
+                            Value="Hidden" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        <Style x:Key="ShowProgressWhenExportingStyle" TargetType="ProgressBar" BasedOn="{StaticResource {x:Type ProgressBar}}">
-            <Setter Property="Visibility" Value="Hidden"/>
+        <Style x:Key="ShowProgressWhenExportingStyle"
+               TargetType="ProgressBar"
+               BasedOn="{StaticResource {x:Type ProgressBar}}">
+            <Setter Property="Visibility"
+                    Value="Hidden" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding ViewModel.IsExportingVideo}" Value="True">
-                    <Setter Property="Visibility" Value="Visible"/>
+                <DataTrigger Binding="{Binding ViewModel.IsExportingVideo}"
+                             Value="True">
+                    <Setter Property="Visibility"
+                            Value="Visible" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </Page.Resources>
-    <Grid>
+    <Grid Margin="20,15,20,15">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Grid.Column="0"
+        <StackPanel Grid.Row="0"
+                    Grid.Column="0"
                     Style="{StaticResource HideWhenExportingStyle}"
                     Orientation="Horizontal">
-            <ui:Button Content="Load file" Icon="{ui:SymbolIcon ArrowDownload24}" Margin="0,0,5,0"
-                    Command="{Binding ViewModel.LoadFileCommand}"/>
-            <ui:Button Content="Export video" Icon="{ui:SymbolIcon ArrowExportLtr24}"
-                       Command="{Binding ViewModel.ExportVideoCommand}"/>
+            <ui:Button Content="Load file"
+                       Icon="{ui:SymbolIcon ArrowDownload24}"
+                       Margin="0,0,5,0"
+                       Command="{Binding ViewModel.LoadFileCommand}" />
+            <ui:Button Content="Export video"
+                       Icon="{ui:SymbolIcon ArrowExportLtr24}"
+                       Command="{Binding ViewModel.ExportVideoCommand}" />
         </StackPanel>
-        <StackPanel Grid.Row="0" Grid.Column="0"
+        <StackPanel Grid.Row="0"
+                    Grid.Column="0"
                     Style="{StaticResource ShowWhenExportingStyle}"
                     Orientation="Horizontal">
             <ui:Button Icon="{ui:SymbolIcon VideoClipOff24}"
                        Command="{Binding ViewModel.CancelExportCommand}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Cancel export"/>
+                    <TextBlock Text="Cancel export" />
                     <TextBlock Text="{Binding ViewModel.ExportVideoProgress, StringFormat={}{0:P1}}"
-                               Margin="5,0,0,0"/>
+                               Margin="5,0,0,0" />
                 </StackPanel>
             </ui:Button>
         </StackPanel>
 
-        <StackPanel Grid.Row="0" Grid.Column="1"
+        <StackPanel Grid.Row="0"
+                    Grid.Column="1"
                     Orientation="Horizontal">
             <TextBlock Text="{Binding ViewModel.ExportVideoLog}"
-                       VerticalAlignment="Center"/>
+                       VerticalAlignment="Center" />
         </StackPanel>
 
-        <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+        <ProgressBar Grid.Row="1"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="2"
                      Style="{StaticResource ShowProgressWhenExportingStyle}"
                      Value="{Binding ViewModel.ExportVideoProgress}"
-                     Minimum="0" Maximum="1"
+                     Minimum="0"
+                     Maximum="1"
                      Margin="0,4,0,0"
-                     Height="6"/>
+                     Height="6" />
 
-        <custom:OverlayPreview Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+        <custom:OverlayPreview Grid.Row="2"
+                               Grid.Column="0"
+                               Grid.ColumnSpan="2"
                                OverlayService="{Binding ViewModel.OverlayService}"
-                               ActivityPercent="{Binding ViewModel.SnapshotActivityPercent}"/>
+                               ActivityPercent="{Binding ViewModel.SnapshotActivityPercent}" />
     </Grid>
 </Page>

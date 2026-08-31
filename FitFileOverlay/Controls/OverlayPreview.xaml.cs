@@ -1,7 +1,7 @@
-﻿using FitFileOverlay.Services;
+﻿using FitFileOverlay.Models;
+using FitFileOverlay.Services;
 using SkiaSharp;
 using SkiaSharp.Views.WPF;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -63,7 +63,15 @@ public partial class OverlayPreview : UserControl
         OverlayPreview op = (OverlayPreview)d;
         IOverlayService os = (IOverlayService)e.NewValue;
         os?.NewFileLoaded += op.OnNewFileLoaded;
+        os?.NewSettingsApplied += op.OnNewSettingsApplied;
         os?.Settings?.PropertyChanged += op.OnOverlayPreviewPropertyChanged;
+    }
+
+    private void OnNewSettingsApplied(OverlaySettings? oldValue, OverlaySettings? newValue)
+    {
+        oldValue?.PropertyChanged -= OnOverlayPreviewPropertyChanged;
+        newValue?.PropertyChanged += OnOverlayPreviewPropertyChanged;
+        _ = Task.Run(UpdateSnapshotImage);
     }
 
     private void OnOverlayPreviewPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
