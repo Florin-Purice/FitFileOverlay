@@ -102,6 +102,7 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial bool IsTimestampDrawn { get; set; } = true;
     #endregion
+
     public float[] ZoneMaxPercent { get; set; } = [0.8f, 0.89f, 0.95f, 1f, float.MaxValue];
 
     public void ToFile(string fileName)
