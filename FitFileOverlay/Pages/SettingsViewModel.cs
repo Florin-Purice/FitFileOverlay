@@ -1,22 +1,34 @@
-﻿using FitFileOverlay.Services;
+﻿using FitFileOverlay.Controls;
+using FitFileOverlay.Models;
+using FitFileOverlay.Services;
 using FitFileOverlay.Windows;
+using Microsoft.Extensions.Options;
 using SkiaSharp;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Appearance;
+using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
 
 namespace FitFileOverlay.Pages;
 
 public partial class SettingsViewModel : ObservableObject, INavigationAware
 {
     private bool _isInitialized = false;
+    private readonly string _templatesDirectory = "./Templates/";
     private readonly PreviewWindowViewModel _previewWindowViewModel;
+    private readonly IContentDialogService _contentDialogService;
     private PreviewWindow? _previewWindow;
 
-    public SettingsViewModel(IOverlayService overlayService)
+    public SettingsViewModel(IOverlayService overlayService, IContentDialogService contentDialogService)
     {
         OverlayService = overlayService;
+        _contentDialogService = contentDialogService;
         _previewWindowViewModel = new PreviewWindowViewModel(OverlayService);
         FontFamilies = new ObservableCollection<string>(SKFontManager.Default.FontFamilies);
     }
@@ -37,9 +49,6 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         if (!_isInitialized)
             InitializeViewModel();
-        //open a preview window
-        _previewWindow = new PreviewWindow(_previewWindowViewModel);
-        _previewWindow.Show();
 
         return Task.CompletedTask;
     }
@@ -61,6 +70,70 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private static string GetAssemblyVersion()
     {
         return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? String.Empty;
+    }
+
+    [RelayCommand]
+    public async Task SaveTemplate()
+    {
+        SaveTemplateDialogContent content = new();
+        ContentDialog dialog = new()
+        {
+            Title = "Save settings as template",
+            Content = content,
+            CloseButtonText = "Cancel",
+            PrimaryButtonText = "Save"
+        };
+        ContentDialogResult result = await _contentDialogService.ShowAsync(dialog, default);
+        if (result == ContentDialogResult.Primary)
+        {
+            string fileName = content.FileName;
+            if (fileName == "_default_" || fileName == "_default_.json")
+                fileName = "default";
+            if (!string.IsNullOrWhiteSpace(fileName))
+                OverlayService.Settings?.ToFile(_templatesDirectory + fileName + (fileName.EndsWith(".json") ? "" : ".json"));
+        }
+    }
+
+    [RelayCommand]
+    public async Task LoadTemplate()
+    {
+        Dictionary<string, OverlaySettings> templates = [];
+        templates.Add("_default_", new OverlaySettings());//default template
+        if (Directory.Exists(_templatesDirectory))
+            foreach (string settingsFilename in Directory.GetFiles(_templatesDirectory, "*.json"))
+                try
+                {
+                    string templateName = Path.GetFileNameWithoutExtension(settingsFilename);
+                    OverlaySettings? t = OverlaySettings.FromFile(settingsFilename);
+                    if (t != null)
+                        templates.Add(templateName, t);
+                }
+                catch { }
+        LoadTemplateDialogContent content = new() { Templates = templates };
+        ContentDialog dialog = new()
+        {
+            Title = "Load template",
+            Content = content,
+            CloseButtonText = "Cancel",
+            PrimaryButtonText = "Load"
+        };
+        ContentDialogResult result = await _contentDialogService.ShowAsync(dialog, default);
+        if (result == ContentDialogResult.Primary)
+        {
+            KeyValuePair<string, OverlaySettings> templateKV = content.SelectedValue;
+            OverlayService.Settings = templateKV.Value;
+        }
+    }
+
+    [RelayCommand]
+    private void OpenPreviewWindow()
+    {
+        if (_previewWindow is null)
+        {
+            _previewWindow = new PreviewWindow(_previewWindowViewModel);
+            _previewWindow.Closed += (_, _) => _previewWindow = null;
+            _previewWindow.Show();
+        }
     }
 
     [RelayCommand]

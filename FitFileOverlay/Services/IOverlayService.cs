@@ -7,6 +7,7 @@ namespace FitFileOverlay.Services;
 public interface IOverlayService : INotifyPropertyChanged
 {
     event Action? NewFileLoaded;
+    event NewSettingsAppiedEventHandler? NewSettingsApplied;
 
     OverlayProcessor? Processor { get; }
     OverlaySettings? Settings { get; set; }
@@ -16,3 +17,5 @@ public interface IOverlayService : INotifyPropertyChanged
     Task Export(string outputPath, Action<double>? progressReportCallback = null, CancellationToken? cancellationToken = null);
     SKBitmap? GetSnapshot(double activityPercent);
 }
+
+public delegate void NewSettingsAppiedEventHandler(OverlaySettings? oldValue,  OverlaySettings? newValue);

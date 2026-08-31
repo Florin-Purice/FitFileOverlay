@@ -1,7 +1,6 @@
 ﻿using FitFileOverlay.Services;
 using Microsoft.Win32;
 using System.IO;
-using System.Reflection.Metadata;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
