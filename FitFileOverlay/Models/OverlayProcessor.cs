@@ -249,7 +249,6 @@ public class OverlayProcessor
                 label = string.Empty;
                 value = record.TimeStamp.ToLocalTime().ToString("dd-MMM-yy H:mm:ss");
                 unit = string.Empty;
-                //rendererOptionsBase.ValueFont.Size = settings.FontSizeSmall;
                 break;
             default:
                 return null;
