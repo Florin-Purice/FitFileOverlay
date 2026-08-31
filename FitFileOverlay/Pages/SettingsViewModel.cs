@@ -76,6 +76,14 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 CurrentTheme = ApplicationTheme.Light;
 
                 break;
+            case "theme_high_contrast":
+                if (CurrentTheme == ApplicationTheme.HighContrast)
+                    break;
+
+                ApplicationThemeManager.Apply(ApplicationTheme.HighContrast);
+                CurrentTheme = ApplicationTheme.HighContrast;
+
+                break;
 
             default:
                 if (CurrentTheme == ApplicationTheme.Dark)
