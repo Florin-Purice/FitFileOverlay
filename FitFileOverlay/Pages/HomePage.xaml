@@ -62,7 +62,7 @@
                     Style="{StaticResource ShowWhenExportingStyle}"
                     Orientation="Horizontal">
             <ui:Button Icon="{ui:SymbolIcon VideoClipOff24}"
-                       Command="{Binding ViewModel.ExportVideoCancelCommand}">
+                       Command="{Binding ViewModel.CancelExportCommand}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Cancel export"/>
                     <TextBlock Text="{Binding ViewModel.ExportVideoProgress, StringFormat={}{0:P1}}"

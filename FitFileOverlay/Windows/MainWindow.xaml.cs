@@ -11,7 +11,8 @@ public partial class MainWindow : INavigationWindow
     public MainWindow(
         MainWindowViewModel viewModel,
         INavigationViewPageProvider navigationViewPageProvider,
-        INavigationService navigationService
+        INavigationService navigationService,
+        IContentDialogService contentDialogService
     )
     {
         ViewModel = viewModel;
@@ -23,6 +24,7 @@ public partial class MainWindow : INavigationWindow
         SetPageService(navigationViewPageProvider);
 
         navigationService.SetNavigationControl(RootNavigation);
+        contentDialogService.SetDialogHost(RootContentDialog);
     }
     public MainWindowViewModel ViewModel { get; }
 

@@ -44,6 +44,8 @@ public partial class App
             services.AddSingleton<INavigationWindow, MainWindow>();
             services.AddSingleton<MainWindowViewModel>();
 
+            services.AddSingleton<IContentDialogService, ContentDialogService>();
+
             services.AddSingleton<HomePage>();
             services.AddSingleton<HomePageViewModel>();
             services.AddSingleton<SettingsPage>();
