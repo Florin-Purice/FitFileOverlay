@@ -1,4 +1,5 @@
-﻿using FitFileOverlay.Controls;
+using FitFileOverlay.Controls;
+using FitFileOverlay.Enums;
 using FitFileOverlay.Models;
 using FitFileOverlay.Services;
 using FitFileOverlay.Windows;
@@ -73,7 +74,15 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    public async Task SaveTemplate()
+    private void ToggleDataFieldVisibility(DataFieldType item)
+    {
+        if(OverlayService.Settings is not null)
+            if (!OverlayService.Settings.DrawnDataFields.Remove(item))
+                OverlayService.Settings.DrawnDataFields.Add(item);
+    }
+
+    [RelayCommand]
+    private async Task SaveTemplate()
     {
         SaveTemplateDialogContent content = new();
         ContentDialog dialog = new()
@@ -95,7 +104,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    public async Task LoadTemplate()
+    private async Task LoadTemplate()
     {
         Dictionary<string, OverlaySettings> templates = [];
         templates.Add("_default_", new OverlaySettings());//default template
@@ -123,6 +132,30 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             KeyValuePair<string, OverlaySettings> templateKV = content.SelectedValue;
             OverlayService.Settings = templateKV.Value;
         }
+    }
+
+    [RelayCommand]
+    private void MoveFieldUp(DataFieldType item)
+    {
+        if(OverlayService.Settings is null)
+            return;
+        int index = OverlayService.Settings.DrawnDataFields.IndexOf(item);
+        if (index > 0)
+            OverlayService.Settings.DrawnDataFields.Move(index, index - 1);
+        else
+            OverlayService.Settings.DrawnDataFields.Move(index, OverlayService.Settings.DrawnDataFields.Count - 1);
+    }
+
+    [RelayCommand]
+    private void MoveFieldDown(DataFieldType item)
+    {
+        if (OverlayService.Settings is null)
+            return;
+        int index = OverlayService.Settings.DrawnDataFields.IndexOf(item);
+        if (index < OverlayService.Settings.DrawnDataFields.Count - 1)
+            OverlayService.Settings.DrawnDataFields.Move(index, index + 1);
+        else
+            OverlayService.Settings.DrawnDataFields.Move(index, 0);
     }
 
     [RelayCommand]

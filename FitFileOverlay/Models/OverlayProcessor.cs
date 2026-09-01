@@ -95,8 +95,9 @@ public class OverlayProcessor
         SKBitmap gpsPathOverlay = PathRenderer.RenderUntilPoint(pathRendererOptions, drawPoints, recordIndex, ref pathCacheBitmap);
         sKCanvas.DrawBitmap(gpsPathOverlay, settings.OverlayWidth - settings.GPSOverlayWidth, 0, SKSamplingOptions.Default);
         //create data fields overlay and apply
-        SKBitmap dataFieldsOverlay = CreateDataFieldsOverlay(FitFile.Records[recordIndex], settings);
-        sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
+        SKBitmap? dataFieldsOverlay = CreateDataFieldsOverlay(FitFile.Records[recordIndex], settings);
+        if (dataFieldsOverlay != null && !dataFieldsOverlay.IsEmpty)
+            sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
         return sKBitmap;
     }
 
@@ -161,65 +162,37 @@ public class OverlayProcessor
             SKBitmap gpsPathOverlay = PathRenderer.RenderUntilPoint(pathRendererOptions, drawPoints, i, ref pathCacheBitmap);
             sKCanvas.DrawBitmap(gpsPathOverlay, settings.OverlayWidth - settings.GPSOverlayWidth, 0, SKSamplingOptions.Default);
             //create data fields overlay and apply
-            SKBitmap dataFieldsOverlay = CreateDataFieldsOverlay(records[i], settings);
-            sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
+            SKBitmap? dataFieldsOverlay = CreateDataFieldsOverlay(records[i], settings);
+            if (dataFieldsOverlay != null && !dataFieldsOverlay.IsEmpty)
+                sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
             //create frame and return
             progressReportCallback?.Invoke((double)i / records.Count);
             yield return new SKBitmapFrame(sKBitmap);
         }
     }
 
-    private SKBitmap CreateDataFieldsOverlay(IActivityRecord record, OverlaySettings settings)
+    private SKBitmap? CreateDataFieldsOverlay(IActivityRecord record, OverlaySettings settings)
     {
         DataFieldRendererOptions rendererOptions = CreateDataFieldRendererOptionsFromSettings(settings);
         int dataFieldCount = 4;
         int dataFieldsPerColumn = (int)Math.Ceiling((double)dataFieldCount / settings.DataOverlayColumnCount);
-        SKBitmap sKBitmap = new(settings.OverlayWidth - settings.GPSOverlayWidth, settings.OverlayHeight);
+        int bitmapWidth = settings.OverlayWidth - settings.GPSOverlayWidth;
+        if(bitmapWidth <= 0)
+            return null;
+        SKBitmap sKBitmap = new(bitmapWidth, settings.OverlayHeight);
         SKCanvas sKCanvas = new(sKBitmap);
         //create data field overlays and apply them in the correct place
         int row = 0, col = 0;
-        //pace
-        if (settings.IsPaceDrawn)
+        foreach (DataFieldType dataField in settings.DrawnDataFields)
         {
-            SKBitmap? paceBitmap = CreateDataFieldBitmap(record, settings, rendererOptions, DataFieldType.Pace);
-            if (paceBitmap != null)
-                sKCanvas.DrawBitmap(paceBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
+            SKBitmap? dataFieldBitmap = CreateDataFieldBitmap(record, settings, rendererOptions, dataField);
+            if (dataFieldBitmap != null)
+                sKCanvas.DrawBitmap(dataFieldBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
             if (++row >= dataFieldsPerColumn)
             {
                 row = 0;
                 ++col;
             }
-        }
-        //heart rate
-        if (settings.IsHrDrawn)
-        {
-            SKBitmap? heartRateBitmap = CreateDataFieldBitmap(record, settings, rendererOptions, DataFieldType.HeartRate);
-            if (heartRateBitmap != null)
-                sKCanvas.DrawBitmap(heartRateBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
-            if (++row >= dataFieldsPerColumn)
-            {
-                row = 0;
-                ++col;
-            }
-        }
-        //distance
-        if (settings.IsDistanceDrawn)
-        {
-            SKBitmap? distanceBitmap = CreateDataFieldBitmap(record, settings, rendererOptions, DataFieldType.Distance);
-            if (distanceBitmap != null)
-                sKCanvas.DrawBitmap(distanceBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
-            if (++row >= dataFieldsPerColumn)
-            {
-                row = 0;
-                ++col;
-            }
-        }
-        //timestamp
-        if (settings.IsTimestampDrawn)
-        {
-            SKBitmap? timestampBitmap = CreateDataFieldBitmap(record, settings, rendererOptions, DataFieldType.Timestamp);
-            if (timestampBitmap != null)
-                sKCanvas.DrawBitmap(timestampBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
         }
         return sKBitmap;
     }
@@ -249,7 +222,13 @@ public class OverlayProcessor
                 label = string.Empty;
                 value = record.TimeStamp.ToLocalTime().ToString("dd-MMM-yy H:mm:ss");
                 unit = string.Empty;
-                rendererOptionsBase.ValueFont.Size = settings.TimestampFontSize;
+                rendererOptionsBase.ValueFont =
+                    new SKFont(SKTypeface.FromFamilyName(
+                            familyName: settings.ValueFontFamily,
+                            weight: settings.IsValueFontBold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
+                            width: SKFontStyleWidth.Normal,
+                            slant: settings.IsValueFontItalic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright),
+                        settings.TimestampFontSize);
                 break;
             default:
                 return null;
