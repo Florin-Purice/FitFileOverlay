@@ -7,6 +7,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+      xmlns:enums="clr-namespace:FitFileOverlay.Enums"
       Title="SettingsPage"
       d:DataContext="{d:DesignInstance local:SettingsPage, IsDesignTimeCreatable=False}"
       d:DesignHeight="450"
@@ -19,6 +20,9 @@
     <Page.Resources>
         <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
         <helpers:SKColorToColorConverter x:Key="SKColorToColorConverter" />
+        <helpers:DataFieldTypeToStringConverter x:Key="DataFieldTypeToStringConverter" />
+        <helpers:DrawnFieldListToBooleanConverter x:Key="DrawnFieldListToBooleanConverter" />
+        <helpers:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
     </Page.Resources>
     <Grid Margin="20,15,20,0">
         <Grid.RowDefinitions>
@@ -666,7 +670,13 @@
                                              LabelPosition="Left"
                                              OnContent="On"
                                              OffContent="Off"
-                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsPaceDrawn}" />
+                                             Command="{Binding ViewModel.ToggleDataFieldVisibilityCommand}"
+                                             CommandParameter="{x:Static enums:DataFieldType.Pace}"
+                                             IsChecked="{
+                                Binding ViewModel.OverlayService.Settings.DrawnDataFields, 
+                                Converter={StaticResource DrawnFieldListToBooleanConverter}, 
+                                ConverterParameter={x:Static enums:DataFieldType.Pace}, 
+                                Mode=OneWay}" />
                         </Grid>
                     </ui:CardExpander.Header>
                     <Grid>
@@ -738,7 +748,13 @@
                                              LabelPosition="Left"
                                              OnContent="On"
                                              OffContent="Off"
-                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsDistanceDrawn}" />
+                                             Command="{Binding ViewModel.ToggleDataFieldVisibilityCommand}"
+                                             CommandParameter="{x:Static enums:DataFieldType.Distance}"
+                                             IsChecked="{
+                                Binding ViewModel.OverlayService.Settings.DrawnDataFields, 
+                                Converter={StaticResource DrawnFieldListToBooleanConverter}, 
+                                ConverterParameter={x:Static enums:DataFieldType.Distance}, 
+                                Mode=OneWay}" />
                         </Grid>
                     </ui:CardExpander.Header>
                     <Grid>
@@ -810,7 +826,13 @@
                                              LabelPosition="Left"
                                              OnContent="On"
                                              OffContent="Off"
-                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsHrDrawn}" />
+                                             Command="{Binding ViewModel.ToggleDataFieldVisibilityCommand}"
+                                             CommandParameter="{x:Static enums:DataFieldType.HeartRate}"
+                                             IsChecked="{
+                                Binding ViewModel.OverlayService.Settings.DrawnDataFields, 
+                                Converter={StaticResource DrawnFieldListToBooleanConverter}, 
+                                ConverterParameter={x:Static enums:DataFieldType.HeartRate}, 
+                                Mode=OneWay}" />
                         </Grid>
                     </ui:CardExpander.Header>
                     <Grid>
@@ -1012,7 +1034,13 @@
                                              LabelPosition="Left"
                                              OnContent="On"
                                              OffContent="Off"
-                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsTimestampDrawn}" />
+                                             Command="{Binding ViewModel.ToggleDataFieldVisibilityCommand}"
+                                             CommandParameter="{x:Static enums:DataFieldType.Timestamp}"
+                                             IsChecked="{
+                                Binding ViewModel.OverlayService.Settings.DrawnDataFields, 
+                                Converter={StaticResource DrawnFieldListToBooleanConverter}, 
+                                ConverterParameter={x:Static enums:DataFieldType.Timestamp}, 
+                                Mode=OneWay}" />
                         </Grid>
                     </ui:CardExpander.Header>
                     <Grid Margin="10">
@@ -1036,6 +1064,46 @@
                                       Value="{Binding ViewModel.OverlayService.Settings.TimestampFontSize, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                 </ui:CardExpander>
+                <!--Data field ordering-->
+                <Border Visibility="{Binding ViewModel.OverlayService.Settings.DrawnDataFields, Converter={StaticResource CollectionToVisibilityConverter}}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1"
+                        Background="{DynamicResource CardBackground}"
+                        CornerRadius="4"
+                        Margin="0,8,0,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="20,15,0,15">
+                            <ui:SymbolIcon Symbol="ChevronUpDown24" />
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Data field ordering"
+                                          TextWrapping="WrapWithOverflow" 
+                                          Margin="15,0,0,0"/>
+                        </StackPanel>
+                        <ui:ListView ItemsSource="{Binding ViewModel.OverlayService.Settings.DrawnDataFields}"
+                                     Margin="15,0,15,15">
+                            <ui:ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:Button Icon="{ui:SymbolIcon ChevronUp24}"
+                                                   Height="35"
+                                                   Command="{Binding ViewModel.MoveFieldUpCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                                   CommandParameter="{Binding}" />
+                                        <ui:Button Icon="{ui:SymbolIcon ChevronDown24}"
+                                                   Height="35"
+                                                   Margin="5,0,15,0"
+                                                   Command="{Binding ViewModel.MoveFieldDownCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                                   CommandParameter="{Binding}" />
+                                        <TextBlock Text="{Binding Converter={StaticResource DataFieldTypeToStringConverter}}"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ui:ListView.ItemTemplate>
+                        </ui:ListView>
+                    </StackPanel>
+                </Border>
 
                 <TextBlock FontSize="20"
                            FontWeight="Medium"

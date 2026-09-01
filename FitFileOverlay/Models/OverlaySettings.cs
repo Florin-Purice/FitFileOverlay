@@ -1,4 +1,5 @@
-﻿using FitFileOverlay.Helpers;
+﻿using FitFileOverlay.Enums;
+using FitFileOverlay.Helpers;
 using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -7,6 +8,11 @@ namespace FitFileOverlay.Models;
 
 public partial class OverlaySettings : ObservableObject
 {
+    public OverlaySettings()
+    {
+        DrawnDataFields.CollectionChanged += OnDrawnDataFieldsCollectionChanged;   
+    }
+
     #region GENERAL
     [ObservableProperty]
     public partial int LTHR { get; set; } = 145;
@@ -69,21 +75,15 @@ public partial class OverlaySettings : ObservableObject
     public partial bool IsUnitFontItalic { get; set; } = true;
     //Pace stuff
     [ObservableProperty]
-    public partial bool IsPaceDrawn { get; set; } = true;
-    [ObservableProperty]
     public partial string PaceLabel { get; set; } = "Pace";
     [ObservableProperty]
     public partial string PaceUnit { get; set; } = "/KM";
     //Distance stuff
     [ObservableProperty]
-    public partial bool IsDistanceDrawn { get; set; } = true;
-    [ObservableProperty]
     public partial string DistanceLabel { get; set; } = "Distance";
     [ObservableProperty]
     public partial string DistanceUnit { get; set; } = "KM";
     //HR stuff
-    [ObservableProperty]
-    public partial bool IsHrDrawn { get; set; } = true;
     [ObservableProperty]
     public partial string HrLabel { get; set; } = "Heart Rate";
     [ObservableProperty]
@@ -100,9 +100,15 @@ public partial class OverlaySettings : ObservableObject
     public partial SKColor Zone5Brush { get; set; } = new SKColor(211, 32, 32, 255); // Zone 5 - Red
     //Timestamp
     [ObservableProperty]
-    public partial bool IsTimestampDrawn { get; set; } = true;
-    [ObservableProperty]
     public partial float TimestampFontSize { get; set; } = 32f;
+
+    [ObservableProperty]
+    public partial ObservableCollection<DataFieldType> DrawnDataFields { get; set; } = [
+        DataFieldType.Pace,
+        DataFieldType.HeartRate,
+        DataFieldType.Distance,
+        DataFieldType.Timestamp];
+
     #endregion
 
     public float[] ZoneMaxPercent { get; set; } = [0.8f, 0.89f, 0.95f, 1f, float.MaxValue];
@@ -111,7 +117,7 @@ public partial class OverlaySettings : ObservableObject
     {
         string jsonString = CustomJsonSerializer.Serialize(this);
         string? directory = Path.GetDirectoryName(fileName);
-        if(!string.IsNullOrWhiteSpace(directory))
+        if (!string.IsNullOrWhiteSpace(directory))
             Directory.CreateDirectory(directory!);
         File.WriteAllText(fileName, jsonString);
     }
@@ -127,5 +133,16 @@ public partial class OverlaySettings : ObservableObject
         {
             return null;
         }
+    }
+
+    private void OnDrawnDataFieldsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(DrawnDataFields));
+    }
+
+    partial void OnDrawnDataFieldsChanged(ObservableCollection<DataFieldType> oldValue, ObservableCollection<DataFieldType> newValue)
+    {
+        oldValue.CollectionChanged -= OnDrawnDataFieldsCollectionChanged;
+        newValue.CollectionChanged += OnDrawnDataFieldsCollectionChanged;
     }
 }
