@@ -30,4 +30,9 @@ public interface IActivityRecord
     /// Total distance covered since start of activity to this record
     /// </summary>
     public float? Distance { get; }
+
+    /// <summary>
+    /// The amount of steps taken in a minute divided by two
+    /// </summary>
+    public float? Cadence { get; }
 }

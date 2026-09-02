@@ -52,7 +52,7 @@ public class OverlayProcessor
     {
         if (recordIndex < 0 || recordIndex >= FitFile.Records.Count)
             return null;
-        if(!settings.IsGpsOverlayEnabled && !settings.IsDataFieldsOverlayEnabled)
+        if (!settings.IsGpsOverlayEnabled && !settings.IsDataFieldsOverlayEnabled)
             return null;
         //create list of unitary screenspace gps points
         List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(FitFile.Records, out double gpsAspectRatio);
@@ -196,10 +196,10 @@ public class OverlayProcessor
     private SKBitmap? CreateDataFieldsOverlay(IActivityRecord record, OverlaySettings settings)
     {
         DataFieldRendererOptions rendererOptions = CreateDataFieldRendererOptionsFromSettings(settings);
-        int dataFieldCount = 4;
+        int dataFieldCount = settings.DrawnDataFields.Count;
         int dataFieldsPerColumn = (int)Math.Ceiling((double)dataFieldCount / settings.DataOverlayColumnCount);
         int bitmapWidth = settings.DataFieldsOverlayWidth;
-        if(bitmapWidth <= 0)
+        if (bitmapWidth <= 0)
             return null;
         SKBitmap sKBitmap = new(bitmapWidth, settings.OverlayHeight);
         SKCanvas sKCanvas = new(sKBitmap);
@@ -239,6 +239,11 @@ public class OverlayProcessor
                 label = settings.DistanceLabel;
                 value = (record.Distance / 1000)?.ToString("0.00") ?? string.Empty;
                 unit = settings.DistanceUnit;
+                break;
+            case DataFieldType.Cadence:
+                label = settings.CadenceLabel;
+                value = (record.Cadence * 2)?.ToString("0") ?? string.Empty;
+                unit = settings.CadenceUnit;
                 break;
             case DataFieldType.Timestamp:
                 label = string.Empty;
@@ -367,6 +372,7 @@ public class OverlayProcessor
             float heartRateStep = (float)((originalList[i + 1].HeartRate - originalList[i].HeartRate) ?? 0) / interpolatedRecordCount;
             float speedStep = ((originalList[i + 1].Speed - originalList[i].Speed) ?? 0f) / interpolatedRecordCount;
             float distanceStep = ((originalList[i + 1].Distance - originalList[i].Distance) ?? 0f) / interpolatedRecordCount;
+            float cadenceStep = ((originalList[i + 1].Cadence - originalList[i].Cadence) ?? 0f) / interpolatedRecordCount;
             double gpsLatitudeStep = ((originalList[i + 1].GPSPoint?.Latitude - originalList[i].GPSPoint?.Latitude) ?? 0d) / interpolatedRecordCount;
             double gpsLongitudeStep = ((originalList[i + 1].GPSPoint?.Longitude - originalList[i].GPSPoint?.Longitude) ?? 0d) / interpolatedRecordCount;
             //create the records
@@ -393,9 +399,10 @@ public class OverlayProcessor
                 newList.Add(new FitRecord()
                 {
                     TimeStamp = originalList[i].TimeStamp.AddSeconds(timeStampStep * j),
-                    HeartRate = (int)(originalList[i].HeartRate ?? 0 + heartRateStep * j),
+                    HeartRate = (int)((originalList[i].HeartRate ?? 0) + heartRateStep * j),
                     Speed = (originalList[i].Speed ?? 0f) + speedStep * j,
                     Distance = (originalList[i].Distance ?? 0f) + distanceStep * j,
+                    Cadence = (originalList[i].Cadence ?? 0) + cadenceStep * j,
                     GPSPoint = newPoint
                 });
             }

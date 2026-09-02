@@ -6,5 +6,6 @@ public enum DataFieldType
     Pace,
     HeartRate,
     Distance,
-    Timestamp
+    Timestamp,
+    Cadence
 }

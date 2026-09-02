@@ -31,7 +31,7 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial bool IsDataFieldsOverlayEnabled { get; set; } = true;
     [ObservableProperty]
-    public partial int DataFieldsOverlayWidth { get; set; } = 500;
+    public partial int DataFieldsOverlayWidth { get; set; } = 800;
     [ObservableProperty]
     public partial bool IsGpsOverlayEnabled { get; set; } = true;
     [ObservableProperty]
@@ -49,7 +49,7 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial int LineSpacing { get; set; } = 15;
     [ObservableProperty]
-    public partial int DataOverlayColumnCount { get; set; } = 1;
+    public partial int DataOverlayColumnCount { get; set; } = 2;
     [ObservableProperty]
     public partial int DataOverlayVerticalSpacing { get; set; } = 40;
     [ObservableProperty]
@@ -102,6 +102,11 @@ public partial class OverlaySettings : ObservableObject
     public partial SKColor Zone4Brush { get; set; } = new SKColor(249, 137, 37, 255); // Zone 4 - Orange
     [ObservableProperty]
     public partial SKColor Zone5Brush { get; set; } = new SKColor(211, 32, 32, 255); // Zone 5 - Red
+    //Cadence stuff
+    [ObservableProperty]
+    public partial string CadenceLabel { get; set; } = "Cadence";
+    [ObservableProperty]
+    public partial string CadenceUnit { get; set; } = "SPM";
     //Timestamp
     [ObservableProperty]
     public partial float TimestampFontSize { get; set; } = 32f;
@@ -111,6 +116,7 @@ public partial class OverlaySettings : ObservableObject
         DataFieldType.Pace,
         DataFieldType.HeartRate,
         DataFieldType.Distance,
+        DataFieldType.Cadence,
         DataFieldType.Timestamp];
 
     #endregion
