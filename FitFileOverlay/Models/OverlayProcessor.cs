@@ -237,13 +237,21 @@ public class OverlayProcessor
                 break;
             case DataFieldType.Distance:
                 label = settings.DistanceLabel;
+                //meters to kilometers
                 value = (record.Distance / 1000)?.ToString("0.00") ?? string.Empty;
                 unit = settings.DistanceUnit;
                 break;
             case DataFieldType.Cadence:
                 label = settings.CadenceLabel;
+                //half cadence (rpm) to full cadence (spm)
                 value = (record.Cadence * 2)?.ToString("0") ?? string.Empty;
                 unit = settings.CadenceUnit;
+                break;
+            case DataFieldType.Speed:
+                label = settings.SpeedLabel;
+                //m/s to km/h
+                value = (record.Speed * 3.6)?.ToString("0.0") ?? string.Empty;
+                unit = settings.SpeedUnit;
                 break;
             case DataFieldType.Timestamp:
                 label = string.Empty;
