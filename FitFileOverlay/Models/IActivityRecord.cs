@@ -40,4 +40,9 @@ public interface IActivityRecord
     /// Power in watts
     /// </summary>
     public int? Power { get; }
+
+    /// <summary>
+    /// Stride length in mm
+    /// </summary>
+    public float? StrideLength { get; }
 }
