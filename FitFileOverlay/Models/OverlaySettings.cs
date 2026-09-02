@@ -107,6 +107,11 @@ public partial class OverlaySettings : ObservableObject
     public partial string CadenceLabel { get; set; } = "Cadence";
     [ObservableProperty]
     public partial string CadenceUnit { get; set; } = "SPM";
+    //Speed stuff
+    [ObservableProperty]
+    public partial string SpeedLabel { get; set; } = "Speed";
+    [ObservableProperty]
+    public partial string SpeedUnit { get; set; } = "KM/H";
     //Timestamp
     [ObservableProperty]
     public partial float TimestampFontSize { get; set; } = 32f;
@@ -117,6 +122,7 @@ public partial class OverlaySettings : ObservableObject
         DataFieldType.HeartRate,
         DataFieldType.Distance,
         DataFieldType.Cadence,
+        DataFieldType.Speed,
         DataFieldType.Timestamp];
 
     #endregion
