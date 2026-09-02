@@ -1,7 +1,9 @@
 ﻿using FitFileOverlay.Models;
 using FitFileOverlay.Services;
+using Instances.Exceptions;
 using Microsoft.Win32;
 using System.IO;
+using System.Windows.Documents;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
@@ -68,7 +70,7 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
     [RelayCommand(CanExecute = nameof(CanExportVideo), IncludeCancelCommand = true)]
     public async Task ExportVideo(CancellationToken cancellationToken)
     {
-        if (OverlayService.File == null || 
+        if (OverlayService.File == null ||
             ((!OverlayService.Settings?.IsGpsOverlayEnabled ?? true) && (!OverlayService.Settings?.IsDataFieldsOverlayEnabled ?? true)))
             return;
         //Disable window interraction
@@ -79,11 +81,13 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
         };
         if (sfd.ShowDialog() == true)
         {
+            bool ok = false;
             try
             {
                 IsExportingVideo = true;
                 _exportVideoStartTime = DateTime.Now;
                 await OverlayService.Export(sfd.FileName, ReportExportViewProgress, cancellationToken);
+                ok = true;
             }
             catch (OperationCanceledException)
             {
@@ -96,10 +100,14 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
                     catch (Exception) { }
                 }
             }
+            catch (InstanceFileNotFoundException)
+            {
+                ExportVideoLog = "No installation of ffmpeg found. Install ffmpeg or use the portable version of this app.";
+            }
             //If exporting was canceled display a message else report success
             if (cancellationToken.IsCancellationRequested)
                 ExportVideoLog = "Export canceled";
-            else
+            else if (ok)
             {
                 TimeSpan exportDuration = DateTime.Now - _exportVideoStartTime;
                 string durationString = exportDuration.TotalHours < 1 ? exportDuration.ToString(@"mm\:ss") : exportDuration.ToString(@"h\:mm\:ss");
@@ -124,7 +132,7 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
             }
         );
         if (result == ContentDialogResult.Primary)
-            if(ExportVideoCancelCommand?.CanExecute(null) == true)
+            if (ExportVideoCancelCommand?.CanExecute(null) == true)
                 ExportVideoCancelCommand?.Execute(null);
     }
 
