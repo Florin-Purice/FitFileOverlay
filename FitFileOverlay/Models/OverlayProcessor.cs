@@ -249,9 +249,14 @@ public class OverlayProcessor
                 break;
             case DataFieldType.Speed:
                 label = settings.SpeedLabel;
-                //m/s to km/h
+                // m/s to km/h
                 value = (record.Speed * 3.6)?.ToString("0.0") ?? string.Empty;
                 unit = settings.SpeedUnit;
+                break;
+            case DataFieldType.Power:
+                label = settings.PowerLabel;
+                value = record.Power?.ToString() ?? string.Empty;
+                unit = settings.PowerUnit;
                 break;
             case DataFieldType.Timestamp:
                 label = string.Empty;
@@ -381,6 +386,7 @@ public class OverlayProcessor
             float speedStep = ((originalList[i + 1].Speed - originalList[i].Speed) ?? 0f) / interpolatedRecordCount;
             float distanceStep = ((originalList[i + 1].Distance - originalList[i].Distance) ?? 0f) / interpolatedRecordCount;
             float cadenceStep = ((originalList[i + 1].Cadence - originalList[i].Cadence) ?? 0f) / interpolatedRecordCount;
+            float powerStep = (float)((originalList[i + 1].Power - originalList[i].Power) ?? 0) / interpolatedRecordCount;
             double gpsLatitudeStep = ((originalList[i + 1].GPSPoint?.Latitude - originalList[i].GPSPoint?.Latitude) ?? 0d) / interpolatedRecordCount;
             double gpsLongitudeStep = ((originalList[i + 1].GPSPoint?.Longitude - originalList[i].GPSPoint?.Longitude) ?? 0d) / interpolatedRecordCount;
             //create the records
@@ -411,6 +417,7 @@ public class OverlayProcessor
                     Speed = (originalList[i].Speed ?? 0f) + speedStep * j,
                     Distance = (originalList[i].Distance ?? 0f) + distanceStep * j,
                     Cadence = (originalList[i].Cadence ?? 0) + cadenceStep * j,
+                    Power = (int)((originalList[i].Power ?? 0) + powerStep * j),
                     GPSPoint = newPoint
                 });
             }

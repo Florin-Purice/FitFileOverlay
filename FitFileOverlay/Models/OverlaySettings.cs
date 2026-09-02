@@ -112,6 +112,11 @@ public partial class OverlaySettings : ObservableObject
     public partial string SpeedLabel { get; set; } = "Speed";
     [ObservableProperty]
     public partial string SpeedUnit { get; set; } = "KM/H";
+    //Power stuff
+    [ObservableProperty]
+    public partial string PowerLabel { get; set; } = "Power";
+    [ObservableProperty]
+    public partial string PowerUnit { get; set; } = "W";
     //Timestamp
     [ObservableProperty]
     public partial float TimestampFontSize { get; set; } = 32f;
@@ -123,6 +128,7 @@ public partial class OverlaySettings : ObservableObject
         DataFieldType.Distance,
         DataFieldType.Cadence,
         DataFieldType.Speed,
+        DataFieldType.Power,
         DataFieldType.Timestamp];
 
     #endregion
