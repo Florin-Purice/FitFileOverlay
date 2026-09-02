@@ -1305,6 +1305,84 @@
                         </Grid>
                     </Grid>
                 </ui:CardExpander>
+                <!--Stride length field-->
+                <ui:CardExpander Icon="{ui:SymbolIcon PersonRunning20}"
+                                 ContentPadding="0"
+                                 Margin="0,8,0,0">
+                    <ui:CardExpander.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Stride length field"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="1"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="On"
+                                             OffContent="Off"
+                                             Command="{Binding ViewModel.ToggleDataFieldVisibilityCommand}"
+                                             CommandParameter="{x:Static enums:DataFieldType.StrideLength}"
+                                             IsChecked="{
+                                Binding ViewModel.OverlayService.Settings.DrawnDataFields, 
+                                Converter={StaticResource DrawnFieldListToBooleanConverter}, 
+                                ConverterParameter={x:Static enums:DataFieldType.StrideLength}, 
+                                Mode=OneWay}" />
+                        </Grid>
+                    </ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0"
+                              Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="TextEditStyle24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Label"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:TextBox Grid.Column="2"
+                                        Width="110"
+                                        Text="{Binding ViewModel.OverlayService.Settings.StrideLengthLabel, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                        <Border Grid.Row="1"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid  Grid.Row="2"
+                               Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="Check24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Unit"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:TextBox Grid.Column="2"
+                                        Width="110"
+                                        Text="{Binding ViewModel.OverlayService.Settings.StrideLengthUnit, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                    </Grid>
+                </ui:CardExpander>
                 <!--Timestamp-->
                 <ui:CardExpander Icon="{ui:SymbolIcon TimePicker24}"
                                  ContentPadding="0"

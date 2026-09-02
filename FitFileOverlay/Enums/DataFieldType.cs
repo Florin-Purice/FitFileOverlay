@@ -9,5 +9,6 @@ public enum DataFieldType
     Timestamp,
     Cadence,
     Speed,
-    Power
+    Power,
+    StrideLength
 }

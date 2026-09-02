@@ -19,6 +19,7 @@ public class FitRecord : IActivityRecord
         HeartRate = recordMesg.GetHeartRate();
         Cadence = recordMesg.GetCadence() + recordMesg.GetFractionalCadence();
         Power = recordMesg.GetPower();
+        StrideLength = recordMesg.GetStepLength();
     }
 
     public DateTime TimeStamp { get; set; }
@@ -28,4 +29,5 @@ public class FitRecord : IActivityRecord
     public float? Distance { get; set; }
     public float? Cadence { get; set; }
     public int? Power { get; set; }
+    public float? StrideLength { get; set; }
 }

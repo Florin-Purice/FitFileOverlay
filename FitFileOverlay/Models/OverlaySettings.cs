@@ -117,6 +117,11 @@ public partial class OverlaySettings : ObservableObject
     public partial string PowerLabel { get; set; } = "Power";
     [ObservableProperty]
     public partial string PowerUnit { get; set; } = "W";
+    //Stride length stuff
+    [ObservableProperty]
+    public partial string StrideLengthLabel { get; set; } = "Stride Length";
+    [ObservableProperty]
+    public partial string StrideLengthUnit { get; set; } = "M";
     //Timestamp
     [ObservableProperty]
     public partial float TimestampFontSize { get; set; } = 32f;
@@ -129,6 +134,7 @@ public partial class OverlaySettings : ObservableObject
         DataFieldType.Cadence,
         DataFieldType.Speed,
         DataFieldType.Power,
+        DataFieldType.StrideLength,
         DataFieldType.Timestamp];
 
     #endregion
