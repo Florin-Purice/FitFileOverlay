@@ -12,11 +12,12 @@ public class FitRecord : IActivityRecord
 
     public FitRecord(RecordMesg recordMesg)
     {
+        GPSPoint = GpsPoint.FromFitRecord(recordMesg);
         TimeStamp = recordMesg.GetTimestamp().GetDateTime();
         Distance = recordMesg.GetDistance();
         Speed = recordMesg.GetEnhancedSpeed();
         HeartRate = recordMesg.GetHeartRate();
-        GPSPoint = GpsPoint.FromFitRecord(recordMesg);
+        Cadence = recordMesg.GetCadence() + recordMesg.GetFractionalCadence();
     }
 
     public DateTime TimeStamp { get; set; }
@@ -24,4 +25,5 @@ public class FitRecord : IActivityRecord
     public int? HeartRate { get; set; }
     public float? Speed { get; set; }
     public float? Distance { get; set; }
+    public float? Cadence { get; set; }
 }
