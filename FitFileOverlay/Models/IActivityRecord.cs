@@ -35,4 +35,9 @@ public interface IActivityRecord
     /// The amount of steps taken in a minute divided by two
     /// </summary>
     public float? Cadence { get; }
+
+    /// <summary>
+    /// Power in watts
+    /// </summary>
+    public int? Power { get; }
 }

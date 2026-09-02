@@ -8,5 +8,6 @@ public enum DataFieldType
     Distance,
     Timestamp,
     Cadence,
-    Speed
+    Speed,
+    Power
 }
