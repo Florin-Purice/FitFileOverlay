@@ -21,19 +21,23 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial uint FPS { get; set; } = 5;
     [ObservableProperty]
-    public partial int OverlayWidth { get; set; } = 1300;
-    [ObservableProperty]
-    public partial int OverlayHeight { get; set; } = 800;
-    [ObservableProperty]
     public partial SKColor Background { get; set; } = SKColors.Transparent;
     [ObservableProperty]
     public partial SKColor PrimaryColor { get; set; } = SKColors.White;
     [ObservableProperty]
     public partial SKColor SecondaryColor { get; set; } = SKColors.Orange;
+    [ObservableProperty]
+    public partial int OverlayHeight { get; set; } = 800;
+    [ObservableProperty]
+    public partial bool IsDataFieldsOverlayEnabled { get; set; } = true;
+    [ObservableProperty]
+    public partial int DataFieldsOverlayWidth { get; set; } = 500;
+    [ObservableProperty]
+    public partial bool IsGpsOverlayEnabled { get; set; } = true;
+    [ObservableProperty]
+    public partial int GpsOverlayWidth { get; set; } = 800;
     #endregion
     #region MAP
-    [ObservableProperty]
-    public partial int GPSOverlayWidth { get; set; } = 800;
     [ObservableProperty]
     public partial float GpsLineWidth { get; set; } = 6f;
     [ObservableProperty]

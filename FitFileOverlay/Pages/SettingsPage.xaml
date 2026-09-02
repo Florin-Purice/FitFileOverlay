@@ -116,37 +116,6 @@
                                       Value="{Binding ViewModel.OverlayService.Settings.LTHR}" />
                     </Grid>
                 </ui:CardExpander>
-                <!--Overlay width/height-->
-                <ui:CardControl Icon="{ui:SymbolIcon AutoFitWidth24}"
-                                Margin="0,8,0,0">
-                    <ui:CardControl.Header>
-                        <StackPanel>
-                            <ui:TextBlock FontTypography="BodyStrong"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Width"
-                                          TextWrapping="WrapWithOverflow" />
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                    <ui:NumberBox Minimum="100"
-                                  Maximum="3000"
-                                  ClearButtonEnabled="False"
-                                  Value="{Binding ViewModel.OverlayService.Settings.OverlayWidth, UpdateSourceTrigger=PropertyChanged}" />
-                </ui:CardControl>
-                <ui:CardControl Icon="{ui:SymbolIcon AutoFitHeight24}"
-                                Margin="0,8,0,0">
-                    <ui:CardControl.Header>
-                        <StackPanel>
-                            <ui:TextBlock FontTypography="BodyStrong"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Height"
-                                          TextWrapping="WrapWithOverflow" />
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                    <ui:NumberBox Minimum="100"
-                                  Maximum="3000"
-                                  ClearButtonEnabled="False"
-                                  Value="{Binding ViewModel.OverlayService.Settings.OverlayHeight, UpdateSourceTrigger=PropertyChanged}" />
-                </ui:CardControl>
                 <!--Colors-->
                 <ui:CardControl Icon="{ui:SymbolIcon Color24}"
                                 Margin="0,8,0,0">
@@ -193,27 +162,115 @@
                                                      Height="25"
                                                      SelectedColor="{Binding ViewModel.OverlayService.Settings.SecondaryColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}" />
                 </ui:CardControl>
-
-                <TextBlock FontSize="20"
-                           FontWeight="Medium"
-                           Text="Map specific settings"
-                           Margin="0,25,0,0" />
-                <!--Map width-->
-                <ui:CardControl Icon="{ui:SymbolIcon AutoFitWidth24}"
+                <!--Overlay height-->
+                <ui:CardControl Icon="{ui:SymbolIcon AutoFitHeight24}"
                                 Margin="0,8,0,0">
                     <ui:CardControl.Header>
                         <StackPanel>
                             <ui:TextBlock FontTypography="BodyStrong"
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Map overlay width"
+                                          Text="Height"
                                           TextWrapping="WrapWithOverflow" />
                         </StackPanel>
                     </ui:CardControl.Header>
-                    <ui:NumberBox Minimum="50"
-                                  Maximum="2000"
+                    <ui:NumberBox Minimum="100"
+                                  Maximum="3000"
                                   ClearButtonEnabled="False"
-                                  Value="{Binding ViewModel.OverlayService.Settings.GPSOverlayWidth, UpdateSourceTrigger=PropertyChanged}" />
+                                  Value="{Binding ViewModel.OverlayService.Settings.OverlayHeight, UpdateSourceTrigger=PropertyChanged}" />
                 </ui:CardControl>
+                <!--Data fields visibility/width-->
+                <ui:CardExpander Icon="{ui:SymbolIcon RowTriple24}"
+                                 ContentPadding="0"
+                                 Margin="0,8,0,0">
+                    <ui:CardExpander.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Data fields"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="1"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="On"
+                                             OffContent="Off"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsDataFieldsOverlayEnabled}" />
+                        </Grid>
+                    </ui:CardExpander.Header>
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:SymbolIcon Grid.Column="0"
+                                       Symbol="AutoFitWidth24" />
+                        <ui:TextBlock Grid.Column="1"
+                                      FontTypography="BodyStrong"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Width"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:NumberBox Grid.Column="2"
+                                      Minimum="100"
+                                      Maximum="3000"
+                                      ClearButtonEnabled="False"
+                                      Value="{Binding ViewModel.OverlayService.Settings.DataFieldsOverlayWidth, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </ui:CardExpander>
+                <!--Map visibility/width-->
+                <ui:CardExpander Icon="{ui:SymbolIcon Map24}"
+                                 ContentPadding="0"
+                                 Margin="0,8,0,0">
+                    <ui:CardExpander.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Map"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="1"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="On"
+                                             OffContent="Off"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsGpsOverlayEnabled}" />
+                        </Grid>
+                    </ui:CardExpander.Header>
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:SymbolIcon Grid.Column="0"
+                                       Symbol="AutoFitWidth24" />
+                        <ui:TextBlock Grid.Column="1"
+                                      FontTypography="BodyStrong"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Width"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:NumberBox Grid.Column="2"
+                                      Minimum="100"
+                                      Maximum="3000"
+                                      ClearButtonEnabled="False"
+                                      Value="{Binding ViewModel.OverlayService.Settings.GpsOverlayWidth, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </ui:CardExpander>
+
+                <TextBlock FontSize="20"
+                           FontWeight="Medium"
+                           Text="Map specific settings"
+                           Margin="0,25,0,0" />
                 <!--Line width-->
                 <ui:CardControl Icon="{ui:SymbolIcon InkStroke24}"
                                 Margin="0,8,0,0">

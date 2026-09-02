@@ -1,4 +1,5 @@
-﻿using FitFileOverlay.Services;
+﻿using FitFileOverlay.Models;
+using FitFileOverlay.Services;
 using Microsoft.Win32;
 using System.IO;
 using Wpf.Ui;
@@ -67,7 +68,9 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
     [RelayCommand(CanExecute = nameof(CanExportVideo), IncludeCancelCommand = true)]
     public async Task ExportVideo(CancellationToken cancellationToken)
     {
-        if (OverlayService.File == null) return;
+        if (OverlayService.File == null || 
+            ((!OverlayService.Settings?.IsGpsOverlayEnabled ?? true) && (!OverlayService.Settings?.IsDataFieldsOverlayEnabled ?? true)))
+            return;
         //Disable window interraction
         IsBusy = true;
         SaveFileDialog sfd = new()

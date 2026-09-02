@@ -3,18 +3,14 @@ using FitFileOverlay.Enums;
 using FitFileOverlay.Models;
 using FitFileOverlay.Services;
 using FitFileOverlay.Windows;
-using Microsoft.Extensions.Options;
 using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text.Json;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
-using Wpf.Ui.Extensions;
 
 namespace FitFileOverlay.Pages;
 
@@ -76,7 +72,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void ToggleDataFieldVisibility(DataFieldType item)
     {
-        if(OverlayService.Settings is not null)
+        if (OverlayService.Settings is not null)
             if (!OverlayService.Settings.DrawnDataFields.Remove(item))
                 OverlayService.Settings.DrawnDataFields.Add(item);
     }
@@ -137,7 +133,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void MoveFieldUp(DataFieldType item)
     {
-        if(OverlayService.Settings is null)
+        if (OverlayService.Settings is null)
             return;
         int index = OverlayService.Settings.DrawnDataFields.IndexOf(item);
         if (index > 0)
