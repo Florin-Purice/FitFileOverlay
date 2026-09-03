@@ -32,6 +32,13 @@
                            IsPaneToggleVisible="True"
                            MenuItemsSource="{Binding ViewModel.MenuItems, Mode=OneWay}"
                            PaneDisplayMode="LeftFluent">
+            <ui:NavigationView.Resources>
+                <Style TargetType="{x:Type ui:NavigationViewItem}"
+                       BasedOn="{StaticResource NavigationViewItemDefaultStyle}">
+                    <Setter Property="IsEnabled"
+                            Value="{Binding ViewModel.CanNavigate, Mode=OneWay}" />
+                </Style>
+            </ui:NavigationView.Resources>
             <ui:NavigationView.ContentOverlay>
                 <Grid>
                     <ui:SnackbarPresenter x:Name="SnackbarPresenter" />

@@ -1,16 +1,26 @@
-﻿using FitFileOverlay.Pages;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using FitFileOverlay.Models;
+using FitFileOverlay.Pages;
 using System.Collections.ObjectModel;
 using Wpf.Ui.Controls;
 
 namespace FitFileOverlay.Windows;
 
-public partial class MainWindowViewModel : ObservableObject
+public partial class MainWindowViewModel : ObservableObject, IRecipient<CanNavigateMessage>
 {
-    [ObservableProperty]
-    private string _applicationTitle = "Fit Overlay";
+    public MainWindowViewModel(IMessenger messenger)
+    {
+        messenger.Register<CanNavigateMessage>(this);
+    }
 
     [ObservableProperty]
-    private ObservableCollection<object> _menuItems =
+    public partial bool CanNavigate { get; set; } = true;
+
+    [ObservableProperty]
+    public partial string ApplicationTitle { get; private set; } = "Fit Overlay";
+
+    [ObservableProperty]
+    public partial ObservableCollection<object> MenuItems { get; private set; } =
     [
         new NavigationViewItem()
         {
@@ -21,7 +31,7 @@ public partial class MainWindowViewModel : ObservableObject
     ];
 
     [ObservableProperty]
-    private ObservableCollection<object> _footerMenuItems =
+    public partial ObservableCollection<object> FooterMenuItems { get; private set; } =
     [
         new NavigationViewItem()
         {
@@ -32,8 +42,13 @@ public partial class MainWindowViewModel : ObservableObject
     ];
 
     [ObservableProperty]
-    private ObservableCollection<MenuItem> _trayMenuItems =
+    public partial ObservableCollection<MenuItem> TrayMenuItems { get; private set; } =
     [
         new MenuItem { Header = "Home", Tag = "tray_home" }
     ];
+
+    public void Receive(CanNavigateMessage message)
+    {
+        CanNavigate = message.CanNavigate;
+    }
 }

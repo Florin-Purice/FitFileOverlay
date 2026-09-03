@@ -1,4 +1,5 @@
-﻿using FitFileOverlay.Models;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using FitFileOverlay.Models;
 using FitFileOverlay.Pages;
 using FitFileOverlay.Services;
 using FitFileOverlay.Windows;
@@ -28,6 +29,8 @@ public partial class App
         .ConfigureServices((context, services) =>
         {
             services.AddNavigationViewPageProvider();
+
+            services.AddSingleton<IMessenger, WeakReferenceMessenger>();
 
             services.AddHostedService<ApplicationHostService>();
 

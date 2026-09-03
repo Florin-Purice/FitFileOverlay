@@ -1,4 +1,5 @@
-﻿using FitFileOverlay.Models;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using FitFileOverlay.Models;
 using FitFileOverlay.Services;
 using Instances.Exceptions;
 using Microsoft.Win32;
@@ -10,7 +11,7 @@ using Wpf.Ui.Extensions;
 
 namespace FitFileOverlay.Pages;
 
-public partial class HomePageViewModel(IOverlayService overlayService, IContentDialogService contentDialogService) : ObservableObject
+public partial class HomePageViewModel(IOverlayService _overlayService, IContentDialogService _contentDialogService, IMessenger _messenger) : ObservableObject
 {
     private DateTime _exportVideoStartTime;
 
@@ -35,7 +36,7 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
     public bool IsNotBusy => !IsBusy;
 
     [ObservableProperty]
-    public partial IOverlayService OverlayService { get; private set; } = overlayService;
+    public partial IOverlayService OverlayService { get; private set; } = _overlayService;
 
     private bool CanLoadFile()
     {
@@ -104,6 +105,10 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
             {
                 ExportVideoLog = "No installation of ffmpeg found. Install ffmpeg or use the portable version of this app.";
             }
+            finally
+            {
+                IsExportingVideo = false;
+            }
             //If exporting was canceled display a message else report success
             if (cancellationToken.IsCancellationRequested)
                 ExportVideoLog = "Export canceled";
@@ -116,13 +121,12 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
         }
         //Re-enable window interaction
         IsBusy = false;
-        IsExportingVideo = false;
     }
 
     [RelayCommand]
     public async Task CancelExport(object content)
     {
-        ContentDialogResult result = await contentDialogService.ShowSimpleDialogAsync(
+        ContentDialogResult result = await _contentDialogService.ShowSimpleDialogAsync(
             new SimpleContentDialogCreateOptions()
             {
                 Title = "Are you sure you want to cancel?",
@@ -147,5 +151,10 @@ public partial class HomePageViewModel(IOverlayService overlayService, IContentD
         string durationString = exportDuration.TotalHours < 1 ? exportDuration.ToString(@"mm\:ss") : exportDuration.ToString(@"h\:mm\:ss");
         ExportVideoLog = "Elapsed time " + durationString;
         ExportVideoProgress = progress;
+    }
+
+    partial void OnIsExportingVideoChanged(bool value)
+    {
+        _messenger.Send(new CanNavigateMessage(!value));
     }
 }
