@@ -4,11 +4,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="OpenTK.GLWpfControl" Version="4.3.6" />
+    <PackageReference Include="SkiaSharp" Version="4.151.2" />
     <PackageReference Include="TUnit" Version="1.6*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FitFileOverlay\FitFileOverlay.csproj" />
   </ItemGroup>
 
 </Project>
