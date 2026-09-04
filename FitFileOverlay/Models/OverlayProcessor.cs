@@ -1,4 +1,5 @@
 ﻿using FFMpegCore;
+using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Pipes;
 using FitFileOverlay.Enums;
 using FitFileOverlay.Helpers;
@@ -189,7 +190,7 @@ public class OverlayProcessor
             }
             //create frame and return
             progressReportCallback?.Invoke((double)i / records.Count);
-            yield return new SKBitmapFrame(sKBitmap);
+            yield return new BitmapVideoFrameWrapper(sKBitmap);
         }
     }
 
