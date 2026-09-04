@@ -3,20 +3,15 @@ using SkiaSharp;
 
 namespace FitFileOverlay.Services;
 
-public partial class OverlayService : ObservableObject, IOverlayService
+public partial class OverlayService(OverlaySettings overlaySettings) : ObservableObject, IOverlayService
 {
-    public OverlayService(OverlaySettings overlaySettings)
-    {
-        Settings = overlaySettings;
-    }
-
     public event Action? NewFileLoaded;
     public event NewSettingsAppiedEventHandler? NewSettingsApplied;
 
     [ObservableProperty]
     public partial OverlayProcessor? Processor { get; private set; }
     [ObservableProperty]
-    public partial OverlaySettings? Settings { get; set; }
+    public partial OverlaySettings? Settings { get; set; } = overlaySettings;
     [ObservableProperty]
     public partial FitFile? File { get; private set; }
 
