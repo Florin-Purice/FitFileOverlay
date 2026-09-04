@@ -4,7 +4,7 @@ using Wpf.Ui.Appearance;
 
 namespace FitFileOverlay.Helpers;
 
-internal class EnumToBooleanConverter : IValueConverter
+public class EnumToBooleanConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {

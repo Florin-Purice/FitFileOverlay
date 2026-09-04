@@ -7,7 +7,7 @@ using System.Windows.Data;
 
 namespace FitFileOverlay.Helpers;
 
-internal class DrawnFieldListToBooleanConverter : IValueConverter
+public class DrawnFieldListToBooleanConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {

@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace FitFileOverlay.Helpers;
 
-internal class CollectionToVisibilityConverter : IValueConverter
+public class CollectionToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {

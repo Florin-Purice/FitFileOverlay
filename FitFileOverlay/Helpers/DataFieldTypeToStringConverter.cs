@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace FitFileOverlay.Helpers;
 
-internal class DataFieldTypeToStringConverter : IValueConverter
+public class DataFieldTypeToStringConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
