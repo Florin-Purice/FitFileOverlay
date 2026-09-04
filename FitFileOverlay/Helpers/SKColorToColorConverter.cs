@@ -10,7 +10,7 @@ public class SKColorToColorConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value == null || value is not SKColor)
-            throw new Exception("value is not a SKColor object");
+            throw new ArgumentException("value is not a SKColor object");
         SKColor color = (SKColor)value;
         return Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
     }
@@ -18,7 +18,7 @@ public class SKColorToColorConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value == null || value is not Color)
-            throw new Exception("value is not a Color object");
+            throw new ArgumentException("value is not a Color object");
         Color color = (Color)value;
         return new SKColor(color.R, color.G, color.B, color.A);
     }
