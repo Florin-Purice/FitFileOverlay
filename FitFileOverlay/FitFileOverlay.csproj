@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -19,7 +19,7 @@
     <PackageReference Include="Garmin.FIT.Sdk" Version="21.214.0" />
     <PackageReference Include="OpenTK.GLWpfControl" Version="4.3.6" />
     <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.2.3" />
-    <PackageReference Include="SkiaSharp.Views.WPF" Version="4.151.1" NoWarn="NU1701" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="4.151.2" NoWarn="NU1701" />
     <PackageReference Include="WPF-UI" Version="4.3.0" />
     <PackageReference Include="WPF-UI.DependencyInjection" Version="4.3.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.11" />
