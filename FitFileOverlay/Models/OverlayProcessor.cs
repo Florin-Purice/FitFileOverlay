@@ -27,7 +27,7 @@ public class OverlayProcessor
         //insert interpolated records if needed
         List<IActivityRecord> records;
         if (settings.FPS > 1)
-            records = InsertInterpolatedRecord(FitFile.Records, settings.FPS);
+            records = InterpolateRecords(FitFile.Records, settings.FPS);
         else
             records = FitFile.Records;
         //create list of unitary screenspace gps points
@@ -380,7 +380,7 @@ public class OverlayProcessor
     ///                   but in case the time gap between two consecutive records is greater than 1 second the number 
     ///                   of output records between those two records will be multiplied by the time gap</param>
     /// <returns></returns>
-    private static List<IActivityRecord> InsertInterpolatedRecord(List<IActivityRecord> originalList, uint fps)
+    private static List<IActivityRecord> InterpolateRecords(List<IActivityRecord> originalList, uint fps)
     {
         List<IActivityRecord> newList = [];
         for (int i = 0; i < originalList.Count - 1; ++i)

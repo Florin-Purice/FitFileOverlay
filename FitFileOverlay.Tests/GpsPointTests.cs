@@ -7,7 +7,7 @@ public class GpsPointTests
 {
     [Test]
     [MethodDataSource(typeof(GpsPointTestDataSources), nameof(GpsPointTestDataSources.PointsListToUnitaryScreenSpaceTestData))]
-    public async Task PointsListToUnitaryScreenSpace_ValidInput_IsInsideExpectedBounds(GpsPointPointsListToUnitaryScreenSpaceTestData testData)
+    public async Task PointsListToUnitaryScreenSpace_IsInsideExpectedBounds(GpsPointPointsListToUnitaryScreenSpaceTestData testData)
     {
         //Arrange
 
