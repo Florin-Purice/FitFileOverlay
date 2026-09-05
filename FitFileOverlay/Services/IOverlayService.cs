@@ -9,7 +9,6 @@ public interface IOverlayService : INotifyPropertyChanged
     event Action? NewFileLoaded;
     event NewSettingsAppiedEventHandler? NewSettingsApplied;
 
-    OverlayProcessor? Processor { get; }
     OverlaySettings? Settings { get; set; }
     FitFile? File { get; }
 
