@@ -5,6 +5,7 @@ using FitFileOverlay.Enums;
 using FitFileOverlay.Helpers;
 using FitFileOverlay.Models;
 using SkiaSharp;
+using System.IO;
 
 namespace FitFileOverlay.Services;
 
@@ -20,18 +21,11 @@ public partial class OverlayService : ObservableObject, IOverlayService
 
     public bool Load(string fileName)
     {
-        try
-        {
-            FitFile newFile = new(fileName);
-            if (!newFile.IsValid)
-                return false;
-            File = newFile;
-            return true;
-        }
-        catch
-        {
+        FitFile newFile = new(fileName);
+        if (!newFile.IsValid)
             return false;
-        }
+        File = newFile;
+        return true;
     }
 
     public async Task Export(string outputFilename, Action<double>? progressReportCallback = null, CancellationToken? cancellationToken = null)
@@ -48,10 +42,8 @@ public partial class OverlayService : ObservableObject, IOverlayService
             List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(fullRecordList, out double gpsAspectRatio);
             //Generate video frames and encode video using FFMpegCore
             IEnumerable<IVideoFrame> frames = CreateVideoFrames(fullRecordList, normalizedPoints, gpsAspectRatio, progressReportCallback);
-            RawVideoPipeSource framesSource = new(frames)
-            {
-                FrameRate = Settings.FPS,
-            };
+            RawVideoPipeSource framesSource = new(frames){ FrameRate = Settings.FPS };
+            Directory.CreateDirectory(Path.GetDirectoryName(outputFilename) ?? string.Empty);
             await FFMpegArguments.FromPipeInput(framesSource)
                 .OutputToFile(outputFilename, true, opt => opt
                     .WithFramerate(Settings.FPS)
