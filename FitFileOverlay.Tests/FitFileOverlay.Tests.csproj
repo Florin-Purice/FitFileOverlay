@@ -17,4 +17,16 @@
     <ProjectReference Include="..\FitFileOverlay\FitFileOverlay.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\invalid.fit">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\short.fit">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\valid.fit">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
