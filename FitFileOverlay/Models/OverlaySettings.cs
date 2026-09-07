@@ -81,7 +81,7 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial string PaceLabel { get; set; } = "Pace";
     [ObservableProperty]
-    public partial string PaceUnit { get; set; } = "/KM";
+    public partial PaceUnit PaceUnit { get; set; } = PaceUnit.MinutesPerKilometer;
     //Distance stuff
     [ObservableProperty]
     public partial string DistanceLabel { get; set; } = "Distance";

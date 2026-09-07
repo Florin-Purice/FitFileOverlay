@@ -28,6 +28,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _contentDialogService = contentDialogService;
         _previewWindowViewModel = new PreviewWindowViewModel(OverlayService);
         FontFamilies = new ObservableCollection<string>(SKFontManager.Default.FontFamilies);
+        PaceUnits = Enum.GetValues<PaceUnit>();
     }
 
     [ObservableProperty]
@@ -41,6 +42,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     [ObservableProperty]
     public partial ObservableCollection<string> FontFamilies { get; set; }
+    [ObservableProperty]
+    public partial PaceUnit[] PaceUnits { get; private set; }
 
     public Task OnNavigatedToAsync()
     {

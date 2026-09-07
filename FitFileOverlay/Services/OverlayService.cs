@@ -245,8 +245,8 @@ public partial class OverlayService : ObservableObject, IOverlayService
         {
             case DataFieldType.Pace:
                 label = Settings!.PaceLabel;
-                value = CreatePaceStringFromSpeed(record.Speed);
-                unit = Settings!.PaceUnit;
+                value = ConvertSpeedToPaceString(record.Speed, Settings!.PaceUnit);
+                unit = Settings!.PaceUnit == PaceUnit.MinutesPerKilometer ? "/km" : "/mi";
                 break;
             case DataFieldType.HeartRate:
                 label = Settings!.HrLabel;
@@ -440,14 +440,24 @@ public partial class OverlayService : ObservableObject, IOverlayService
         return pathRendererOptions;
     }
 
-    private static string CreatePaceStringFromSpeed(float? speed)
+    private static string ConvertSpeedToPaceString(float? speed, PaceUnit unit)
     {
-        int secPerKm = (int)(1000 / (speed ?? 0f));
+        int secPerUnitDistance;
+        switch (unit)
+        {
+            case PaceUnit.MinutesPerMile:
+                secPerUnitDistance = (int)(1609.34 / (speed ?? 0f));
+                break;
+            case PaceUnit.MinutesPerKilometer:
+            default:
+                secPerUnitDistance = (int)(1000 / (speed ?? 0f));
+                break;
+        }
         string paceString;
-        if (secPerKm < 1 || secPerKm > 3600)
+        if (secPerUnitDistance < 1 || secPerUnitDistance > 3600)
             paceString = "--'--\"";
         else
-            paceString = $"{secPerKm / 60}'{secPerKm % 60:D2}\"";
+            paceString = $"{secPerUnitDistance / 60}'{secPerUnitDistance % 60:D2}\"";
         return paceString;
     }
 
