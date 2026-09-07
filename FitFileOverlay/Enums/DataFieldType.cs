@@ -6,12 +6,12 @@ namespace FitFileOverlay.Enums;
 [TypeConverter(typeof(EnumDescriptionTypeConverter))]
 public enum DataFieldType
 {
-    Pace,
+    [Description("Pace")] Pace,
     [Description("Heart Rate")] HeartRate,
-    Distance,
-    Timestamp,
-    Cadence,
-    Speed,
-    Power,
+    [Description("Distance")] Distance,
+    [Description("Timestamp")] Timestamp,
+    [Description("Cadence")] Cadence,
+    [Description("Speed")] Speed,
+    [Description("Power")] Power,
     [Description("Stride Length")] StrideLength
 }
