@@ -1,5 +1,5 @@
-﻿using FitFileOverlay.Enums;
-using FitFileOverlay.Helpers;
+﻿using FitFileOverlay.Converters;
+using FitFileOverlay.Enums;
 
 namespace FitFileOverlay.Tests;
 

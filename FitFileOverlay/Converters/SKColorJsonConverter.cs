@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace FitFileOverlay.Helpers;
+namespace FitFileOverlay.Converters;
 
 public class SKColorJsonConverter : JsonConverter<SKColor>
 {
