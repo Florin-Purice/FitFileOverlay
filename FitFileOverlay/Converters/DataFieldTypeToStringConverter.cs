@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace FitFileOverlay.Helpers;
+namespace FitFileOverlay.Converters;
 
 public class DataFieldTypeToStringConverter : IValueConverter
 {

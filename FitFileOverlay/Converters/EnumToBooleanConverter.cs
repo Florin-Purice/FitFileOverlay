@@ -2,7 +2,7 @@
 using System.Windows.Data;
 using Wpf.Ui.Appearance;
 
-namespace FitFileOverlay.Helpers;
+namespace FitFileOverlay.Converters;
 
 public class EnumToBooleanConverter : IValueConverter
 {
