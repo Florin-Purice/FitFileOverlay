@@ -20,7 +20,6 @@
     <Page.Resources>
         <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
         <converters:SKColorToColorConverter x:Key="SKColorToColorConverter" />
-        <converters:DataFieldTypeToStringConverter x:Key="DataFieldTypeToStringConverter" />
         <converters:DrawnFieldListToBooleanConverter x:Key="DrawnFieldListToBooleanConverter" />
         <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
     </Page.Resources>
@@ -1465,7 +1464,7 @@
                                                    Margin="5,0,15,0"
                                                    Command="{Binding ViewModel.MoveFieldDownCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                                    CommandParameter="{Binding}" />
-                                        <TextBlock Text="{Binding Converter={StaticResource DataFieldTypeToStringConverter}}"
+                                        <TextBlock Text="{Binding}"
                                                    VerticalAlignment="Center" />
                                     </StackPanel>
                                 </DataTemplate>
