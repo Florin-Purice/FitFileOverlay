@@ -1,14 +1,17 @@
-﻿namespace FitFileOverlay.Enums;
+﻿using FitFileOverlay.Converters;
+using System.ComponentModel;
 
-[Flags]
+namespace FitFileOverlay.Enums;
+
+[TypeConverter(typeof(EnumDescriptionTypeConverter))]
 public enum DataFieldType
 {
     Pace,
-    HeartRate,
+    [Description("Heart Rate")] HeartRate,
     Distance,
     Timestamp,
     Cadence,
     Speed,
     Power,
-    StrideLength
+    [Description("Stride Length")] StrideLength
 }
