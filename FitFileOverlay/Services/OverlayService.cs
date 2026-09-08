@@ -246,17 +246,19 @@ public partial class OverlayService : ObservableObject, IOverlayService
             case DataFieldType.Pace:
                 label = Settings!.PaceLabel;
                 value = ConvertSpeedToPaceString(record.Speed, Settings!.PaceUnit);
-                unit = Settings!.PaceUnit == PaceUnit.MinutesPerKilometer ? "/km" : "/mi";
+                unit = Settings.PaceUnit == PaceUnit.MinutesPerKilometer ? "/km" : "/mi";
+                if(Settings.UppercasePaceUnit)
+                    unit = unit.ToUpper();
                 break;
             case DataFieldType.HeartRate:
                 label = Settings!.HrLabel;
                 value = record.HeartRate.ToString() ?? string.Empty;
-                unit = Settings!.HrUnit;
+                unit = Settings.UppercaseHrUnit ? "BPM" : "bpm";
                 rendererOptionsBase.ValueColor = GetHeartRateZoneBrush(record.HeartRate ?? 0);
                 break;
             case DataFieldType.Distance:
                 label = Settings!.DistanceLabel;
-                switch (Settings!.DistanceUnit)
+                switch (Settings.DistanceUnit)
                 {
                     case DistanceUnit.Miles:
                         //meters to miles
@@ -270,12 +272,14 @@ public partial class OverlayService : ObservableObject, IOverlayService
                         unit = "km";
                         break;
                 }
+                if (Settings.UppercaseDistanceUnit)
+                    unit = unit.ToUpper();
                 break;
             case DataFieldType.Cadence:
                 label = Settings!.CadenceLabel;
                 //half cadence (rpm) to full cadence (spm)
                 value = (record.Cadence * 2)?.ToString("0") ?? string.Empty;
-                unit = Settings!.CadenceUnit;
+                unit = Settings.UppercaseCadenceUnit ? "SPM" : "spm";
                 break;
             case DataFieldType.Speed:
                 label = Settings!.SpeedLabel;
@@ -303,11 +307,13 @@ public partial class OverlayService : ObservableObject, IOverlayService
                         unit = "km/h";
                         break;
                 }
+                if (Settings.UppercaseSpeedUnit)
+                    unit = unit.ToUpper();
                 break;
             case DataFieldType.Power:
                 label = Settings!.PowerLabel;
                 value = record.Power?.ToString() ?? string.Empty;
-                unit = Settings!.PowerUnit;
+                unit = "W";
                 break;
             case DataFieldType.StrideLength:
                 label = Settings!.StrideLengthLabel;
@@ -335,6 +341,8 @@ public partial class OverlayService : ObservableObject, IOverlayService
                         unit = "m";
                         break;
                 }
+                if (Settings.UppercaseStrideLengthUnit)
+                    unit = unit.ToUpper();
                 break;
             case DataFieldType.Timestamp:
                 label = string.Empty;
