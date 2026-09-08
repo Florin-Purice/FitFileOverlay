@@ -82,16 +82,20 @@ public partial class OverlaySettings : ObservableObject
     public partial string PaceLabel { get; set; } = "Pace";
     [ObservableProperty]
     public partial PaceUnit PaceUnit { get; set; } = PaceUnit.MinutesPerKilometer;
+    [ObservableProperty]
+    public partial bool UppercasePaceUnit { get; set; } = true;
     //Distance stuff
     [ObservableProperty]
     public partial string DistanceLabel { get; set; } = "Distance";
     [ObservableProperty]
     public partial DistanceUnit DistanceUnit { get; set; } = DistanceUnit.Kilometers;
+    [ObservableProperty]
+    public partial bool UppercaseDistanceUnit { get; set; } = true;
     //HR stuff
     [ObservableProperty]
     public partial string HrLabel { get; set; } = "Heart Rate";
     [ObservableProperty]
-    public partial string HrUnit { get; set; } = "BPM";
+    public partial bool UppercaseHrUnit { get; set; } = true;
     [ObservableProperty]
     public partial SKColor Zone1Brush { get; set; } = new SKColor(166, 166, 166, 255); // Zone 1 - Gray
     [ObservableProperty]
@@ -106,22 +110,24 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial string CadenceLabel { get; set; } = "Cadence";
     [ObservableProperty]
-    public partial string CadenceUnit { get; set; } = "SPM";
+    public partial bool UppercaseCadenceUnit { get; set; } = true;
     //Speed stuff
     [ObservableProperty]
     public partial string SpeedLabel { get; set; } = "Speed";
     [ObservableProperty]
     public partial SpeedUnit SpeedUnit { get; set; } = SpeedUnit.KilometersPerHour;
+    [ObservableProperty]
+    public partial bool UppercaseSpeedUnit { get; set; } = true;
     //Power stuff
     [ObservableProperty]
     public partial string PowerLabel { get; set; } = "Power";
-    [ObservableProperty]
-    public partial string PowerUnit { get; set; } = "W";
     //Stride length stuff
     [ObservableProperty]
     public partial string StrideLengthLabel { get; set; } = "Stride Length";
     [ObservableProperty]
     public partial StrideLengthUnit StrideLengthUnit { get; set; } = StrideLengthUnit.Meters;
+    [ObservableProperty]
+    public partial bool UppercaseStrideLengthUnit { get; set; } = true;
     //Timestamp
     [ObservableProperty]
     public partial float TimestampFontSize { get; set; } = 32f;

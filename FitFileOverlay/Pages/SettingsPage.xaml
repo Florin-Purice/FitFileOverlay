@@ -740,6 +740,8 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0"
                               Margin="10">
@@ -783,10 +785,36 @@
                                       SelectedValue="{Binding ViewModel.OverlayService.Settings.PaceUnit}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding}"/>
+                                        <TextBlock Text="{Binding}" />
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
+                        </Grid>
+                        <Border Grid.Row="3"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid  Grid.Row="4"
+                               Margin="10,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="TextCaseUppercase24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Unit capitalization"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="2"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="Uppercase"
+                                             OffContent="Lowercase"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.UppercasePaceUnit}" />
+
                         </Grid>
                     </Grid>
                 </ui:CardExpander>
@@ -821,6 +849,8 @@
                     </ui:CardExpander.Header>
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -871,6 +901,32 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
+                        </Grid>
+                        <Border Grid.Row="3"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid  Grid.Row="4"
+                               Margin="10,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="TextCaseUppercase24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Unit capitalization"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="2"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="Uppercase"
+                                             OffContent="Lowercase"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.UppercaseDistanceUnit}" />
+
                         </Grid>
                     </Grid>
                 </ui:CardExpander>
@@ -942,23 +998,27 @@
                                 BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
                                 BorderThickness="0,0,0,1" />
                         <Grid  Grid.Row="2"
-                               Margin="10">
+                               Margin="10,18">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="40" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <ui:SymbolIcon Grid.Column="0"
-                                           Symbol="Check24" />
+                                           Symbol="TextCaseUppercase24" />
                             <ui:TextBlock Grid.Column="1"
                                           FontTypography="BodyStrong"
                                           VerticalAlignment="Center"
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Unit"
+                                          Text="Unit capitalization"
                                           TextWrapping="WrapWithOverflow" />
-                            <ui:TextBox Grid.Column="2"
-                                        Width="110"
-                                        Text="{Binding ViewModel.OverlayService.Settings.HrUnit, UpdateSourceTrigger=PropertyChanged}" />
+                            <ui:ToggleSwitch Grid.Column="2"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="Uppercase"
+                                             OffContent="Lowercase"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.UppercaseHrUnit}" />
+
                         </Grid>
                         <Border Grid.Row="3"
                                 BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
@@ -1140,23 +1200,27 @@
                                 BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
                                 BorderThickness="0,0,0,1" />
                         <Grid  Grid.Row="2"
-                               Margin="10">
+                               Margin="10,18">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="40" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <ui:SymbolIcon Grid.Column="0"
-                                           Symbol="Check24" />
+                                           Symbol="TextCaseUppercase24" />
                             <ui:TextBlock Grid.Column="1"
                                           FontTypography="BodyStrong"
                                           VerticalAlignment="Center"
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Unit"
+                                          Text="Unit capitalization"
                                           TextWrapping="WrapWithOverflow" />
-                            <ui:TextBox Grid.Column="2"
-                                        Width="110"
-                                        Text="{Binding ViewModel.OverlayService.Settings.CadenceUnit, UpdateSourceTrigger=PropertyChanged}" />
+                            <ui:ToggleSwitch Grid.Column="2"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="Uppercase"
+                                             OffContent="Lowercase"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.UppercaseCadenceUnit}" />
+
                         </Grid>
                     </Grid>
                 </ui:CardExpander>
@@ -1191,6 +1255,8 @@
                     </ui:CardExpander.Header>
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -1242,6 +1308,32 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                         </Grid>
+                        <Border Grid.Row="3"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid  Grid.Row="4"
+                               Margin="10,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="TextCaseUppercase24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Unit capitalization"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="2"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="Uppercase"
+                                             OffContent="Lowercase"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.UppercaseSpeedUnit}" />
+
+                        </Grid>
                     </Grid>
                 </ui:CardExpander>
                 <!--Power field-->
@@ -1273,53 +1365,23 @@
                                 Mode=OneWay}" />
                         </Grid>
                     </ui:CardExpander.Header>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0"
-                              Margin="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="40" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <ui:SymbolIcon Grid.Column="0"
-                                           Symbol="TextEditStyle24" />
-                            <ui:TextBlock Grid.Column="1"
-                                          FontTypography="BodyStrong"
-                                          VerticalAlignment="Center"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Label"
-                                          TextWrapping="WrapWithOverflow" />
-                            <ui:TextBox Grid.Column="2"
-                                        Width="110"
-                                        Text="{Binding ViewModel.OverlayService.Settings.PowerLabel, UpdateSourceTrigger=PropertyChanged}" />
-                        </Grid>
-                        <Border Grid.Row="1"
-                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
-                                BorderThickness="0,0,0,1" />
-                        <Grid  Grid.Row="2"
-                               Margin="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="40" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <ui:SymbolIcon Grid.Column="0"
-                                           Symbol="Check24" />
-                            <ui:TextBlock Grid.Column="1"
-                                          FontTypography="BodyStrong"
-                                          VerticalAlignment="Center"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Unit"
-                                          TextWrapping="WrapWithOverflow" />
-                            <ui:TextBox Grid.Column="2"
-                                        Width="110"
-                                        Text="{Binding ViewModel.OverlayService.Settings.PowerUnit, UpdateSourceTrigger=PropertyChanged}" />
-                        </Grid>
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:SymbolIcon Grid.Column="0"
+                                       Symbol="TextEditStyle24" />
+                        <ui:TextBlock Grid.Column="1"
+                                      FontTypography="BodyStrong"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Label"
+                                      TextWrapping="WrapWithOverflow" />
+                        <ui:TextBox Grid.Column="2"
+                                    Width="110"
+                                    Text="{Binding ViewModel.OverlayService.Settings.PowerLabel, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                 </ui:CardExpander>
                 <!--Stride length field-->
@@ -1353,6 +1415,8 @@
                     </ui:CardExpander.Header>
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -1403,6 +1467,32 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
+                        </Grid>
+                        <Border Grid.Row="3"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid  Grid.Row="4"
+                               Margin="10,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="TextCaseUppercase24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Unit capitalization"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="2"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="Uppercase"
+                                             OffContent="Lowercase"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.UppercaseStrideLengthUnit}" />
+
                         </Grid>
                     </Grid>
                 </ui:CardExpander>
@@ -1471,8 +1561,8 @@
                                           VerticalAlignment="Center"
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                           Text="Data field ordering"
-                                          TextWrapping="WrapWithOverflow" 
-                                          Margin="15,0,0,0"/>
+                                          TextWrapping="WrapWithOverflow"
+                                          Margin="15,0,0,0" />
                         </StackPanel>
                         <ui:ListView ItemsSource="{Binding ViewModel.OverlayService.Settings.DrawnDataFields}"
                                      Margin="15,0,15,15">
