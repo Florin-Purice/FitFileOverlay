@@ -256,9 +256,20 @@ public partial class OverlayService : ObservableObject, IOverlayService
                 break;
             case DataFieldType.Distance:
                 label = Settings!.DistanceLabel;
-                //meters to kilometers
-                value = (record.Distance / 1000)?.ToString("0.00") ?? string.Empty;
-                unit = Settings!.DistanceUnit;
+                switch (Settings!.DistanceUnit)
+                {
+                    case DistanceUnit.Miles:
+                        //meters to miles
+                        value = (record.Distance / 1609.34)?.ToString("0.00") ?? string.Empty;
+                        unit = "mi";
+                        break;
+                    case DistanceUnit.Kilometers:
+                    default:
+                        //meters to kilometers
+                        value = (record.Distance / 1000)?.ToString("0.00") ?? string.Empty;
+                        unit = "km";
+                        break;
+                }
                 break;
             case DataFieldType.Cadence:
                 label = Settings!.CadenceLabel;
@@ -268,9 +279,30 @@ public partial class OverlayService : ObservableObject, IOverlayService
                 break;
             case DataFieldType.Speed:
                 label = Settings!.SpeedLabel;
-                // m/s to km/h
-                value = (record.Speed * 3.6)?.ToString("0.0") ?? string.Empty;
-                unit = Settings!.SpeedUnit;
+                switch (Settings!.SpeedUnit)
+                {
+                    case SpeedUnit.MilesPerHour:
+                        // m/s to mph
+                        value = (record.Speed * 2.23694)?.ToString("0.0") ?? string.Empty;
+                        unit = "mph";
+                        break;
+                    case SpeedUnit.FeetPerSecond:
+                        // m/s to ft/s
+                        value = (record.Speed * 3.28084)?.ToString("0.0") ?? string.Empty;
+                        unit = "ft/s";
+                        break;
+                    case SpeedUnit.MetersPerSecond:
+                        // m/s
+                        value = record.Speed?.ToString("0.0") ?? string.Empty;
+                        unit = "m/s";
+                        break;
+                    case SpeedUnit.KilometersPerHour:
+                    default:
+                        // m/s to km/h
+                        value = (record.Speed * 3.6)?.ToString("0.0") ?? string.Empty;
+                        unit = "km/h";
+                        break;
+                }
                 break;
             case DataFieldType.Power:
                 label = Settings!.PowerLabel;
@@ -279,9 +311,30 @@ public partial class OverlayService : ObservableObject, IOverlayService
                 break;
             case DataFieldType.StrideLength:
                 label = Settings!.StrideLengthLabel;
-                // milimeters to meters
-                value = (record.StrideLength / 1000)?.ToString("0.00") ?? string.Empty;
-                unit = Settings!.StrideLengthUnit;
+                switch (Settings!.StrideLengthUnit)
+                {
+                    case StrideLengthUnit.Feet:
+                        // milimeters to feet
+                        value = (record.StrideLength / 304.8)?.ToString("0.00") ?? string.Empty;
+                        unit = "ft";
+                        break;
+                    case StrideLengthUnit.Centimeters:
+                        // milimeters to centimeters
+                        value = (record.StrideLength / 10)?.ToString("0") ?? string.Empty;
+                        unit = "cm";
+                        break;
+                    case StrideLengthUnit.Inches:
+                        // milimeters to inches
+                        value = (record.StrideLength / 25.4)?.ToString("0.0") ?? string.Empty;
+                        unit = "in";
+                        break;
+                    case StrideLengthUnit.Meters:
+                    default:
+                        // milimeters to meters
+                        value = (record.StrideLength / 1000)?.ToString("0.00") ?? string.Empty;
+                        unit = "m";
+                        break;
+                }
                 break;
             case DataFieldType.Timestamp:
                 label = string.Empty;
