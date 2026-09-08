@@ -86,7 +86,7 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial string DistanceLabel { get; set; } = "Distance";
     [ObservableProperty]
-    public partial string DistanceUnit { get; set; } = "KM";
+    public partial DistanceUnit DistanceUnit { get; set; } = DistanceUnit.Kilometers;
     //HR stuff
     [ObservableProperty]
     public partial string HrLabel { get; set; } = "Heart Rate";
@@ -111,7 +111,7 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial string SpeedLabel { get; set; } = "Speed";
     [ObservableProperty]
-    public partial string SpeedUnit { get; set; } = "KM/H";
+    public partial SpeedUnit SpeedUnit { get; set; } = SpeedUnit.KilometersPerHour;
     //Power stuff
     [ObservableProperty]
     public partial string PowerLabel { get; set; } = "Power";
@@ -121,7 +121,7 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial string StrideLengthLabel { get; set; } = "Stride Length";
     [ObservableProperty]
-    public partial string StrideLengthUnit { get; set; } = "M";
+    public partial StrideLengthUnit StrideLengthUnit { get; set; } = StrideLengthUnit.Meters;
     //Timestamp
     [ObservableProperty]
     public partial float TimestampFontSize { get; set; } = 32f;

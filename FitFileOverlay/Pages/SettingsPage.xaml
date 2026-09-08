@@ -862,9 +862,15 @@
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                           Text="Unit"
                                           TextWrapping="WrapWithOverflow" />
-                            <ui:TextBox Grid.Column="2"
-                                        Width="110"
-                                        Text="{Binding ViewModel.OverlayService.Settings.DistanceUnit, UpdateSourceTrigger=PropertyChanged}" />
+                            <ComboBox Grid.Column="2"
+                                      ItemsSource="{Binding ViewModel.DistanceUnits}"
+                                      SelectedValue="{Binding ViewModel.OverlayService.Settings.DistanceUnit}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </Grid>
                     </Grid>
                 </ui:CardExpander>
@@ -1226,9 +1232,15 @@
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                           Text="Unit"
                                           TextWrapping="WrapWithOverflow" />
-                            <ui:TextBox Grid.Column="2"
-                                        Width="110"
-                                        Text="{Binding ViewModel.OverlayService.Settings.SpeedUnit, UpdateSourceTrigger=PropertyChanged}" />
+                            <ComboBox Grid.Column="2"
+                                      ItemsSource="{Binding ViewModel.SpeedUnits}"
+                                      SelectedValue="{Binding ViewModel.OverlayService.Settings.SpeedUnit}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </Grid>
                     </Grid>
                 </ui:CardExpander>
@@ -1382,9 +1394,15 @@
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                           Text="Unit"
                                           TextWrapping="WrapWithOverflow" />
-                            <ui:TextBox Grid.Column="2"
-                                        Width="110"
-                                        Text="{Binding ViewModel.OverlayService.Settings.StrideLengthUnit, UpdateSourceTrigger=PropertyChanged}" />
+                            <ComboBox Grid.Column="2"
+                                      ItemsSource="{Binding ViewModel.StrideLengthUnits}"
+                                      SelectedValue="{Binding ViewModel.OverlayService.Settings.StrideLengthUnit}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </Grid>
                     </Grid>
                 </ui:CardExpander>

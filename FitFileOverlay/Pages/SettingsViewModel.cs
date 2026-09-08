@@ -29,6 +29,9 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _previewWindowViewModel = new PreviewWindowViewModel(OverlayService);
         FontFamilies = new ObservableCollection<string>(SKFontManager.Default.FontFamilies);
         PaceUnits = Enum.GetValues<PaceUnit>();
+        DistanceUnits = Enum.GetValues<DistanceUnit>();
+        SpeedUnits = Enum.GetValues<SpeedUnit>();
+        StrideLengthUnits = Enum.GetValues<StrideLengthUnit>();
     }
 
     [ObservableProperty]
@@ -44,6 +47,12 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public partial ObservableCollection<string> FontFamilies { get; set; }
     [ObservableProperty]
     public partial PaceUnit[] PaceUnits { get; private set; }
+    [ObservableProperty]
+    public partial DistanceUnit[] DistanceUnits { get; private set; }
+    [ObservableProperty]
+    public partial SpeedUnit[] SpeedUnits { get; private set; }
+    [ObservableProperty]
+    public partial StrideLengthUnit[] StrideLengthUnits { get; private set; }
 
     public Task OnNavigatedToAsync()
     {
