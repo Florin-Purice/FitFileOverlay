@@ -1,0 +1,65 @@
+name: Test
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore:
+      - 'README.md'
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  Solution_Name: FitFileOverlay.slnx
+  Test_Project_Path: FitFileOverlay.Tests/FitFileOverlay.Tests.csproj
+  Wap_Project_Directory: FitFileOverlay
+  Wap_Project_Path: FitFileOverlay/FitFileOverlay.csproj
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.x
+
+    - name: Restore
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release --no-restore
+
+    # Microsoft Testing Platform can stop the run once 10 tests fail in CI:
+    # https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-cli-options
+    # To enable retries, add Microsoft.Testing.Extensions.Retry to the test project, then pass
+    # --retry-failed-tests plus --retry-failed-tests-max-percentage <value> to skip reruns when too many tests fail:
+    # https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-retry#retry-1
+    - name: dotnet test
+      run: dotnet test --configuration Release --no-build --maximum-failed-tests 10 -- --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+      
+    - name: ReportGenerator
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.5.11
+      with:
+        reports: '**/TestResults/coverage.cobertura.xml'
+        targetdir: ${{github.workspace}}/.build/coveragereport/
+        reporttypes: Html;MarkdownSummaryGithub
+        title: 'Code Coverage'
+
+    - name: Write PR Number
+      if: ${{ github.event_name == 'pull_request' }}
+      run: |
+        New-Item -Type File -Value "${{ github.event.number }}" -Force -Path "${{github.workspace}}/.build/coveragereport/PullRequestNumber"
+
+    - name: Upload Code Coverage Report
+      uses: actions/upload-artifact@v7
+      with:
+        name: CodeCoverage
+        path: ${{github.workspace}}/.build/coveragereport/
+        if-no-files-found: error
