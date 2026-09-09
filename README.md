@@ -16,7 +16,7 @@ Requires [.NET Runtime](https://dotnet.microsoft.com/en-us/download/dotnet) to b
 
 ### Option 2
 
-Download the `standalone` version which doesn't require .NET Runtime to be installed.
+Download the `selfcontained` version which doesn't require .NET Runtime to be installed.
 
 > [!IMPORTANT]
 > This app makes use of [`FFMpegCore`](https://github.com/rosenbjerg/FFMpegCore) which requires either:

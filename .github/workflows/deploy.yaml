@@ -1,0 +1,91 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write   
+
+defaults:
+  run:
+    shell: pwsh
+
+env:
+  Solution_Name: FitFileOverlay.slnx
+  Test_Project_Path: FitFileOverlay.Tests/FitFileOverlay.Tests.csproj
+  Wap_Project_Directory: FitFileOverlay
+  Wap_Project_Path: FitFileOverlay/FitFileOverlay.csproj
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.x
+
+    - name: Restore
+      run: dotnet restore ${{ env.Wap_Project_Path }} -r win-x64 -p:SelfContained=true
+
+    - name: Build
+      run: dotnet build ${{ env.Wap_Project_Path }} -c Release -r win-x64 --no-restore
+
+    - name: Publish
+      run: dotnet publish ${{ env.Wap_Project_Path }} -c Release --no-self-contained -r win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=none --no-build
+
+    - name: Remove .pdb files from publish folder
+      run: Remove-Item -Path "./FitFileOverlay/bin/Release/net10.0-windows/win-x64/publish/*" -Include "*.pdb" -Recurse -Force
+
+    - name: Rename publish folder
+      run: Move-Item -Path "./FitFileOverlay/bin/Release/net10.0-windows/win-x64/publish" -Destination "./Fit Overlay"
+
+    - name: Zip
+      run: Compress-Archive -Path "./Fit Overlay" -DestinationPath "./FitOverlay_net10_win-x64.zip"
+
+    - name: Remove publish directory
+      run: Remove-Item -Recurse -Force "./Fit Overlay"
+
+    - name: Remove bin directory
+      run: Remove-Item -Recurse -Force "./FitFileOverlay/bin"
+
+    - name: Clean
+      run: dotnet clean -c Release
+
+    - name: Restore
+      run: dotnet restore ${{ env.Wap_Project_Path }} -r win-x64 -p:SelfContained=true
+
+    - name: Build SelfContained
+      run: dotnet build ${{ env.Wap_Project_Path }} -c Release --self-contained -r win-x64 --no-restore
+
+    - name: Publish SelfContained
+      run: dotnet publish ${{ env.Wap_Project_Path }} -c Release --self-contained -r win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=none --no-build
+
+    - name: Remove .pdb files from publish folder
+      run: Remove-Item -Path "./FitFileOverlay/bin/Release/net10.0-windows/win-x64/publish/*" -Include "*.pdb" -Recurse -Force
+
+    - name: Rename publish folder
+      run: Move-Item -Path "./FitFileOverlay/bin/Release/net10.0-windows/win-x64/publish" -Destination "./Fit Overlay"
+
+    - name: Zip SelfContained
+      run: Compress-Archive -Path "./Fit Overlay" -DestinationPath "./FitOverlay_selfcontained_win-x64.zip"
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v3
+      with:
+        name: Fit Overlay ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        files: |
+          FitOverlay_net10_win-x64.zip
+          FitOverlay_selfcontained_win-x64.zip
