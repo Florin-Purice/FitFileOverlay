@@ -24,6 +24,12 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Setup ffmpeg
+      uses: FedericoCarboni/setup-ffmpeg@v3
+      with:
+        ffmpeg-version: release
+        architecture: 'x64'
+
     # Install the .NET Core workload
     - name: Install .NET Core
       uses: actions/setup-dotnet@v6
