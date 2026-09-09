@@ -1661,7 +1661,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0"
-                                           Text="GitHub repository" />
+                                           Text="Source code" />
                                 <ui:SymbolIcon Grid.Column="1"
                                                Symbol="Link24" />
                             </Grid>
