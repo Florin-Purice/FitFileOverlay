@@ -73,7 +73,7 @@ public class OverlayServiceTests
     {
         // Arrange
         IOverlayService sut = App.Services.GetService<IOverlayService>()!;
-        string fileName = Path.Combine(TestContext.ResultsDirectory, "OverlayService_Export", "output.mov");
+        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "OverlayService_Export", "output.mov");
         // Delete the file if it already exists
         if (File.Exists(fileName))
             File.Delete(fileName);

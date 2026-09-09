@@ -18,7 +18,7 @@ public class DataFieldRendererTests
         //Assert
         await Assert.That(result).IsNotNull();
         //save result image to file and attach artifact
-        string fileName = Path.Combine(TestContext.ResultsDirectory, "DataFieldRenderer", (testData.FileName ?? string.Empty));
+        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "DataFieldRenderer", (testData.FileName ?? string.Empty));
         SaveImageToFile(result, fileName);
         TestContext.Current!.Output.AttachArtifact(fileName);
     }

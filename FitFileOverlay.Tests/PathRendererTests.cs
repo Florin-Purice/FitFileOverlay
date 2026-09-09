@@ -18,7 +18,7 @@ public class PathRendererTests
         //Assert
         await Assert.That(result).IsNotNull();
         //save result image to file and attach artifact
-        string fileName = Path.Combine(TestContext.ResultsDirectory, "PathRenderer_RenderFull", (testData.FileName ?? string.Empty));
+        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "PathRenderer_RenderFull", (testData.FileName ?? string.Empty));
         SaveImageToFile(result, fileName);
         TestContext.Current!.Output.AttachArtifact(fileName);
     }
@@ -36,7 +36,7 @@ public class PathRendererTests
         //Assert
         await Assert.That(result).IsNotNull();
         //save result image to file and attach artifact
-        string fileName = Path.Combine(TestContext.ResultsDirectory, "PathRenderer_RenderUntilPoint", (testData.FileName ?? string.Empty));
+        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "PathRenderer_RenderUntilPoint", (testData.FileName ?? string.Empty));
         SaveImageToFile(result, fileName);
         TestContext.Current!.Output.AttachArtifact(fileName);
     }

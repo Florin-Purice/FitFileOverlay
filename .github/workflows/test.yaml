@@ -24,17 +24,21 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Setup ffmpeg
-      uses: FedericoCarboni/setup-ffmpeg@v3
-      with:
-        ffmpeg-version: release
-        architecture: 'x64'
+    - name: Setup FFmpeg
+      uses: AnimMouse/setup-ffmpeg@v1.2.5
 
     # Install the .NET Core workload
     - name: Install .NET Core
       uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.x
+
+    - name: Enable Automated Test Report Artifact Upload
+      uses: actions/github-script@v9
+      with:
+        script: |
+          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+          core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
     - name: Restore
       run: dotnet restore
@@ -68,4 +72,14 @@ jobs:
       with:
         name: CodeCoverage
         path: ${{github.workspace}}/.build/coveragereport/
+        if-no-files-found: error
+
+    - name: Archive test output directory
+      run: Compress-Archive -Path "./TestResults/TestOutput/*" -DestinationPath "./TestOutput.zip"
+
+    - name: Upload TestOutput zip
+      uses: actions/upload-artifact@v7
+      with:
+        name: TestOutput
+        path: "./TestOutput.zip"
         if-no-files-found: error
