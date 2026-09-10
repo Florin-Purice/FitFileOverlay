@@ -20,6 +20,7 @@ public class FitRecord : IActivityRecord
         Cadence = recordMesg.GetCadence() + recordMesg.GetFractionalCadence();
         Power = recordMesg.GetPower();
         StrideLength = recordMesg.GetStepLength();
+        Altitude = recordMesg.GetEnhancedAltitude();
     }
 
     public DateTime TimeStamp { get; set; }
@@ -30,4 +31,5 @@ public class FitRecord : IActivityRecord
     public float? Cadence { get; set; }
     public int? Power { get; set; }
     public float? StrideLength { get; set; }
+    public float? Altitude { get; set; }
 }
