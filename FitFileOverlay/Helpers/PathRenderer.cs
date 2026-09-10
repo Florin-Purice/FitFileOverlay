@@ -20,7 +20,7 @@ public class PathRenderer
         skPaint.IsAntialias = true;
         skPaint.BlendMode = SKBlendMode.Src;
         skPaint.StrokeWidth = options.StrokeWidth;
-        skPaint.Color = options.PrimaryColor;
+        skPaint.Color = options.TertiaryColor;
 
         for (int i = 0; i < points.Count - 1; ++i)
             if (points[i] != null && points[i + 1] != null)
@@ -116,6 +116,7 @@ public struct PathRendererOptions
     public int BitmapHeight { get; set; }
     public SKColor PrimaryColor { get; set; }
     public SKColor SecondaryColor { get; set; }
+    public SKColor TertiaryColor { get; set; }
     public float StrokeWidth { get; set; }
     public int FadePointCount { get; set; }
 }

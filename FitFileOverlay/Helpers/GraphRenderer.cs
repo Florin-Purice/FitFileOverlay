@@ -50,7 +50,7 @@ public class GraphRenderer
         {
             IsAntialias = true,
             BlendMode = SKBlendMode.Src,
-            Color = options.BackgroundColor,
+            Color = options.QuaternaryColor,
             Style = SKPaintStyle.Fill
         };
         canvas.DrawPath(graphBackgroundPath, paint);
@@ -163,7 +163,7 @@ public struct GraphRendererOptions
     public SKColor PrimaryColor { get; set; }
     public SKColor SecondaryColor { get; set; }
     public SKColor TertiaryColor { get; set; }
-    public SKColor BackgroundColor { get; set; }
+    public SKColor QuaternaryColor { get; set; }
     public SKFont ValueFont { get; set; }
     public SKFont UnitFont { get; set; }
     public float LineSpacing { get; set; }

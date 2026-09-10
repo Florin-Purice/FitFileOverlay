@@ -73,7 +73,7 @@ public partial class HomePageViewModel(IOverlayService _overlayService, IContent
     public async Task ExportVideo(CancellationToken cancellationToken)
     {
         if (OverlayService.File == null ||
-            ((!OverlayService.Settings?.IsGpsOverlayEnabled ?? true) && (!OverlayService.Settings?.IsDataFieldsOverlayEnabled ?? true)))
+            (!OverlayService.Settings!.IsGpsOverlayEnabled && !OverlayService.Settings.IsDataFieldsOverlayEnabled && !OverlayService.Settings.IsAltitudeOverlayEnabled))
             return;
         //Disable window interraction
         IsBusy = true;

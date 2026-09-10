@@ -27,23 +27,36 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial SKColor SecondaryColor { get; set; } = SKColors.Orange;
     [ObservableProperty]
-    public partial int OverlayHeight { get; set; } = 800;
+    public partial SKColor TertiaryColor { get; set; } = new SKColor(127, 127, 127, 200);
+    [ObservableProperty]
+    public partial SKColor QuaternaryColor { get; set; } = new SKColor(100, 100, 100, 50);
+    [ObservableProperty]
+    public partial int FadeDurationSeconds { get; set; } = 180;
     [ObservableProperty]
     public partial bool IsDataFieldsOverlayEnabled { get; set; } = true;
     [ObservableProperty]
     public partial int DataFieldsOverlayWidth { get; set; } = 800;
     [ObservableProperty]
+    public partial int DataFieldsOverlayHeight { get; set; } = 800;
+    [ObservableProperty]
     public partial bool IsGpsOverlayEnabled { get; set; } = true;
     [ObservableProperty]
     public partial int GpsOverlayWidth { get; set; } = 800;
+    [ObservableProperty]
+    public partial int GpsOverlayHeight { get; set; } = 800;
+    [ObservableProperty]
+    public partial bool IsAltitudeOverlayEnabled { get; set; } = true;
+    [ObservableProperty]
+    public partial int AltitudeOverlayWidth { get; set; } = 1000;
+    [ObservableProperty]
+    public partial int AltitudeOverlayHeight { get; set; } = 200;
     #endregion
     #region MAP
     [ObservableProperty]
     public partial float GpsLineWidth { get; set; } = 6f;
-    [ObservableProperty]
-    public partial int GpsFadeDurationSeconds { get; set; } = 180;
-    [ObservableProperty]
-    public partial SKColor GpsOutlineColor { get; set; } = new SKColor(127, 127, 127, 200);
+    #endregion
+    #region ALTITUDE
+
     #endregion
     #region DATA_FIELD
     [ObservableProperty]
