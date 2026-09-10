@@ -7,50 +7,50 @@ namespace FitFileOverlay.Tests;
 public class PathRendererTests
 {
     [Test]
-    [PathRendererRenderFullDataGenerator]
-    public async Task RenderFullTest(PathRendererRenderFullTestData testData)
+    [PathRendererRenderStaticPartDataGenerator]
+    public async Task RenderStaticPartTest(PathRendererRenderStaticPartTestData testData)
     {
         //Arrange
 
         //Act
-        SKBitmap result = PathRenderer.RenderFull(testData.RendererOptions, testData.Points);
+        SKBitmap result = PathRenderer.RenderStaticPart(testData.RendererOptions, testData.Points);
 
         //Assert
         await Assert.That(result).IsNotNull();
         //save result image to file and attach artifact
-        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "PathRenderer_RenderFull", (testData.FileName ?? string.Empty));
+        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "PathRenderer_RenderStaticPart", (testData.FileName ?? string.Empty));
         SaveImageToFile(result, fileName);
         TestContext.Current!.Output.AttachArtifact(fileName);
     }
 
     [Test]
-    [PathRendererRenderUntilPointDataGenerator]
-    public async Task RenderUntilPoint_ValidInput_ExpectedResult(PathRendererRenderUntilPointTestData testData)
+    [PathRendererRenderTrailPartDataGenerator]
+    public async Task RenderTrailPart_ValidInput_ExpectedResult(PathRendererRenderTrailPartTestData testData)
     {
         //Arrange
 
         //Act
         SKBitmap? pathCache = null;
-        SKBitmap result = PathRenderer.RenderUntilPoint(testData.RendererOptions, testData.Points, testData.CurrentPointIndex, ref pathCache);
+        SKBitmap result = PathRenderer.RenderTrailPart(testData.RendererOptions, testData.Points, testData.CurrentPointIndex, ref pathCache);
 
         //Assert
         await Assert.That(result).IsNotNull();
         //save result image to file and attach artifact
-        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "PathRenderer_RenderUntilPoint", (testData.FileName ?? string.Empty));
+        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "PathRenderer_RenderTrailPart", (testData.FileName ?? string.Empty));
         SaveImageToFile(result, fileName);
         TestContext.Current!.Output.AttachArtifact(fileName);
     }
 
     [Test]
-    [PathRendererRenderUntilPointDataGenerator]
-    public async Task RenderUntilPoint_ValidInputWithPathCache_ExpectedResult(PathRendererRenderUntilPointTestData testData)
+    [PathRendererRenderTrailPartDataGenerator]
+    public async Task RenderTrailPart_ValidInputWithPathCache_ExpectedResult(PathRendererRenderTrailPartTestData testData)
     {
         //Arrange
 
         //Act
         SKBitmap? pathCache = null;
-        _ = PathRenderer.RenderUntilPoint(testData.RendererOptions, testData.Points, testData.CurrentPointIndex - 1, ref pathCache);
-        SKBitmap result = PathRenderer.RenderUntilPoint(testData.RendererOptions, testData.Points, testData.CurrentPointIndex, ref pathCache);
+        _ = PathRenderer.RenderTrailPart(testData.RendererOptions, testData.Points, testData.CurrentPointIndex - 1, ref pathCache);
+        SKBitmap result = PathRenderer.RenderTrailPart(testData.RendererOptions, testData.Points, testData.CurrentPointIndex, ref pathCache);
 
         //Assert
         await Assert.That(pathCache).IsNotNull();

@@ -3,16 +3,18 @@ using SkiaSharp;
 
 namespace FitFileOverlay.Tests.Data;
 
-public class PathRendererRenderFullDataGenerator : DataSourceGeneratorAttribute<PathRendererRenderFullTestData>
+public class PathRendererRenderTrailPartDataGenerator : DataSourceGeneratorAttribute<PathRendererRenderTrailPartTestData>
 {
-    protected override IEnumerable<Func<PathRendererRenderFullTestData>> GenerateDataSources(DataGeneratorMetadata dataGeneratorMetadata)
+    protected override IEnumerable<Func<PathRendererRenderTrailPartTestData>> GenerateDataSources(DataGeneratorMetadata dataGeneratorMetadata)
     {
         PathRendererOptions rendererOptions = new()
         {
             BitmapHeight = 400,
             BitmapWidth = 400,
             PrimaryColor = SKColors.White,
-            StrokeWidth = 6
+            SecondaryColor = SKColors.Orange,
+            StrokeWidth = 6,
+            FadePointCount = 6
         };
         List<SKPoint?> points =
         [
@@ -27,11 +29,11 @@ public class PathRendererRenderFullDataGenerator : DataSourceGeneratorAttribute<
             new SKPoint(360, 390),
             new SKPoint(300, 100)
         ];
-        yield return () => new PathRendererRenderFullTestData(rendererOptions, points, "Test1.png");
+        yield return () => new PathRendererRenderTrailPartTestData(rendererOptions, points, 8, "Test1.png");
 
         rendererOptions.PrimaryColor = new SKColor(250, 0, 0, 50);
-        yield return () => new PathRendererRenderFullTestData(rendererOptions, points, "Test2_transparency.png");
+        yield return () => new PathRendererRenderTrailPartTestData(rendererOptions, points, 9, "Test2_transparency.png");
     }
 }
 
-public record PathRendererRenderFullTestData(PathRendererOptions RendererOptions, List<SKPoint?> Points, string FileName);
+public record PathRendererRenderTrailPartTestData(PathRendererOptions RendererOptions, List<SKPoint?> Points, int CurrentPointIndex, string FileName);
