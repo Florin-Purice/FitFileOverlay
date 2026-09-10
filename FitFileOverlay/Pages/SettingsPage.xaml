@@ -115,6 +115,26 @@
                                       Value="{Binding ViewModel.OverlayService.Settings.LTHR}" />
                     </Grid>
                 </ui:CardExpander>
+                <!--Fade duration-->
+                <ui:CardControl Icon="{ui:SymbolIcon Clock24}"
+                                Margin="0,8,0,0">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Fade duration"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:TextBlock Appearance="Secondary"
+                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                          Text="The length of the fading path, in seconds."
+                                          TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ui:NumberBox Minimum="1"
+                                  Maximum="10000"
+                                  ClearButtonEnabled="False"
+                                  Value="{Binding ViewModel.OverlayService.Settings.FadeDurationSeconds, UpdateSourceTrigger=PropertyChanged}" />
+                </ui:CardControl>
                 <!--Colors-->
                 <ui:CardControl Icon="{ui:SymbolIcon Color24}"
                                 Margin="0,8,0,0">
@@ -152,30 +172,29 @@
                         <StackPanel>
                             <ui:TextBlock FontTypography="BodyStrong"
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Secondary color"
+                                          Text="Tertiary color"
                                           TextWrapping="WrapWithOverflow" />
                         </StackPanel>
                     </ui:CardControl.Header>
                     <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}"
                                                      Width="50"
                                                      Height="25"
-                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.SecondaryColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}" />
+                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.TertiaryColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}" />
                 </ui:CardControl>
-                <!--Overlay height-->
-                <ui:CardControl Icon="{ui:SymbolIcon AutoFitHeight24}"
+                <ui:CardControl Icon="{ui:SymbolIcon Color24}"
                                 Margin="0,8,0,0">
                     <ui:CardControl.Header>
                         <StackPanel>
                             <ui:TextBlock FontTypography="BodyStrong"
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Height"
+                                          Text="Quaternary color"
                                           TextWrapping="WrapWithOverflow" />
                         </StackPanel>
                     </ui:CardControl.Header>
-                    <ui:NumberBox Minimum="100"
-                                  Maximum="3000"
-                                  ClearButtonEnabled="False"
-                                  Value="{Binding ViewModel.OverlayService.Settings.OverlayHeight, UpdateSourceTrigger=PropertyChanged}" />
+                    <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}"
+                                                     Width="50"
+                                                     Height="25"
+                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.QuaternaryColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}" />
                 </ui:CardControl>
                 <!--Data fields visibility/width-->
                 <ui:CardExpander Icon="{ui:SymbolIcon RowTriple24}"
@@ -285,46 +304,6 @@
                                   Maximum="1000"
                                   ClearButtonEnabled="False"
                                   Value="{Binding ViewModel.OverlayService.Settings.GpsLineWidth, UpdateSourceTrigger=PropertyChanged}" />
-                </ui:CardControl>
-                <!--Fade duration-->
-                <ui:CardControl Icon="{ui:SymbolIcon Clock24}"
-                                Margin="0,8,0,0">
-                    <ui:CardControl.Header>
-                        <StackPanel>
-                            <ui:TextBlock FontTypography="BodyStrong"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Fade duration"
-                                          TextWrapping="WrapWithOverflow" />
-                            <ui:TextBlock Appearance="Secondary"
-                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                          Text="The length of the fading path, in seconds."
-                                          TextWrapping="WrapWithOverflow" />
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                    <ui:NumberBox Minimum="1"
-                                  Maximum="10000"
-                                  ClearButtonEnabled="False"
-                                  Value="{Binding ViewModel.OverlayService.Settings.GpsFadeDurationSeconds, UpdateSourceTrigger=PropertyChanged}" />
-                </ui:CardControl>
-                <!--Outline color-->
-                <ui:CardControl Icon="{ui:SymbolIcon Color24}"
-                                Margin="0,8,0,0">
-                    <ui:CardControl.Header>
-                        <StackPanel>
-                            <ui:TextBlock FontTypography="BodyStrong"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Outline color"
-                                          TextWrapping="WrapWithOverflow" />
-                            <ui:TextBlock Appearance="Secondary"
-                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                          Text="Color of the underlying/unrun GPS path."
-                                          TextWrapping="WrapWithOverflow" />
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                    <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}"
-                                                     Width="50"
-                                                     Height="25"
-                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.GpsOutlineColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}" />
                 </ui:CardControl>
 
                 <TextBlock FontSize="20"
