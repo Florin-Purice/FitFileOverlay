@@ -4,7 +4,14 @@ namespace FitFileOverlay.Helpers;
 
 public class PathRenderer
 {
-    public static SKBitmap RenderFull(PathRendererOptions options, List<SKPoint?> points)
+    /// <summary>
+    /// The same for all frames, so it can be rendered once and reused.
+    /// Is the base layer of the map overlay.
+    /// </summary>
+    /// <param name="options"></param>
+    /// <param name="points"></param>
+    /// <returns></returns>
+    public static SKBitmap RenderStaticPart(PathRendererOptions options, List<SKPoint?> points)
     {
         SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
         using SKCanvas canvas = new(bitmap);
@@ -21,7 +28,6 @@ public class PathRenderer
                 canvas.DrawLine(points[i] ?? new(), points[i + 1] ?? new(), skPaint);
                 //smooth corners by drawing circles at points
                 canvas.DrawCircle(points[i] ?? new(), options.StrokeWidth / 2f, skPaint);
-                //canvas.DrawCircle(points[i + 1] ?? new(), options.StrokeWidth / 2f, skPaint);
             }
 
         return bitmap;
@@ -34,7 +40,7 @@ public class PathRenderer
     /// <param name="currentPointIndex"></param>
     /// <param name="previousPathBitmap">A bitmap with the path of all points before current one.</param>
     /// <returns></returns>
-    public static SKBitmap RenderUntilPoint(PathRendererOptions options, List<SKPoint?> points, int currentPointIndex, ref SKBitmap? previousPathBitmap)
+    public static SKBitmap RenderTrailPart(PathRendererOptions options, List<SKPoint?> points, int currentPointIndex, ref SKBitmap? previousPathBitmap)
     {
         SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
         using SKCanvas canvas = new(bitmap);

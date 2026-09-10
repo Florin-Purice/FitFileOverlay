@@ -131,13 +131,13 @@ public partial class OverlayService : ObservableObject, IOverlayService
         if (Settings.IsGpsOverlayEnabled)
         {
             //create base gps overlay
-            SKBitmap gpsBaseBitmap = PathRenderer.RenderFull(pathRendererOptions, drawPoints);
+            SKBitmap gpsBaseBitmap = PathRenderer.RenderStaticPart(pathRendererOptions, drawPoints);
             pathRendererOptions.PrimaryColor = Settings.PrimaryColor;
             SKBitmap? pathCacheBitmap = null;
             //apply base gps overlay
             sKCanvas.DrawBitmap(gpsBaseBitmap, overlayWidth - Settings.GpsOverlayWidth, 0, SKSamplingOptions.Default);
             //create partial gps path and apply over base gps overlay
-            SKBitmap gpsPathOverlay = PathRenderer.RenderUntilPoint(pathRendererOptions, drawPoints, recordIndex, ref pathCacheBitmap);
+            SKBitmap gpsPathOverlay = PathRenderer.RenderTrailPart(pathRendererOptions, drawPoints, recordIndex, ref pathCacheBitmap);
             sKCanvas.DrawBitmap(gpsPathOverlay, overlayWidth - Settings.GpsOverlayWidth, 0, SKSamplingOptions.Default);
         }
         return sKBitmap;
@@ -181,7 +181,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
                     drawPoints.Add(new SKPoint(x, y));
                 }
             //create base gps overlay
-            gpsBaseBitmap = PathRenderer.RenderFull(pathRendererOptions, drawPoints);
+            gpsBaseBitmap = PathRenderer.RenderStaticPart(pathRendererOptions, drawPoints);
             pathRendererOptions.PrimaryColor = Settings.PrimaryColor;
         }
         SKBitmap? pathCacheBitmap = null;
@@ -203,7 +203,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
                 //apply base gps overlay
                 sKCanvas.DrawBitmap(gpsBaseBitmap, overlayWidth - Settings.GpsOverlayWidth, 0, SKSamplingOptions.Default);
                 //create partial gps path and apply over base gps overlay
-                SKBitmap gpsPathOverlay = PathRenderer.RenderUntilPoint(pathRendererOptions, drawPoints, i, ref pathCacheBitmap);
+                SKBitmap gpsPathOverlay = PathRenderer.RenderTrailPart(pathRendererOptions, drawPoints, i, ref pathCacheBitmap);
                 sKCanvas.DrawBitmap(gpsPathOverlay, overlayWidth - Settings.GpsOverlayWidth, 0, SKSamplingOptions.Default);
             }
             //create frame and return
