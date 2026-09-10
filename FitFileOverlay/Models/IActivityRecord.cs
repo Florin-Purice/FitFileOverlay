@@ -45,4 +45,9 @@ public interface IActivityRecord
     /// Stride length in mm
     /// </summary>
     public float? StrideLength { get; }
+
+    /// <summary>
+    /// Altitude in meters
+    /// </summary>
+    public float? Altitude { get; }
 }

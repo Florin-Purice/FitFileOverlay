@@ -38,9 +38,9 @@ public class PathRenderer
     /// <param name="options"></param>
     /// <param name="points"></param>
     /// <param name="currentPointIndex"></param>
-    /// <param name="previousPathBitmap">A bitmap with the path of all points before current one.</param>
+    /// <param name="previousTrailBase">A bitmap with the path of all points before current one.</param>
     /// <returns></returns>
-    public static SKBitmap RenderTrailPart(PathRendererOptions options, List<SKPoint?> points, int currentPointIndex, ref SKBitmap? previousPathBitmap)
+    public static SKBitmap RenderTrailPart(PathRendererOptions options, List<SKPoint?> points, int currentPointIndex, ref SKBitmap? previousTrailBase)
     {
         SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
         using SKCanvas canvas = new(bitmap);
@@ -52,7 +52,7 @@ public class PathRenderer
         skPaint.Color = options.PrimaryColor;
 
         SKBitmap basePathBitmap;
-        if (previousPathBitmap == null)
+        if (previousTrailBase == null)
         {
             basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
             SKCanvas baseCanvas = new(basePathBitmap);
@@ -66,7 +66,7 @@ public class PathRenderer
         }
         else if (currentPointIndex > 0)
         {
-            basePathBitmap = previousPathBitmap;
+            basePathBitmap = previousTrailBase;
             SKCanvas baseCanvas = new(basePathBitmap);
             if (points[currentPointIndex] != null && points[currentPointIndex - 1] != null)
             {
@@ -77,7 +77,7 @@ public class PathRenderer
         }
         else basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
         canvas.DrawBitmap(basePathBitmap, 0, 0, SKSamplingOptions.Default);
-        previousPathBitmap = basePathBitmap;
+        previousTrailBase = basePathBitmap;
 
         //Draw fading path
         if (currentPointIndex > 0)
