@@ -1,5 +1,6 @@
 ﻿using FitFileOverlay.Models;
 using SkiaSharp;
+using System.Windows.Controls;
 
 namespace FitFileOverlay.Helpers;
 
@@ -61,9 +62,97 @@ public class GraphRenderer
         return bitmap;
     }
 
-    public static SKBitmap RenderTrailPart(GraphRendererOptions options, List<float?> values, int currentRecordIndex, ref SKBitmap? previousTrailBase)
+    public static SKBitmap RenderTrailPart(GraphRendererOptions options, List<float?> values, int currentValueIndex, ref SKBitmap? previousTrailBase)
     {
-        throw new NotImplementedException();
+        float topPadding = 2f * (float)options.StrokeWidth;
+        float min = values.Min() ?? 0f;
+        float max = values.Max() ?? 1f;
+        float range = max - min;
+        if (range < options.MinimumRange)
+            range = options.MinimumRange;
+        float maxPixels = topPadding;
+        float minPixels = (1f - options.BottomPaddingPercent) * options.BitmapHeight;
+        float scalePixels = (maxPixels - minPixels) / range;
+        float valueToPixel(float v) => minPixels + (v - min) * scalePixels;
+        SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
+        using SKCanvas canvas = new(bitmap);
+        canvas.Clear(SKColors.Transparent);
+        using SKPaint skPaint = new();
+        skPaint.IsAntialias = true;
+        skPaint.BlendMode = SKBlendMode.Src;
+        skPaint.StrokeWidth = options.StrokeWidth * 2;
+        skPaint.Color = options.PrimaryColor;
+
+        SKBitmap basePathBitmap;
+        if (previousTrailBase == null)
+        {
+            basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
+            SKCanvas baseCanvas = new(basePathBitmap);
+            for (int i = 0; i < currentValueIndex - 1 && i < values.Count - 1; ++i)
+                if (values[i] != null && values[i + 1] != null)
+                {
+                    float x0 = (float)i / (values.Count - 1) * options.BitmapWidth;
+                    float y0 = valueToPixel(values[i] ?? 0f);
+                    float x1 = (float)(i + 1) / (values.Count - 1) * options.BitmapWidth;
+                    float y1 = valueToPixel(values[i + 1] ?? 0f);
+                    baseCanvas.DrawLine(x0, y0, x1, y1, skPaint);
+                    //smooth corners by drawing circles
+                    baseCanvas.DrawCircle(x0, y0, options.StrokeWidth, skPaint);
+                }
+        }
+        else if (currentValueIndex > 0)
+        {
+            basePathBitmap = previousTrailBase;
+            SKCanvas baseCanvas = new(basePathBitmap);
+            if (values[currentValueIndex] != null && values[currentValueIndex - 1] != null)
+            {
+                float x0 = (float)(currentValueIndex - 1) / (values.Count - 1) * options.BitmapWidth;
+                float y0 = valueToPixel(values[currentValueIndex - 1] ?? 0f);
+                float x1 = (float)currentValueIndex / (values.Count - 1) * options.BitmapWidth;
+                float y1 = valueToPixel(values[currentValueIndex] ?? 0f);
+                baseCanvas.DrawLine(x0, y0, x1, y1, skPaint);
+                //smooth corners by drawing circles
+                baseCanvas.DrawCircle(x1, y1, options.StrokeWidth, skPaint);
+            }
+        }
+        else basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
+        canvas.DrawBitmap(basePathBitmap, 0, 0, SKSamplingOptions.Default);
+        previousTrailBase = basePathBitmap;
+
+        //Draw fading path
+        if (currentValueIndex > 0)
+        {
+            int fadeFrames = Math.Min(currentValueIndex, options.FadePointCount) - 1;
+            int f = options.FadePointCount - fadeFrames;
+            for (int i = currentValueIndex - fadeFrames; i <= currentValueIndex; ++i)
+                if (values[i] != null && values[i - 1] != null)
+                {
+                    float x0 = (float)(i - 1) / (values.Count - 1) * options.BitmapWidth;
+                    float y0 = valueToPixel(values[i - 1] ?? 0f);
+                    float x1 = (float)i / (values.Count - 1) * options.BitmapWidth;
+                    float y1 = valueToPixel(values[i] ?? 0f);
+                    float fadePercent = (float)f++ / options.FadePointCount;
+                    skPaint.Color = new SKColor(
+                        (byte)((1f - fadePercent) * options.PrimaryColor.Red + fadePercent * options.SecondaryColor.Red),
+                        (byte)((1f - fadePercent) * options.PrimaryColor.Green + fadePercent * options.SecondaryColor.Green),
+                        (byte)((1f - fadePercent) * options.PrimaryColor.Blue + fadePercent * options.SecondaryColor.Blue),
+                        (byte)((1f - fadePercent) * options.PrimaryColor.Alpha + fadePercent * options.SecondaryColor.Alpha));
+                    canvas.DrawLine(x0, y0, x1, y1, skPaint);
+                    //smooth corners by drawing circles
+                    canvas.DrawCircle(x0, y0, options.StrokeWidth, skPaint);
+                }
+        }
+
+        //Mark current position with a circle
+        if (values[currentValueIndex] != null)
+        {
+            float x = (float)currentValueIndex / (values.Count - 1) * options.BitmapWidth;
+            float y = valueToPixel(values[currentValueIndex] ?? 0f);
+            skPaint.Color = options.SecondaryColor;
+            canvas.DrawCircle(x, y, options.StrokeWidth * 2, skPaint);
+        }
+
+        return bitmap;
     }
 }
 
