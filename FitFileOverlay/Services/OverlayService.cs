@@ -401,7 +401,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
         List<IActivityRecord> newList = [];
         for (int i = 0; i < originalList.Count - 1; ++i)
         {
-            int secondsBetweenRecords = (originalList[i + 1].TimeStamp - originalList[i].TimeStamp).Seconds;
+            int secondsBetweenRecords = (int)(originalList[i + 1].TimeStamp - originalList[i].TimeStamp).TotalSeconds;
             int interpolatedRecordCount = (int)fps * secondsBetweenRecords;
             //define interpolation step values
             double timeStampStep = secondsBetweenRecords / (double)interpolatedRecordCount;
