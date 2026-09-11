@@ -172,6 +172,21 @@
                         <StackPanel>
                             <ui:TextBlock FontTypography="BodyStrong"
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Secondary color"
+                                          TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}"
+                                                     Width="50"
+                                                     Height="25"
+                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.SecondaryColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}" />
+                </ui:CardControl>
+                <ui:CardControl Icon="{ui:SymbolIcon Color24}"
+                                Margin="0,8,0,0">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                           Text="Tertiary color"
                                           TextWrapping="WrapWithOverflow" />
                         </StackPanel>

@@ -6,6 +6,8 @@ namespace FitFileOverlay.Helpers;
 
 public class GraphRenderer
 {
+    private const float _textMargin = 10f;
+
     /// <summary>
     /// The same for all frames, so it can be rendered once and reused.
     /// Is the base layer of the graph overlay.
@@ -57,6 +59,7 @@ public class GraphRenderer
         paint.Style = SKPaintStyle.Stroke;
         paint.Color = options.TertiaryColor;
         paint.StrokeWidth = options.StrokeWidth;
+        paint.PathEffect = SKPathEffect.CreateCorner(options.StrokeWidth);
         canvas.DrawPath(trail, paint);
 
         return bitmap;
@@ -143,13 +146,38 @@ public class GraphRenderer
                 }
         }
 
-        //Mark current position with a circle
         if (values[currentValueIndex] != null)
         {
+            //Mark current position with a circle
             float x = (float)currentValueIndex / (values.Count - 1) * options.BitmapWidth;
             float y = valueToPixel(values[currentValueIndex] ?? 0f);
             skPaint.Color = options.SecondaryColor;
             canvas.DrawCircle(x, y, options.StrokeWidth * 2, skPaint);
+
+            if (options.IsTextEnabled)
+            {
+                //Draw current value text
+                string valueText = $"{values[currentValueIndex]:0}";
+                options.ValueFont.MeasureText(valueText, out SKRect valueSize, skPaint);
+                options.UnitFont.MeasureText(options.UnitText, out SKRect unitSize, skPaint);
+                float textWidth = valueSize.Width + unitSize.Width;
+                float textHeight = Math.Max(valueSize.Height, unitSize.Height);
+                float textBottom = options.BitmapHeight - _textMargin;
+                float textTop = textBottom - textHeight;
+                float textLeft = x - textWidth / 2f;
+                //Ensure text is within bitmap bounds
+                if (textLeft < 0)
+                    textLeft = 0;
+                else if (textLeft + textWidth > options.BitmapWidth)
+                    textLeft = options.BitmapWidth - textWidth;
+                //draw value
+                skPaint.Color = options.PrimaryColor;
+                canvas.DrawText(valueText, textLeft, textBottom, SKTextAlign.Left, options.ValueFont, skPaint);
+                //draw unit
+                skPaint.Color = options.SecondaryColor;
+                unitSize.Offset(valueSize.Right, valueSize.Bottom);
+                canvas.DrawText(options.UnitText, textLeft + valueSize.Width, textBottom, SKTextAlign.Left, options.UnitFont, skPaint);
+            }
         }
 
         return bitmap;
@@ -166,9 +194,10 @@ public struct GraphRendererOptions
     public SKColor QuaternaryColor { get; set; }
     public SKFont ValueFont { get; set; }
     public SKFont UnitFont { get; set; }
-    public float LineSpacing { get; set; }
     public float BottomPaddingPercent { get; set; }
     public float MinimumRange { get; set; }
     public float StrokeWidth { get; set; }
     public int FadePointCount { get; set; }
+    public string UnitText { get; set; }
+    public bool IsTextEnabled { get; set; }
 }
