@@ -103,7 +103,13 @@ public class PathRenderer
         if (points[currentPointIndex] != null)
         {
             skPaint.Color = options.SecondaryColor;
-            canvas.DrawCircle(points[currentPointIndex] ?? new(), options.StrokeWidth * 2, skPaint);
+            skPaint.Style = SKPaintStyle.Fill;
+            canvas.DrawCircle(points[currentPointIndex]! ?? new(), options.StrokeWidth * 2, skPaint);
+            skPaint.Color = options.PrimaryColor;
+            skPaint.StrokeWidth = options.StrokeWidth / 2f;
+            skPaint.Style = SKPaintStyle.Stroke;
+            skPaint.PathEffect = null;
+            canvas.DrawCircle(points[currentPointIndex]! ?? new(), options.StrokeWidth * 2, skPaint);
         }
 
         return bitmap;
