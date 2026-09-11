@@ -22,6 +22,7 @@
         <converters:SKColorToColorConverter x:Key="SKColorToColorConverter" />
         <converters:DrawnFieldListToBooleanConverter x:Key="DrawnFieldListToBooleanConverter" />
         <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
+        <converters:AlphaToColorConverter x:Key="AlphaToColorConverter" />
     </Page.Resources>
     <Grid Margin="20,15,20,0">
         <Grid.RowDefinitions>
@@ -196,66 +197,7 @@
                                                      Height="25"
                                                      SelectedColor="{Binding ViewModel.OverlayService.Settings.TertiaryColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}" />
                 </ui:CardControl>
-                <ui:CardControl Icon="{ui:SymbolIcon Color24}"
-                                Margin="0,8,0,0">
-                    <ui:CardControl.Header>
-                        <StackPanel>
-                            <ui:TextBlock FontTypography="BodyStrong"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Quaternary color"
-                                          TextWrapping="WrapWithOverflow" />
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                    <colorpicker:PortableColorPicker Style="{StaticResource DefaultColorPickerStyle}"
-                                                     Width="50"
-                                                     Height="25"
-                                                     SelectedColor="{Binding ViewModel.OverlayService.Settings.QuaternaryColor, Converter={StaticResource SKColorToColorConverter}, Mode=TwoWay}" />
-                </ui:CardControl>
-                <!--Data fields visibility/width-->
-                <ui:CardExpander Icon="{ui:SymbolIcon RowTriple24}"
-                                 ContentPadding="0"
-                                 Margin="0,8,0,0">
-                    <ui:CardExpander.Header>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <ui:TextBlock FontTypography="BodyStrong"
-                                          VerticalAlignment="Center"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Data fields"
-                                          TextWrapping="WrapWithOverflow" />
-                            <ui:ToggleSwitch Grid.Column="1"
-                                             Margin="0,0,5,0"
-                                             LabelPosition="Left"
-                                             OnContent="On"
-                                             OffContent="Off"
-                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsDataFieldsOverlayEnabled}" />
-                        </Grid>
-                    </ui:CardExpander.Header>
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ui:SymbolIcon Grid.Column="0"
-                                       Symbol="AutoFitWidth24" />
-                        <ui:TextBlock Grid.Column="1"
-                                      FontTypography="BodyStrong"
-                                      VerticalAlignment="Center"
-                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                      Text="Width"
-                                      TextWrapping="WrapWithOverflow" />
-                        <ui:NumberBox Grid.Column="2"
-                                      Minimum="100"
-                                      Maximum="3000"
-                                      ClearButtonEnabled="False"
-                                      Value="{Binding ViewModel.OverlayService.Settings.DataFieldsOverlayWidth, UpdateSourceTrigger=PropertyChanged}" />
-                    </Grid>
-                </ui:CardExpander>
-                <!--Map visibility/width-->
+                <!--Map visibility/dimensions-->
                 <ui:CardExpander Icon="{ui:SymbolIcon Map24}"
                                  ContentPadding="0"
                                  Margin="0,8,0,0">
@@ -278,25 +220,209 @@
                                              IsChecked="{Binding ViewModel.OverlayService.Settings.IsGpsOverlayEnabled}" />
                         </Grid>
                     </ui:CardExpander.Header>
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ui:SymbolIcon Grid.Column="0"
-                                       Symbol="AutoFitWidth24" />
-                        <ui:TextBlock Grid.Column="1"
-                                      FontTypography="BodyStrong"
-                                      VerticalAlignment="Center"
-                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                      Text="Width"
-                                      TextWrapping="WrapWithOverflow" />
-                        <ui:NumberBox Grid.Column="2"
-                                      Minimum="100"
-                                      Maximum="3000"
-                                      ClearButtonEnabled="False"
-                                      Value="{Binding ViewModel.OverlayService.Settings.GpsOverlayWidth, UpdateSourceTrigger=PropertyChanged}" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0"
+                              Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="AutoFitWidth24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Width"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:NumberBox Grid.Column="2"
+                                          Minimum="100"
+                                          Maximum="3000"
+                                          ClearButtonEnabled="False"
+                                          Value="{Binding ViewModel.OverlayService.Settings.GpsOverlayWidth, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                        <Border Grid.Row="1"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid Grid.Row="2"
+                              Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="AutoFitHeight24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Height"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:NumberBox Grid.Column="2"
+                                          Minimum="100"
+                                          Maximum="3000"
+                                          ClearButtonEnabled="False"
+                                          Value="{Binding ViewModel.OverlayService.Settings.GpsOverlayHeight, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                    </Grid>
+                </ui:CardExpander>
+                <!--Altitude graph visibility/dimensions-->
+                <ui:CardExpander Icon="{ui:SymbolIcon DataArea24}"
+                                 ContentPadding="0"
+                                 Margin="0,8,0,0">
+                    <ui:CardExpander.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Altitude graph"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="1"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="On"
+                                             OffContent="Off"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsAltitudeOverlayEnabled}" />
+                        </Grid>
+                    </ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0"
+                              Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="AutoFitWidth24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Width"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:NumberBox Grid.Column="2"
+                                          Minimum="100"
+                                          Maximum="5000"
+                                          ClearButtonEnabled="False"
+                                          Value="{Binding ViewModel.OverlayService.Settings.AltitudeOverlayWidth, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                        <Border Grid.Row="1"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid Grid.Row="2"
+                              Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="AutoFitHeight24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Height"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:NumberBox Grid.Column="2"
+                                          Minimum="50"
+                                          Maximum="3000"
+                                          ClearButtonEnabled="False"
+                                          Value="{Binding ViewModel.OverlayService.Settings.AltitudeOverlayHeight, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                    </Grid>
+                </ui:CardExpander>
+                <!--Data fields visibility/dimensions-->
+                <ui:CardExpander Icon="{ui:SymbolIcon RowTriple24}"
+                                 ContentPadding="0"
+                                 Margin="0,8,0,0">
+                    <ui:CardExpander.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Data fields"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="1"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="On"
+                                             OffContent="Off"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsDataFieldsOverlayEnabled}" />
+                        </Grid>
+                    </ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0"
+                              Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="AutoFitWidth24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Width"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:NumberBox Grid.Column="2"
+                                          Minimum="100"
+                                          Maximum="3000"
+                                          ClearButtonEnabled="False"
+                                          Value="{Binding ViewModel.OverlayService.Settings.DataFieldsOverlayWidth, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                        <Border Grid.Row="1"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid Grid.Row="2"
+                              Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="AutoFitHeight24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Height"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:NumberBox Grid.Column="2"
+                                          Minimum="100"
+                                          Maximum="3000"
+                                          ClearButtonEnabled="False"
+                                          Value="{Binding ViewModel.OverlayService.Settings.DataFieldsOverlayHeight, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
                     </Grid>
                 </ui:CardExpander>
 
@@ -320,6 +446,230 @@
                                   ClearButtonEnabled="False"
                                   Value="{Binding ViewModel.OverlayService.Settings.GpsLineWidth, UpdateSourceTrigger=PropertyChanged}" />
                 </ui:CardControl>
+
+                <TextBlock FontSize="20"
+                           FontWeight="Medium"
+                           Text="Altitude graph specific settings"
+                           Margin="0,25,0,0" />
+                <!--Line width-->
+                <ui:CardControl Icon="{ui:SymbolIcon InkStroke24}"
+                                Margin="0,8,0,0">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Line width"
+                                          TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ui:NumberBox Minimum="1"
+                                  Maximum="1000"
+                                  ClearButtonEnabled="False"
+                                  Value="{Binding ViewModel.OverlayService.Settings.AltitudeLineWidth, UpdateSourceTrigger=PropertyChanged}" />
+                </ui:CardControl>
+                <!--Bottom padding percent-->
+                <ui:CardControl Icon="{ui:SymbolIcon PaddingDown24}"
+                                Margin="0,8,0,0">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Bottom padding %"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:TextBlock Appearance="Secondary"
+                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                          Text="Distance between lowest point and bottom of graph, percent of total graph height."
+                                          TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ui:NumberBox Minimum="0"
+                                  Maximum="100"
+                                  ClearButtonEnabled="False"
+                                  Value="{Binding ViewModel.OverlayService.Settings.AltitudeBottomPaddingPercent, UpdateSourceTrigger=PropertyChanged}" />
+                </ui:CardControl>
+                <!--Minimum range-->
+                <ui:CardControl Icon="{ui:SymbolIcon TableResizeRow24}"
+                                Margin="0,8,0,0">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Minimum range"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:TextBlock Appearance="Secondary"
+                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                          Text="Minimum range from minimum to maximum value. If actual range is lower than set range, the graph will appear flatter."
+                                          TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ui:NumberBox Minimum="0"
+                                  Maximum="10000"
+                                  ClearButtonEnabled="False"
+                                  Value="{Binding ViewModel.OverlayService.Settings.AltitudeMinimumRange, UpdateSourceTrigger=PropertyChanged}" />
+                </ui:CardControl>
+                <!--Background alpha-->
+                <ui:CardControl Icon="{ui:SymbolIcon ColorBackground24}"
+                                Margin="0,8,0,0">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Background alpha"
+                                          TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <colorpicker:AlphaSlider Width="150"
+                                             Margin="10"
+                                             SelectedColor="{
+                        Binding ViewModel.OverlayService.Settings.AltitudeBackgroundAlpha, 
+                        Converter={StaticResource AlphaToColorConverter}, 
+                        Mode=TwoWay, 
+                        UpdateSourceTrigger=PropertyChanged}" />
+                </ui:CardControl>
+                <!--Altitude text settings-->
+                <ui:CardExpander Icon="{ui:SymbolIcon Tag24}"
+                                 ContentPadding="0"
+                                 Margin="0,8,0,0">
+                    <ui:CardExpander.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Show current altitude"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="1"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="Show"
+                                             OffContent="Hide"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.IsAltitudeTextEnabled}" />
+                        </Grid>
+                    </ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid  Grid.Row="0"
+                               Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="Check24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Unit"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ComboBox Grid.Column="2"
+                                      ItemsSource="{Binding ViewModel.AltitudeUnits}"
+                                      SelectedValue="{Binding ViewModel.OverlayService.Settings.AltitudeUnit}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                        <Border Grid.Row="1"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid  Grid.Row="2"
+                               Margin="10,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="TextCaseUppercase24" />
+                            <ui:TextBlock Grid.Column="1"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Unit capitalization"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:ToggleSwitch Grid.Column="2"
+                                             Margin="0,0,5,0"
+                                             LabelPosition="Left"
+                                             OnContent="Uppercase"
+                                             OffContent="Lowercase"
+                                             IsChecked="{Binding ViewModel.OverlayService.Settings.UppercaseAltitudeUnit}" />
+
+                        </Grid>
+                        <Border Grid.Row="3"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid Grid.Row="4"
+                              Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="TextFontSize24" />
+                            <StackPanel Grid.Column="1">
+                                <ui:TextBlock FontTypography="BodyStrong"
+                                              VerticalAlignment="Center"
+                                              Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                              Text="Unit font size"
+                                              TextWrapping="WrapWithOverflow" />
+                                <ui:TextBlock Appearance="Secondary"
+                                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                              Text="Font family and style are the same from data fields."
+                                              TextWrapping="WrapWithOverflow" />
+                            </StackPanel>
+                            <ui:NumberBox Grid.Column="2"
+                                          Minimum="1"
+                                          Maximum="1000"
+                                          ClearButtonEnabled="False"
+                                          Value="{Binding ViewModel.OverlayService.Settings.AltitudeUnitFontSize, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                        <Border Grid.Row="5"
+                                BorderBrush="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderThickness="0,0,0,1" />
+                        <Grid Grid.Row="6"
+                              Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0"
+                                           Symbol="TextFontSize24" />
+                            <StackPanel Grid.Column="1">
+                                <ui:TextBlock FontTypography="BodyStrong"
+                                              VerticalAlignment="Center"
+                                              Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                              Text="Value font size"
+                                              TextWrapping="WrapWithOverflow" />
+                                <ui:TextBlock Appearance="Secondary"
+                                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                              Text="Font family and style are the same from data fields."
+                                              TextWrapping="WrapWithOverflow" />
+                            </StackPanel>
+                            <ui:NumberBox Grid.Column="2"
+                                          Minimum="1"
+                                          Maximum="1000"
+                                          ClearButtonEnabled="False"
+                                          Value="{Binding ViewModel.OverlayService.Settings.AltitudeValueFontSize, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                    </Grid>
+                </ui:CardExpander>
 
                 <TextBlock FontSize="20"
                            FontWeight="Medium"

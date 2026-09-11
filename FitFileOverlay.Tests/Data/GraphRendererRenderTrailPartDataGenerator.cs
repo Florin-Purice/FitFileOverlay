@@ -14,11 +14,15 @@ public class GraphRendererRenderTrailPartDataGenerator : DataSourceGeneratorAttr
             PrimaryColor = SKColors.White,
             SecondaryColor = SKColors.Orange,
             TertiaryColor = new SKColor(100, 100, 100, 100),
-            BackgroundColor = new SKColor(100, 100, 100, 50),
-            BottomPaddingPercent = 0.1f,
+            BackgroundAlpha = 50,
+            BottomPaddingPercent = 20f,
             MinimumRange = 10f,
-            StrokeWidth = 6,
-            FadePointCount = 5
+            StrokeWidth = 3,
+            FadePointCount = 5,
+            UnitText = "M",
+            UnitFont = new SKFont(SKTypeface.FromFamilyName("Impact", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Italic), 20),
+            ValueFont = new SKFont(SKTypeface.FromFamilyName("Impact", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Italic), 32),
+            IsTextEnabled = false
         };
         List<float?> values =
         [
@@ -36,8 +40,11 @@ public class GraphRendererRenderTrailPartDataGenerator : DataSourceGeneratorAttr
         yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, 8, "Test1.png");
         yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, 4, "Test2.png");
 
+        rendererOptions.IsTextEnabled = true;
+        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, 5, "Test3_text.png");
+
         rendererOptions.PrimaryColor = new SKColor(250, 0, 0, 50);
-        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, 9, "Test3_transparency.png");
+        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, 9, "Test4_transparency.png");
     }
 }
 

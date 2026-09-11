@@ -582,7 +582,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
             PrimaryColor = settings.PrimaryColor,
             SecondaryColor = settings.SecondaryColor,
             TertiaryColor = settings.TertiaryColor,
-            QuaternaryColor = settings.QuaternaryColor,
+            BackgroundAlpha = settings.AltitudeBackgroundAlpha,
             StrokeWidth = settings.AltitudeLineWidth,
             BottomPaddingPercent = settings.AltitudeBottomPaddingPercent,
             MinimumRange = settings.AltitudeMinimumRange,
