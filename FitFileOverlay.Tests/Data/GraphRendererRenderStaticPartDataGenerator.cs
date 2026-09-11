@@ -15,10 +15,10 @@ public class GraphRendererRenderStaticPartDataGenerator : DataSourceGeneratorAtt
             PrimaryColor = SKColors.White,
             SecondaryColor = SKColors.Orange,
             TertiaryColor = new SKColor(100, 100, 100, 100),
-            BackgroundColor = new SKColor(100, 100, 100, 50),
-            BottomPaddingPercent = 0.1f,
+            BackgroundAlpha = 50,
+            BottomPaddingPercent = 10f,
             MinimumRange = 10f,
-            StrokeWidth = 6
+            StrokeWidth = 3
         };
         List<float?> values =
         [

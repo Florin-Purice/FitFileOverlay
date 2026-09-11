@@ -24,7 +24,7 @@ public class GraphRenderer
         if (range < options.MinimumRange)
             range = options.MinimumRange;
         float maxPixels = topPadding;
-        float minPixels = (1f-options.BottomPaddingPercent) * options.BitmapHeight;
+        float minPixels = (100f-options.BottomPaddingPercent)/100f * options.BitmapHeight;
         float scalePixels = (maxPixels - minPixels) / range;
         float valueToPixel(float v) => minPixels + (v - min) * scalePixels;
 
@@ -52,13 +52,14 @@ public class GraphRenderer
         {
             IsAntialias = true,
             BlendMode = SKBlendMode.Src,
-            Color = options.QuaternaryColor,
+            Color = new SKColor(options.TertiaryColor.Red, options.TertiaryColor.Green, options.TertiaryColor.Blue, options.BackgroundAlpha),
             Style = SKPaintStyle.Fill
         };
         canvas.DrawPath(graphBackgroundPath, paint);
         paint.Style = SKPaintStyle.Stroke;
         paint.Color = options.TertiaryColor;
         paint.StrokeWidth = options.StrokeWidth;
+        paint.StrokeCap = SKStrokeCap.Round;
         paint.PathEffect = SKPathEffect.CreateCorner(options.StrokeWidth);
         canvas.DrawPath(trail, paint);
 
@@ -74,7 +75,7 @@ public class GraphRenderer
         if (range < options.MinimumRange)
             range = options.MinimumRange;
         float maxPixels = topPadding;
-        float minPixels = (1f - options.BottomPaddingPercent) * options.BitmapHeight;
+        float minPixels = (100f - options.BottomPaddingPercent)/100f * options.BitmapHeight;
         float scalePixels = (maxPixels - minPixels) / range;
         float valueToPixel(float v) => minPixels + (v - min) * scalePixels;
         SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
@@ -148,32 +149,57 @@ public class GraphRenderer
 
         if (values[currentValueIndex] != null)
         {
-            //Mark current position with a circle
+            // Calculate positions
             float x = (float)currentValueIndex / (values.Count - 1) * options.BitmapWidth;
             float y = valueToPixel(values[currentValueIndex] ?? 0f);
-            skPaint.Color = options.SecondaryColor;
-            canvas.DrawCircle(x, y, options.StrokeWidth * 2, skPaint);
-
+            string valueText = $"{values[currentValueIndex]:0}";
+            options.ValueFont.MeasureText(valueText, out SKRect valueSize, skPaint);
+            options.UnitFont.MeasureText(options.UnitText, out SKRect unitSize, skPaint);
+            float textWidth = valueSize.Width + unitSize.Width;
+            float textHeight = Math.Max(valueSize.Height, unitSize.Height);
+            float textBottom = options.BitmapHeight - _textMargin;
+            float textTop = textBottom - textHeight;
+            float textLeft = x - textWidth / 2f;
+            // Ensure text is within bitmap bounds
+            if (textLeft < 0)
+                textLeft = 0;
+            else if (textLeft + textWidth > options.BitmapWidth)
+                textLeft = options.BitmapWidth - textWidth;
             if (options.IsTextEnabled)
             {
-                //Draw current value text
-                string valueText = $"{values[currentValueIndex]:0}";
-                options.ValueFont.MeasureText(valueText, out SKRect valueSize, skPaint);
-                options.UnitFont.MeasureText(options.UnitText, out SKRect unitSize, skPaint);
-                float textWidth = valueSize.Width + unitSize.Width;
-                float textHeight = Math.Max(valueSize.Height, unitSize.Height);
-                float textBottom = options.BitmapHeight - _textMargin;
-                float textTop = textBottom - textHeight;
-                float textLeft = x - textWidth / 2f;
-                //Ensure text is within bitmap bounds
-                if (textLeft < 0)
-                    textLeft = 0;
-                else if (textLeft + textWidth > options.BitmapWidth)
-                    textLeft = options.BitmapWidth - textWidth;
+                // Draw projection line from top of text up to current position
+                // Layer under positon marker
+                float lineToY = textTop - _textMargin;
+                if(lineToY > y)
+                {
+                    SKPathBuilder pathBuilder = new();
+                    pathBuilder.MoveTo(x, textTop - _textMargin);
+                    pathBuilder.LineTo(x, y);
+                    skPaint.PathEffect = SKPathEffect.CreateDash([8, 8], 0);
+                    skPaint.Style = SKPaintStyle.Stroke;
+                    skPaint.StrokeWidth = options.StrokeWidth / 2f;
+                    skPaint.StrokeCap = SKStrokeCap.Round;
+                    skPaint.Color = options.SecondaryColor;
+                    canvas.DrawPath(pathBuilder.Detach(), skPaint);
+                }
+            }
+            // Mark current position with a circle
+            skPaint.Color = options.SecondaryColor;
+            skPaint.Style = SKPaintStyle.Fill;
+            canvas.DrawCircle(x, y, options.StrokeWidth * 2, skPaint);
+            skPaint.Color = options.PrimaryColor;
+            skPaint.StrokeWidth = options.StrokeWidth / 2f;
+            skPaint.Style = SKPaintStyle.Stroke;
+            skPaint.PathEffect = null;
+            canvas.DrawCircle(x, y, options.StrokeWidth * 2, skPaint);
+            if (options.IsTextEnabled)
+            {
+                // Draw current value text
                 //draw value
+                skPaint.Style = SKPaintStyle.Fill;
                 skPaint.Color = options.PrimaryColor;
                 canvas.DrawText(valueText, textLeft, textBottom, SKTextAlign.Left, options.ValueFont, skPaint);
-                //draw unit
+                // draw unit
                 skPaint.Color = options.SecondaryColor;
                 unitSize.Offset(valueSize.Right, valueSize.Bottom);
                 canvas.DrawText(options.UnitText, textLeft + valueSize.Width, textBottom, SKTextAlign.Left, options.UnitFont, skPaint);
@@ -191,7 +217,7 @@ public struct GraphRendererOptions
     public SKColor PrimaryColor { get; set; }
     public SKColor SecondaryColor { get; set; }
     public SKColor TertiaryColor { get; set; }
-    public SKColor QuaternaryColor { get; set; }
+    public byte BackgroundAlpha { get; set; }
     public SKFont ValueFont { get; set; }
     public SKFont UnitFont { get; set; }
     public float BottomPaddingPercent { get; set; }

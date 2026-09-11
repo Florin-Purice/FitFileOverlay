@@ -29,27 +29,25 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial SKColor TertiaryColor { get; set; } = new SKColor(127, 127, 127, 200);
     [ObservableProperty]
-    public partial SKColor QuaternaryColor { get; set; } = new SKColor(100, 100, 100, 50);
-    [ObservableProperty]
     public partial int FadeDurationSeconds { get; set; } = 180;
     [ObservableProperty]
     public partial bool IsDataFieldsOverlayEnabled { get; set; } = true;
     [ObservableProperty]
     public partial int DataFieldsOverlayWidth { get; set; } = 800;
     [ObservableProperty]
-    public partial int DataFieldsOverlayHeight { get; set; } = 800; //todo
+    public partial int DataFieldsOverlayHeight { get; set; } = 800;
     [ObservableProperty]
     public partial bool IsGpsOverlayEnabled { get; set; } = true;
     [ObservableProperty]
     public partial int GpsOverlayWidth { get; set; } = 800;
     [ObservableProperty]
-    public partial int GpsOverlayHeight { get; set; } = 800; //todo
+    public partial int GpsOverlayHeight { get; set; } = 800;
     [ObservableProperty]
-    public partial bool IsAltitudeOverlayEnabled { get; set; } = true; //todo
+    public partial bool IsAltitudeOverlayEnabled { get; set; } = true;
     [ObservableProperty]
-    public partial int AltitudeOverlayWidth { get; set; } = 1000; //todo
+    public partial int AltitudeOverlayWidth { get; set; } = 1000;
     [ObservableProperty]
-    public partial int AltitudeOverlayHeight { get; set; } = 200; //todo
+    public partial int AltitudeOverlayHeight { get; set; } = 200;
     #endregion
     #region MAP
     [ObservableProperty]
@@ -57,21 +55,23 @@ public partial class OverlaySettings : ObservableObject
     #endregion
     #region ALTITUDE
     [ObservableProperty]
-    public partial float AltitudeBottomPaddingPercent { get; set; } = 0.1f; //todo
+    public partial float AltitudeLineWidth { get; set; } = 3f;
     [ObservableProperty]
-    public partial float AltitudeMinimumRange { get; set; } = 10f; //todo
+    public partial byte AltitudeBackgroundAlpha { get; set; } = 50;
     [ObservableProperty]
-    public partial float AltitudeLineWidth { get; set; } = 3f; //todo
+    public partial float AltitudeBottomPaddingPercent { get; set; } = 10f;
     [ObservableProperty]
-    public partial bool IsAltitudeTextEnabled { get; set; } = true; //todo
+    public partial float AltitudeMinimumRange { get; set; } = 10f;
     [ObservableProperty]
-    public partial AltitudeUnit AltitudeUnit { get; set; } = AltitudeUnit.Meters; //todo
+    public partial bool IsAltitudeTextEnabled { get; set; } = true;
     [ObservableProperty]
-    public partial bool UppercaseAltitudeUnit { get; set; } = true; //todo
+    public partial AltitudeUnit AltitudeUnit { get; set; } = AltitudeUnit.Meters;
     [ObservableProperty]
-    public partial float AltitudeUnitFontSize { get; set; } = 12f; //todo
+    public partial bool UppercaseAltitudeUnit { get; set; } = true;
     [ObservableProperty]
-    public partial float AltitudeValueFontSize { get; set; } = 18f; //todo
+    public partial float AltitudeUnitFontSize { get; set; } = 12f;
+    [ObservableProperty]
+    public partial float AltitudeValueFontSize { get; set; } = 18f;
     #endregion
     #region DATA_FIELD
     [ObservableProperty]
