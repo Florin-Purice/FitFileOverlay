@@ -37,26 +37,41 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial int DataFieldsOverlayWidth { get; set; } = 800;
     [ObservableProperty]
-    public partial int DataFieldsOverlayHeight { get; set; } = 800;
+    public partial int DataFieldsOverlayHeight { get; set; } = 800; //todo
     [ObservableProperty]
     public partial bool IsGpsOverlayEnabled { get; set; } = true;
     [ObservableProperty]
     public partial int GpsOverlayWidth { get; set; } = 800;
     [ObservableProperty]
-    public partial int GpsOverlayHeight { get; set; } = 800;
+    public partial int GpsOverlayHeight { get; set; } = 800; //todo
     [ObservableProperty]
-    public partial bool IsAltitudeOverlayEnabled { get; set; } = true;
+    public partial bool IsAltitudeOverlayEnabled { get; set; } = true; //todo
     [ObservableProperty]
-    public partial int AltitudeOverlayWidth { get; set; } = 1000;
+    public partial int AltitudeOverlayWidth { get; set; } = 1000; //todo
     [ObservableProperty]
-    public partial int AltitudeOverlayHeight { get; set; } = 200;
+    public partial int AltitudeOverlayHeight { get; set; } = 200; //todo
     #endregion
     #region MAP
     [ObservableProperty]
     public partial float GpsLineWidth { get; set; } = 6f;
     #endregion
     #region ALTITUDE
-
+    [ObservableProperty]
+    public partial float AltitudeBottomPaddingPercent { get; set; } = 0.1f; //todo
+    [ObservableProperty]
+    public partial float AltitudeMinimumRange { get; set; } = 10f; //todo
+    [ObservableProperty]
+    public partial float AltitudeLineWidth { get; set; } = 3f; //todo
+    [ObservableProperty]
+    public partial bool IsAltitudeTextEnabled { get; set; } = true; //todo
+    [ObservableProperty]
+    public partial AltitudeUnit AltitudeUnit { get; set; } = AltitudeUnit.Meters; //todo
+    [ObservableProperty]
+    public partial bool UppercaseAltitudeUnit { get; set; } = true; //todo
+    [ObservableProperty]
+    public partial float AltitudeUnitFontSize { get; set; } = 12f; //todo
+    [ObservableProperty]
+    public partial float AltitudeValueFontSize { get; set; } = 18f; //todo
     #endregion
     #region DATA_FIELD
     [ObservableProperty]

@@ -484,6 +484,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
             float strideLengthStep = ((originalList[i + 1].StrideLength - originalList[i].StrideLength) ?? 0f) / interpolatedRecordCount;
             double gpsLatitudeStep = ((originalList[i + 1].GPSPoint?.Latitude - originalList[i].GPSPoint?.Latitude) ?? 0d) / interpolatedRecordCount;
             double gpsLongitudeStep = ((originalList[i + 1].GPSPoint?.Longitude - originalList[i].GPSPoint?.Longitude) ?? 0d) / interpolatedRecordCount;
+            float altitudeStep = ((originalList[i + 1].Altitude - originalList[i].Altitude) ?? 0f) / interpolatedRecordCount;
             //create the records
             for (int j = 0; j < interpolatedRecordCount; ++j)
             {
@@ -512,6 +513,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
                     Cadence = (originalList[i].Cadence ?? 0) + cadenceStep * j,
                     Power = (int)((originalList[i].Power ?? 0) + powerStep * j),
                     StrideLength = (originalList[i].StrideLength ?? 0f) + strideLengthStep * j,
+                    Altitude = (originalList[i].Altitude ?? 0f) + altitudeStep * j,
                     GPSPoint = newPoint
                 });
             }
@@ -571,7 +573,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
         return pathRendererOptions;
     }
 
-    private GraphRendererOptions CreateGraphRendererOptionsFromSettings(OverlaySettings settings)
+    private static GraphRendererOptions CreateGraphRendererOptionsFromSettings(OverlaySettings settings)
     {
         GraphRendererOptions graphRendererOptions = new()
         {
@@ -581,27 +583,43 @@ public partial class OverlayService : ObservableObject, IOverlayService
             SecondaryColor = settings.SecondaryColor,
             TertiaryColor = settings.TertiaryColor,
             QuaternaryColor = settings.QuaternaryColor,
-            StrokeWidth = settings.GpsLineWidth,
-            BottomPaddingPercent = 0.1f,
-            MinimumRange = 10f,
+            StrokeWidth = settings.AltitudeLineWidth,
+            BottomPaddingPercent = settings.AltitudeBottomPaddingPercent,
+            MinimumRange = settings.AltitudeMinimumRange,
+            ValueFont = new SKFont(
+                SKTypeface.FromFamilyName(
+                    familyName: settings.ValueFontFamily,
+                    weight: settings.IsValueFontBold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
+                    width: SKFontStyleWidth.Normal,
+                    slant: settings.IsValueFontItalic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright),
+                settings.AltitudeValueFontSize),
+            UnitFont = new SKFont(
+                SKTypeface.FromFamilyName(
+                    familyName: settings.UnitFontFamily,
+                    weight: settings.IsUnitFontBold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
+                    width: SKFontStyleWidth.Normal,
+                    slant: settings.IsUnitFontItalic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright),
+                settings.AltitudeUnitFontSize),
+            UnitText = settings.AltitudeUnit switch
+            {
+                AltitudeUnit.Feet => "ft",
+                _ => "m"
+            },
+            IsTextEnabled = settings.IsAltitudeTextEnabled,
             FadePointCount = (int)(settings.FadeDurationSeconds * settings.FPS)
-        };  
+        };
+        if(settings.UppercaseAltitudeUnit)
+            graphRendererOptions.UnitText = graphRendererOptions.UnitText.ToUpper();
         return graphRendererOptions;
     }
 
     private static string ConvertSpeedToPaceString(float? speed, PaceUnit unit)
     {
-        int secPerUnitDistance;
-        switch (unit)
+        var secPerUnitDistance = unit switch
         {
-            case PaceUnit.MinutesPerMile:
-                secPerUnitDistance = (int)(1609.34 / (speed ?? 0f));
-                break;
-            case PaceUnit.MinutesPerKilometer:
-            default:
-                secPerUnitDistance = (int)(1000 / (speed ?? 0f));
-                break;
-        }
+            PaceUnit.MinutesPerMile => (int)(1609.34 / (speed ?? 0f)),
+            _ => (int)(1000 / (speed ?? 0f)),
+        };
         string paceString;
         if (secPerUnitDistance < 1 || secPerUnitDistance > 3600)
             paceString = "--'--\"";
