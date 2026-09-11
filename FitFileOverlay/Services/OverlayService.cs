@@ -6,6 +6,7 @@ using FitFileOverlay.Helpers;
 using FitFileOverlay.Models;
 using SkiaSharp;
 using System.IO;
+using System.Reflection.Metadata.Ecma335;
 
 namespace FitFileOverlay.Services;
 
@@ -42,7 +43,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
             List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(fullRecordList, out double gpsAspectRatio);
             //Generate video frames and encode video using FFMpegCore
             IEnumerable<IVideoFrame> frames = CreateVideoFrames(fullRecordList, normalizedPoints, gpsAspectRatio, progressReportCallback);
-            RawVideoPipeSource framesSource = new(frames){ FrameRate = Settings.FPS };
+            RawVideoPipeSource framesSource = new(frames) { FrameRate = Settings.FPS };
             Directory.CreateDirectory(Path.GetDirectoryName(outputFilename) ?? string.Empty);
             await FFMpegArguments.FromPipeInput(framesSource)
                 .OutputToFile(outputFilename, true, opt => opt
@@ -80,8 +81,8 @@ public partial class OverlayService : ObservableObject, IOverlayService
 
     private SKBitmap? GetSnapshotAtRecord(int recordIndex)
     {
-        if(File == null || !File.IsValid || Settings == null)
-            return null;    
+        if (File == null || !File.IsValid || Settings == null)
+            return null;
         if (recordIndex < 0 || recordIndex >= File.Records.Count)
             return null;
         if (!Settings.IsGpsOverlayEnabled && !Settings.IsDataFieldsOverlayEnabled && !Settings.IsAltitudeOverlayEnabled)
@@ -171,7 +172,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
             //apply base altitude overlay
             sKCanvas.DrawBitmap(altitudeBaseBitmap, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
             //create partial altitude path and apply over base altitude overlay
-            SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, recordIndex, ref altitudeCacheBitmap);
+            SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, recordIndex, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
             sKCanvas.DrawBitmap(altitudePathOverlay, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
         }
         return sKBitmap;
@@ -275,7 +276,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
                 //apply base altitude overlay
                 sKCanvas.DrawBitmap(altitudeBaseBitmap, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
                 //create partial altitude path and apply over base altitude overlay
-                SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, i, ref altitudeCacheBitmap);
+                SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, i, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
                 sKCanvas.DrawBitmap(altitudePathOverlay, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
             }
             //create frame and return
@@ -318,7 +319,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
                 label = Settings!.PaceLabel;
                 value = ConvertSpeedToPaceString(record.Speed, Settings!.PaceUnit);
                 unit = Settings.PaceUnit == PaceUnit.MinutesPerKilometer ? "/km" : "/mi";
-                if(Settings.UppercasePaceUnit)
+                if (Settings.UppercasePaceUnit)
                     unit = unit.ToUpper();
                 break;
             case DataFieldType.HeartRate:
@@ -608,7 +609,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
             IsTextEnabled = settings.IsAltitudeTextEnabled,
             FadePointCount = (int)(settings.FadeDurationSeconds * settings.FPS)
         };
-        if(settings.UppercaseAltitudeUnit)
+        if (settings.UppercaseAltitudeUnit)
             graphRendererOptions.UnitText = graphRendererOptions.UnitText.ToUpper();
         return graphRendererOptions;
     }
@@ -634,6 +635,15 @@ public partial class OverlayService : ObservableObject, IOverlayService
         foreach (IActivityRecord record in records)
             points.Add(record.GPSPoint);
         return GpsPoint.PointsListToUnitaryScreenSpace(points, out gpsAspectRatio);
+    }
+
+    private static Func<float?, float?> GetAltitudeValueConverter(AltitudeUnit unit)
+    {
+        return unit switch
+        {
+            AltitudeUnit.Feet => (x) => x * 3.28084f,
+            _ => (x) => x //default meters
+        };
     }
     #endregion
 }

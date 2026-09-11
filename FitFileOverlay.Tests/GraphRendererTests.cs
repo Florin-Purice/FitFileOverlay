@@ -31,7 +31,7 @@ public class GraphRendererTests
 
         //Act
         SKBitmap? pathCache = null;
-        SKBitmap result = GraphRenderer.RenderTrailPart(testData.RendererOptions, testData.Values, testData.CurrentValueIndex, ref pathCache);
+        SKBitmap result = GraphRenderer.RenderTrailPart(testData.RendererOptions, testData.Values, testData.CurrentValueIndex, (x) => x, ref pathCache);
 
         //Assert
         await Assert.That(result).IsNotNull();
@@ -49,8 +49,8 @@ public class GraphRendererTests
 
         //Act
         SKBitmap? pathCache = null;
-        _ = GraphRenderer.RenderTrailPart(testData.RendererOptions, testData.Values, testData.CurrentValueIndex - 1, ref pathCache);
-        SKBitmap result = GraphRenderer.RenderTrailPart(testData.RendererOptions, testData.Values, testData.CurrentValueIndex, ref pathCache);
+        _ = GraphRenderer.RenderTrailPart(testData.RendererOptions, testData.Values, testData.CurrentValueIndex - 1, (x) => x, ref pathCache);
+        SKBitmap result = GraphRenderer.RenderTrailPart(testData.RendererOptions, testData.Values, testData.CurrentValueIndex, (x) => x, ref pathCache);
 
         //Assert
         await Assert.That(pathCache).IsNotNull();

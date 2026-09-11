@@ -66,7 +66,16 @@ public class GraphRenderer
         return bitmap;
     }
 
-    public static SKBitmap RenderTrailPart(GraphRendererOptions options, List<float?> values, int currentValueIndex, ref SKBitmap? previousTrailBase)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="options"></param>
+    /// <param name="values"></param>
+    /// <param name="currentValueIndex"></param>
+    /// <param name="valueConverter">A function that converts the given values according to the specified unit</param>
+    /// <param name="previousTrailBase"></param>
+    /// <returns></returns>
+    public static SKBitmap RenderTrailPart(GraphRendererOptions options, List<float?> values, int currentValueIndex, Func<float?, float?> valueConverter, ref SKBitmap? previousTrailBase)
     {
         float topPadding = 2f * (float)options.StrokeWidth;
         float min = values.Min() ?? 0f;
@@ -152,7 +161,7 @@ public class GraphRenderer
             // Calculate positions
             float x = (float)currentValueIndex / (values.Count - 1) * options.BitmapWidth;
             float y = valueToPixel(values[currentValueIndex] ?? 0f);
-            string valueText = $"{values[currentValueIndex]:0}";
+            string valueText = $"{valueConverter(values[currentValueIndex]):0}";
             options.ValueFont.MeasureText(valueText, out SKRect valueSize, skPaint);
             options.UnitFont.MeasureText(options.UnitText, out SKRect unitSize, skPaint);
             float textWidth = valueSize.Width + unitSize.Width;
