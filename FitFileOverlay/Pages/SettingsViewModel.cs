@@ -33,6 +33,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         SpeedUnits = Enum.GetValues<SpeedUnit>();
         StrideLengthUnits = Enum.GetValues<StrideLengthUnit>();
         AltitudeUnits = Enum.GetValues<AltitudeUnit>();
+        AltitudeXReferences = Enum.GetValues<AltitudeXReference>();
     }
 
     [ObservableProperty]
@@ -56,6 +57,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public partial StrideLengthUnit[] StrideLengthUnits { get; private set; }
     [ObservableProperty]
     public partial AltitudeUnit[] AltitudeUnits { get; private set; }
+    [ObservableProperty]
+    public partial AltitudeXReference[] AltitudeXReferences { get; set; }
 
     public Task OnNavigatedToAsync()
     {

@@ -55,6 +55,8 @@ public partial class OverlaySettings : ObservableObject
     #endregion
     #region ALTITUDE
     [ObservableProperty]
+    public partial AltitudeXReference AltitudeXReference { get; set; } = AltitudeXReference.Distance;
+    [ObservableProperty]
     public partial float AltitudeLineWidth { get; set; } = 3f;
     [ObservableProperty]
     public partial byte AltitudeBackgroundAlpha { get; set; } = 50;

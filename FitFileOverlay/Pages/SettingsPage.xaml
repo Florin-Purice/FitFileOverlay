@@ -451,6 +451,26 @@
                            FontWeight="Medium"
                            Text="Altitude graph specific settings"
                            Margin="0,25,0,0" />
+                <!--X axis reference-->
+                <ui:CardControl Icon="{ui:SymbolIcon LineHorizontal120}"
+                                Margin="0,8,0,0">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="X axis reference"
+                                          TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ComboBox ItemsSource="{Binding ViewModel.AltitudeXReferences}"
+                              SelectedValue="{Binding ViewModel.OverlayService.Settings.AltitudeXReference}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </ui:CardControl>
                 <!--Line width-->
                 <ui:CardControl Icon="{ui:SymbolIcon InkStroke24}"
                                 Margin="0,8,0,0">

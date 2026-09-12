@@ -13,9 +13,9 @@ public class GraphRenderer
     /// Is the base layer of the graph overlay.
     /// </summary>
     /// <param name="options"></param>
-    /// <param name="points"></param>
+    /// <param name="xPositions">List of positions for each value from values list; 0-left to 1-right.</param>
     /// <returns></returns>
-    public static SKBitmap RenderStaticPart(GraphRendererOptions options, List<float?> values)
+    public static SKBitmap RenderStaticPart(GraphRendererOptions options, List<float?> values, List<float?> xPositions)
     {
         float topPadding = 2f * (float)options.StrokeWidth;
         float min = values.Min() ?? 0f;
@@ -24,7 +24,7 @@ public class GraphRenderer
         if (range < options.MinimumRange)
             range = options.MinimumRange;
         float maxPixels = topPadding;
-        float minPixels = (100f-options.BottomPaddingPercent)/100f * options.BitmapHeight;
+        float minPixels = (100f - options.BottomPaddingPercent) / 100f * options.BitmapHeight;
         float scalePixels = (maxPixels - minPixels) / range;
         float valueToPixel(float v) => minPixels + (v - min) * scalePixels;
 
@@ -33,7 +33,7 @@ public class GraphRenderer
         pathBuilder.MoveTo(0, valueToPixel(values[0] ?? 0f));
         for (int i = 1; i < values.Count; ++i)
         {
-            float x = (float)i / (values.Count - 1) * options.BitmapWidth;
+            float x = (xPositions[i] * options.BitmapWidth) ?? 0f;
             float y = valueToPixel(values[i] ?? 0f);
             pathBuilder.LineTo(x, y);
         }
@@ -71,11 +71,12 @@ public class GraphRenderer
     /// </summary>
     /// <param name="options"></param>
     /// <param name="values"></param>
+    /// <param name="xPositions">List of positions for each value from values list; 0-left to 1-right.</param>
     /// <param name="currentValueIndex"></param>
     /// <param name="valueConverter">A function that converts the given values according to the specified unit</param>
     /// <param name="previousTrailBase"></param>
     /// <returns></returns>
-    public static SKBitmap RenderTrailPart(GraphRendererOptions options, List<float?> values, int currentValueIndex, Func<float?, float?> valueConverter, ref SKBitmap? previousTrailBase)
+    public static SKBitmap RenderTrailPart(GraphRendererOptions options, List<float?> values, List<float?> xPositions, int currentValueIndex, Func<float?, float?> valueConverter, ref SKBitmap? previousTrailBase)
     {
         float topPadding = 2f * (float)options.StrokeWidth;
         float min = values.Min() ?? 0f;
@@ -84,7 +85,7 @@ public class GraphRenderer
         if (range < options.MinimumRange)
             range = options.MinimumRange;
         float maxPixels = topPadding;
-        float minPixels = (100f - options.BottomPaddingPercent)/100f * options.BitmapHeight;
+        float minPixels = (100f - options.BottomPaddingPercent) / 100f * options.BitmapHeight;
         float scalePixels = (maxPixels - minPixels) / range;
         float valueToPixel(float v) => minPixels + (v - min) * scalePixels;
         SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
@@ -104,9 +105,9 @@ public class GraphRenderer
             for (int i = 0; i < currentValueIndex - 1 && i < values.Count - 1; ++i)
                 if (values[i] != null && values[i + 1] != null)
                 {
-                    float x0 = (float)i / (values.Count - 1) * options.BitmapWidth;
+                    float x0 = (xPositions[i] * options.BitmapWidth) ?? 0f;
                     float y0 = valueToPixel(values[i] ?? 0f);
-                    float x1 = (float)(i + 1) / (values.Count - 1) * options.BitmapWidth;
+                    float x1 = (xPositions[i + 1] * options.BitmapWidth) ?? 0f;
                     float y1 = valueToPixel(values[i + 1] ?? 0f);
                     baseCanvas.DrawLine(x0, y0, x1, y1, skPaint);
                     //smooth corners by drawing circles
@@ -119,9 +120,9 @@ public class GraphRenderer
             SKCanvas baseCanvas = new(basePathBitmap);
             if (values[currentValueIndex] != null && values[currentValueIndex - 1] != null)
             {
-                float x0 = (float)(currentValueIndex - 1) / (values.Count - 1) * options.BitmapWidth;
+                float x0 = (xPositions[currentValueIndex - 1] * options.BitmapWidth) ?? 0f;
                 float y0 = valueToPixel(values[currentValueIndex - 1] ?? 0f);
-                float x1 = (float)currentValueIndex / (values.Count - 1) * options.BitmapWidth;
+                float x1 = (xPositions[currentValueIndex] * options.BitmapWidth) ?? 0f;
                 float y1 = valueToPixel(values[currentValueIndex] ?? 0f);
                 baseCanvas.DrawLine(x0, y0, x1, y1, skPaint);
                 //smooth corners by drawing circles
@@ -140,9 +141,9 @@ public class GraphRenderer
             for (int i = currentValueIndex - fadeFrames; i <= currentValueIndex; ++i)
                 if (values[i] != null && values[i - 1] != null)
                 {
-                    float x0 = (float)(i - 1) / (values.Count - 1) * options.BitmapWidth;
+                    float x0 = (xPositions[i - 1] * options.BitmapWidth) ?? 0f;
                     float y0 = valueToPixel(values[i - 1] ?? 0f);
-                    float x1 = (float)i / (values.Count - 1) * options.BitmapWidth;
+                    float x1 = (xPositions[i] * options.BitmapWidth) ?? 0f;
                     float y1 = valueToPixel(values[i] ?? 0f);
                     float fadePercent = (float)f++ / options.FadePointCount;
                     skPaint.Color = new SKColor(
@@ -159,7 +160,7 @@ public class GraphRenderer
         if (values[currentValueIndex] != null)
         {
             // Calculate positions
-            float x = (float)currentValueIndex / (values.Count - 1) * options.BitmapWidth;
+            float x = (xPositions[currentValueIndex] * options.BitmapWidth) ?? 0f;
             float y = valueToPixel(values[currentValueIndex] ?? 0f);
             string valueText = $"{valueConverter(values[currentValueIndex]):0}";
             options.ValueFont.MeasureText(valueText, out SKRect valueSize, skPaint);
@@ -179,7 +180,7 @@ public class GraphRenderer
                 // Draw projection line from top of text up to current position
                 // Layer under positon marker
                 float lineToY = textTop - _textMargin;
-                if(lineToY > y)
+                if (lineToY > y)
                 {
                     SKPathBuilder pathBuilder = new();
                     pathBuilder.MoveTo(x, textTop - _textMargin);
