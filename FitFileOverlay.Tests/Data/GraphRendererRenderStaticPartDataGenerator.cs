@@ -31,11 +31,26 @@ public class GraphRendererRenderStaticPartDataGenerator : DataSourceGeneratorAtt
             100f,
             105f,
             120f,
-            150f
+            150f,
+            200f
+        ];
+        List<float?> xPos =
+        [
+            0f,
+            0.1f,
+            0.2f,
+            0.3f,
+            0.4f,
+            0.5f,
+            0.6f,
+            0.7f,
+            0.8f,
+            0.9f,
+            1f,
         ];
 
-        yield return () => new GraphRendererRenderStaticPartTestData(rendererOptions, values, "Test1.png");
+        yield return () => new GraphRendererRenderStaticPartTestData(rendererOptions, values, xPos, "Test1.png");
     }
 }
 
-public record GraphRendererRenderStaticPartTestData(GraphRendererOptions RendererOptions, List<float?> Values, string FileName);
+public record GraphRendererRenderStaticPartTestData(GraphRendererOptions RendererOptions, List<float?> Values, List<float?> XPos, string FileName);

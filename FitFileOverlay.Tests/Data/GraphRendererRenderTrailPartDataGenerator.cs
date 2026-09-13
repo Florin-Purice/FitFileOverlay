@@ -35,17 +35,32 @@ public class GraphRendererRenderTrailPartDataGenerator : DataSourceGeneratorAttr
             100f,
             105f,
             120f,
-            150f
+            150f,
+            200f
         ];
-        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, 8, "Test1.png");
-        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, 4, "Test2.png");
+        List<float?> xPos =
+        [
+            0f,
+            0.1f,
+            0.2f,
+            0.3f,
+            0.4f,
+            0.5f,
+            0.6f,
+            0.7f,
+            0.8f,
+            0.9f,
+            1f,
+        ];
+        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, xPos, 8, "Test1.png");
+        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, xPos, 4, "Test2.png");
 
         rendererOptions.IsTextEnabled = true;
-        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, 5, "Test3_text.png");
+        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, xPos, 5, "Test3_text.png");
 
         rendererOptions.PrimaryColor = new SKColor(250, 0, 0, 50);
-        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, 9, "Test4_transparency.png");
+        yield return () => new GraphRendererRenderTrailPartTestData(rendererOptions, values, xPos, 9, "Test4_transparency.png");
     }
 }
 
-public record GraphRendererRenderTrailPartTestData(GraphRendererOptions RendererOptions, List<float?> Values, int CurrentValueIndex, string FileName);
+public record GraphRendererRenderTrailPartTestData(GraphRendererOptions RendererOptions, List<float?> Values, List<float?> XPos, int CurrentValueIndex, string FileName);
