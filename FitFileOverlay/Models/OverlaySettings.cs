@@ -57,11 +57,11 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial AltitudeXReference AltitudeXReference { get; set; } = AltitudeXReference.Distance;
     [ObservableProperty]
-    public partial float AltitudeLineWidth { get; set; } = 3f;
+    public partial float AltitudeLineWidth { get; set; } = 6f;
     [ObservableProperty]
     public partial byte AltitudeBackgroundAlpha { get; set; } = 50;
     [ObservableProperty]
-    public partial float AltitudeBottomPaddingPercent { get; set; } = 10f;
+    public partial float AltitudeBottomPaddingPercent { get; set; } = 20f;
     [ObservableProperty]
     public partial float AltitudeMinimumRange { get; set; } = 10f;
     [ObservableProperty]
@@ -71,9 +71,9 @@ public partial class OverlaySettings : ObservableObject
     [ObservableProperty]
     public partial bool UppercaseAltitudeUnit { get; set; } = true;
     [ObservableProperty]
-    public partial float AltitudeUnitFontSize { get; set; } = 12f;
+    public partial float AltitudeUnitFontSize { get; set; } = 20f;
     [ObservableProperty]
-    public partial float AltitudeValueFontSize { get; set; } = 18f;
+    public partial float AltitudeValueFontSize { get; set; } = 32f;
     #endregion
     #region DATA_FIELD
     [ObservableProperty]
