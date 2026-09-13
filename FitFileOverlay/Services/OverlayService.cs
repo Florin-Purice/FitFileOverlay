@@ -165,14 +165,24 @@ public partial class OverlayService : ObservableObject, IOverlayService
         {
             //create base altitude overlay
             List<float?> altitudeValues = [];
-            foreach (IActivityRecord record in File.Records)
-                altitudeValues.Add(record.Altitude);
-            SKBitmap altitudeBaseBitmap = GraphRenderer.RenderStaticPart(graphRendererOptions, altitudeValues);
+            List<float?> altitudeXPositions = [];
+            float? totalDistance = File.Records.Last().Distance;
+            for (int i = 0; i < File.Records.Count; i++)
+            {
+                altitudeValues.Add(File.Records[i].Altitude);
+                float? xPos = Settings.AltitudeXReference switch
+                {
+                    AltitudeXReference.Distance => File.Records[i].Distance / totalDistance,
+                    _ => (float)i / (File.Records.Count - 1)
+                };
+                altitudeXPositions.Add(xPos);
+            }
+            SKBitmap altitudeBaseBitmap = GraphRenderer.RenderStaticPart(graphRendererOptions, altitudeValues, altitudeXPositions);
             SKBitmap? altitudeCacheBitmap = null;
             //apply base altitude overlay
             sKCanvas.DrawBitmap(altitudeBaseBitmap, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
             //create partial altitude path and apply over base altitude overlay
-            SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, recordIndex, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
+            SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, altitudeXPositions, recordIndex, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
             sKCanvas.DrawBitmap(altitudePathOverlay, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
         }
         return sKBitmap;
@@ -211,6 +221,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
         GraphRendererOptions graphRendererOptions = CreateGraphRendererOptionsFromSettings(Settings);
         List<SKPoint?> drawPoints = [];
         List<float?> altitudeValues = [];
+        List<float?> altitudeXPositions = [];
         SKBitmap? gpsBaseBitmap = null;
         SKBitmap? altitudeBaseBitmap = null;
         if (Settings.IsGpsOverlayEnabled)
@@ -244,9 +255,18 @@ public partial class OverlayService : ObservableObject, IOverlayService
         }
         if (Settings.IsAltitudeOverlayEnabled)
         {
-            foreach (IActivityRecord record in records)
-                altitudeValues.Add(record.Altitude);
-            altitudeBaseBitmap = GraphRenderer.RenderStaticPart(graphRendererOptions, altitudeValues);
+            float? totalDistance = records.Last().Distance;
+            for (int i = 0; i < records.Count; i++)
+            {
+                altitudeValues.Add(records[i].Altitude);
+                float? xPos = Settings.AltitudeXReference switch
+                {
+                    AltitudeXReference.Distance => records[i].Distance / totalDistance,
+                    _ => (float)i / (records.Count - 1)
+                };
+                altitudeXPositions.Add(xPos);
+            }
+            altitudeBaseBitmap = GraphRenderer.RenderStaticPart(graphRendererOptions, altitudeValues, altitudeXPositions);
         }
         SKBitmap? pathCacheBitmap = null;
         SKBitmap? altitudeCacheBitmap = null;
@@ -276,7 +296,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
                 //apply base altitude overlay
                 sKCanvas.DrawBitmap(altitudeBaseBitmap, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
                 //create partial altitude path and apply over base altitude overlay
-                SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, i, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
+                SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, altitudeXPositions, i, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
                 sKCanvas.DrawBitmap(altitudePathOverlay, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
             }
             //create frame and return
