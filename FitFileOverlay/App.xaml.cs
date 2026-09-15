@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
+using Velopack;
 using Wpf.Ui;
 using Wpf.Ui.DependencyInjection;
 
@@ -70,6 +71,7 @@ public partial class App
     /// </summary>
     private async void OnStartup(object sender, StartupEventArgs e)
     {
+        VelopackApp.Build().Run();
         await _host.StartAsync();
     }
 
