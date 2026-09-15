@@ -1,4 +1,4 @@
-# Fit  Overlay
+# Fit  Overlay (outdated)
 
 Windows application that reads a Garmin activity file (.fit) and creates a video file with GPS and other activity data.
 
