@@ -2,17 +2,9 @@ name: Test
 
 on:
   push:
-    branches: [ "master" ]
-    paths-ignore:
-      - 'README.md'
+    branches: [develop]
   pull_request:
-    branches: [ "master" ]
-
-env:
-  Solution_Name: FitFileOverlay.slnx
-  Test_Project_Path: FitFileOverlay.Tests/FitFileOverlay.Tests.csproj
-  Wap_Project_Directory: FitFileOverlay
-  Wap_Project_Path: FitFileOverlay/FitFileOverlay.csproj
+    branches: [develop]
 
 jobs:
   test:

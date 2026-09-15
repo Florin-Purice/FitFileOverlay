@@ -45,6 +45,8 @@
                 </Grid>
             </ui:NavigationView.ContentOverlay>
         </ui:NavigationView>
+        <ContentPresenter Grid.Row="1"
+                          x:Name="SplashScreenHost" />
         <ui:ContentDialogHost x:Name="RootContentDialog"
                               Grid.Row="0"
                               Grid.RowSpan="2" />
