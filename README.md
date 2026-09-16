@@ -13,11 +13,11 @@ Windows application that reads a Garmin activity file (.fit) and creates a video
 
 * Option 1
 
-Download and install the [latest version](https://github.com/Florin-Purice/FitFileOverlay/releases). It will install the required .NET version if it's missing.
+Download and install the [latest version](https://github.com/Florin-Purice/FitFileOverlay/releases/latest/download/FitFileOverlay-win-x64-net10-Setup.exe). It will install the required .NET version if it's missing.
 
 * Option 2
 
-Install the [self-contained]() version which doesn't require .NET Runtime to be installed (bigger file size).
+Install the [self-contained](https://github.com/Florin-Purice/FitFileOverlay/releases/latest/download/FitFileOverlay-win-x64-Setup.exe) version which doesn't require .NET Runtime to be installed (bigger file size).
 
 > [!IMPORTANT]
 > This app requires ffmpeg to run. At startup it will check for a valid ffmpeg install and if one is not found it will prompt the user if he or she wants the app to automatically setup ffmpeg binaries. 
