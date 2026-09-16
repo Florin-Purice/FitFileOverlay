@@ -1,6 +1,6 @@
-# Fit  Overlay (outdated)
+# Fit  Overlay
 
-Windows application that reads a Garmin activity file (.fit) and creates a video file with GPS and other activity data.
+Windows application that reads a Garmin activity file (.fit) and creates a video file with map, altitude graph and other activity data.
 
 [![Release](https://img.shields.io/github/v/release/Florin-Purice/FitFileOverlay)](https://github.com/Florin-Purice/FitFileOverlay/releases)
 ![GitHub Release Date](https://img.shields.io/github/release-date/Florin-Purice/FitFileOverlay)
@@ -9,19 +9,23 @@ Windows application that reads a Garmin activity file (.fit) and creates a video
 
 ## Getting started
 
-### Option 1
+### Install
 
-Download the zip of the latest [version](https://github.com/Florin-Purice/FitFileOverlay/releases), extract it into its own folder and run.  
-Requires [.NET Runtime](https://dotnet.microsoft.com/en-us/download/dotnet) to be installed (e.g. `FitOverlay_net10_win-x64.zip` needs .NET 10).
+* Option 1
 
-### Option 2
+Download and install the [latest version](https://github.com/Florin-Purice/FitFileOverlay/releases). It will install the required .NET version if it's missing.
 
-Download the `selfcontained` version which doesn't require .NET Runtime to be installed.
+* Option 2
+
+Install the [self-contained]() version which doesn't require .NET Runtime to be installed (bigger file size).
 
 > [!IMPORTANT]
-> This app makes use of [`FFMpegCore`](https://github.com/rosenbjerg/FFMpegCore) which requires either:
-> * an [install of ffmpeg](https://www.gyan.dev/ffmpeg/builds/) - recommended, install with `winget install ffmpeg`
-> * or a directory containing ffmpeg/ffprobe binaries and a config file that points at that directory ([release 1.0.0](https://github.com/Florin-Purice/FitFileOverlay/releases/tag/1.0.0) contains `ffmpeg_fix.zip`, extract it into the executing directory if you don't want to install ffmpeg).
+> This app requires ffmpeg to run. At startup it will check for a valid ffmpeg install and if one is not found it will prompt the user if he or she wants the app to automatically setup ffmpeg binaries. 
+
+### Update
+
+The app will check for updates at startup and prompt the user for installing them.  
+Install/update process is handled by [velopack](https://velopack.io/).
 
 ## Usage
 
@@ -47,7 +51,7 @@ Things that you can customize:
 * Choose between using custom value for lactate threshold heart rate or use the value read from the file
 * Primary and secondary colors
 * Background color (recommended to leave it fully transparent)
-* Include/exclude sections of the overlay: map, various data fields; and the size of these sections
+* Include/exclude sections of the overlay: map, altitude graph, various data fields; and the size of these sections
 * Specific settings to change the look of the map and individual data fields
 * Change the order in which data fields are drawn
 
@@ -84,17 +88,21 @@ await FFMpegArguments.FromPipeInput(framesSource)
 
  Here are a few examples of videos using the overlay created by Fit Overlay.
 
+<a href="https://www.youtube.com/watch?v=hz7Gj9dUl5w">
+  <img src="https://img.youtube.com/vi/hz7Gj9dUl5w/maxresdefault.jpg" width="300" alt="Watch Video">
+</a>  
+
 <a href="https://www.youtube.com/watch?v=JstSYJi-Fho">
   <img src="https://img.youtube.com/vi/JstSYJi-Fho/maxresdefault.jpg" width="300" alt="Watch Video">
-</a>
+</a>  
 
 <a href="https://www.youtube.com/watch?v=2SCQUztco2o">
   <img src="https://img.youtube.com/vi/2SCQUztco2o/maxresdefault.jpg" width="300" alt="Watch Video">
-</a>
+</a>  
 
 <a href="https://www.youtube.com/watch?v=eQ8ZyxgEZJ8">
   <img src="https://img.youtube.com/vi/eQ8ZyxgEZJ8/maxresdefault.jpg" width="300" alt="Watch Video">
-</a>
+</a>  
 
 > [!NOTE]
 > The exported video from Fit Overlay has been applied over a recording, cropped, zoomed and added drop shadow using Davinci Resolve.  
