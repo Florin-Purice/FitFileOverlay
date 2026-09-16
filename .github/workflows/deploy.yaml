@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths-ignore:
       - 'README.md'
+
 permissions:
   contents: write   
 
@@ -36,12 +37,20 @@ jobs:
       with:
         dotnet-version: 10.x
 
-    - name: Publish
-      run: dotnet publish -c Release --self-contained -r win-x64 -o .\publish
+    - name: Publish Selfcontained
+      run: dotnet publish -c Release --self-contained -r win-x64 -o .\publish-win-x64
+
+    - name: Dotnet Clean
+      run: dotnet clean
+
+    - name: Publish .NET10
+      run: dotnet publish -c Release --no-self-contained -r win-x64 -o .\publish-win-x64-net10
 
     - name: Create Velopack Release
       run: |
         dotnet tool install -g vpk
         vpk download github --repoUrl https://github.com/${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
-        vpk pack --msi -u FitFileOverlay -v ${{ steps.get-version.outputs.version }} -p publish --packTitle "Fit Overlay" --mainExe FitFileOverlay.exe
-        vpk upload github --repoUrl https://github.com/${{ github.repository }} --publish --releaseName "Fit Overlay ${{ steps.get-version.outputs.version }}" --tag ${{ steps.get-version.outputs.version }} --token ${{ secrets.GITHUB_TOKEN }}
+        vpk pack --channel win-x64 --msi -u FitFileOverlay -v ${{ steps.get-version.outputs.version }} -p .\publish-win-x64 --packTitle "Fit Overlay" --mainExe FitFileOverlay.exe
+        vpk pack --channel win-x64-net10 --msi -u FitFileOverlay -v ${{ steps.get-version.outputs.version }} -p .\publish-win-x64-net10 --packTitle "Fit Overlay" --mainExe FitFileOverlay.exe
+        vpk upload github --repoUrl https://github.com/${{ github.repository }} --channel win-x64 --releaseName "Fit Overlay ${{ steps.get-version.outputs.version }}" --tag ${{ steps.get-version.outputs.version }} --token ${{ secrets.GITHUB_TOKEN }}
+        vpk upload github --repoUrl https://github.com/${{ github.repository }} --channel win-x64-net10 --merge --publish --releaseName "Fit Overlay ${{ steps.get-version.outputs.version }}" --tag ${{ steps.get-version.outputs.version }} --token ${{ secrets.GITHUB_TOKEN }}
