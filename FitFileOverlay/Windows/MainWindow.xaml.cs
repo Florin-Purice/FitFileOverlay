@@ -66,9 +66,22 @@ public partial class MainWindow : INavigationWindow
         }
         catch
         {
-            messageChangeCallback("ffmpeg not found");
             // ffmpeg was not found
-            if (IsAdministrator())
+            messageChangeCallback("ffmpeg not found");
+            ContentDialogResult? dialogResult = null;
+            await Application.Current.Dispatcher.Invoke(async () =>
+            {
+                ContentDialog dialog = new()
+                {
+                    MinWidth = 300,
+                    Title = $"ffmpeg not found",
+                    Content = "Execution cannot continue without it.\nDownload ffmpeg binaries?",
+                    PrimaryButtonText = "Download",
+                    CloseButtonText = "Exit"
+                };
+                dialogResult = await _contentDialogService.ShowAsync(dialog, default);
+            });
+            if (dialogResult == ContentDialogResult.Primary)
             {
                 try
                 {
@@ -92,21 +105,7 @@ public partial class MainWindow : INavigationWindow
                 }
             }
             else
-            {
-                //need admin permission to install
-                await Application.Current.Dispatcher.Invoke(async () =>
-                {
-                    ContentDialog dialog = new()
-                    {
-                        Title = "FFMpeg not installed",
-                        Content = "This app needs ffmpeg to run.\nInstall ffmpeg manually and restart application.\n\nOr restart with admin privileges to install automatically.",
-                        IsPrimaryButtonEnabled = false,
-                        CloseButtonText = "Exit"
-                    };
-                    _ = await _contentDialogService.ShowAsync(dialog, default);
-                });
                 ShutdownApp();
-            }
         }
     }
 
@@ -133,6 +132,7 @@ public partial class MainWindow : INavigationWindow
             {
                 ContentDialog dialog = new()
                 {
+                    MinWidth = 300,
                     Title = $"New version: {newVersion.TargetFullRelease.Version.ToFullString()}",
                     Content = "Download and install now?",
                     PrimaryButtonText = "Yes",
@@ -150,13 +150,6 @@ public partial class MainWindow : INavigationWindow
             }
         }
         catch { }
-    }
-
-    private static bool IsAdministrator()
-    {
-        using WindowsIdentity identity = WindowsIdentity.GetCurrent();
-        WindowsPrincipal principal = new(identity);
-        return principal.IsInRole(WindowsBuiltInRole.Administrator);
     }
 
     private static void ShutdownApp()
