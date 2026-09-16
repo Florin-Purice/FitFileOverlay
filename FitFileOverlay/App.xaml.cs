@@ -18,6 +18,13 @@ namespace FitFileOverlay;
 public partial class App
 {
     private static readonly string _overlaySettingsFilename = "overlay_settings.json";
+#if DEBUG
+    private static readonly string _saveDirectory = @".\";
+#else
+    private static readonly string _saveDirectory = @"..\";
+#endif
+
+    public static string SaveDirrectory => _saveDirectory;
 
     // The.NET Generic Host provides dependency injection, configuration, logging, and other services.
     // https://docs.microsoft.com/dotnet/core/extensions/generic-host
@@ -80,7 +87,7 @@ public partial class App
     /// </summary>
     private async void OnExit(object sender, ExitEventArgs e)
     {
-        Services.GetRequiredService<IOverlayService>().Settings?.ToFile(_overlaySettingsFilename);
+        Services.GetRequiredService<IOverlayService>().Settings?.ToFile(Path.Combine(App.SaveDirrectory, _overlaySettingsFilename));
 
         await _host.StopAsync();
 

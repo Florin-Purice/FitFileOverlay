@@ -17,7 +17,7 @@ namespace FitFileOverlay.Pages;
 public partial class SettingsViewModel : ObservableObject, INavigationAware
 {
     private bool _isInitialized = false;
-    private readonly string _templatesDirectory = "./Templates/";
+    private readonly string _templatesDirectory = Path.Combine(App.SaveDirrectory, "Templates");
     private readonly PreviewWindowViewModel _previewWindowViewModel;
     private readonly IContentDialogService _contentDialogService;
     private PreviewWindow? _previewWindow;

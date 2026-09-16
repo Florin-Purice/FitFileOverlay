@@ -1,4 +1,4 @@
-﻿using FFMpegCore;
+using FFMpegCore;
 using FFMpegCore.Extensions.Downloader;
 using FFMpegCore.Helpers;
 using System.IO;
@@ -37,7 +37,7 @@ public partial class MainWindow : INavigationWindow
         contentDialogService.SetDialogHost(RootContentDialog);
         _contentDialogService = contentDialogService;
 
-        GlobalFFOptions.Current.BinaryFolder = @"..\ffbin";
+        GlobalFFOptions.Current.BinaryFolder = Path.Combine(App.SaveDirrectory, "ffbin");
         InitializeSplashScreen();
     }
 
