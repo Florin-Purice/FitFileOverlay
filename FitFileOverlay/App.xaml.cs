@@ -62,7 +62,7 @@ public partial class App
             services.AddSingleton<SettingsPage>();
             services.AddSingleton<SettingsViewModel>();
 
-            services.AddSingleton<IOverlayService>(s => new OverlayService{Settings = OverlaySettings.FromFile(_overlaySettingsFilename) ?? new OverlaySettings()});
+            services.AddSingleton<IOverlayService>(s => new OverlayService{Settings = OverlaySettings.FromFile(Path.Combine(App.SaveDirrectory, _overlaySettingsFilename)) ?? new OverlaySettings()});
         }).Build();
 
     /// <summary>

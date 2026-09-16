@@ -113,7 +113,12 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             if (fileName == "_default_" || fileName == "_default_.json")
                 fileName = "default";
             if (!string.IsNullOrWhiteSpace(fileName))
-                OverlayService.Settings?.ToFile(_templatesDirectory + fileName + (fileName.EndsWith(".json") ? "" : ".json"));
+            {
+                string fullFilePath = Path.Combine(_templatesDirectory, fileName);
+                if (!fullFilePath.EndsWith(".json"))
+                    fullFilePath += ".json";
+                OverlayService.Settings?.ToFile(fullFilePath);
+            }
         }
     }
 
