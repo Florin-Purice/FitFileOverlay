@@ -6,7 +6,6 @@ using FitFileOverlay.Helpers;
 using FitFileOverlay.Models;
 using SkiaSharp;
 using System.IO;
-using System.Reflection.Metadata.Ecma335;
 
 namespace FitFileOverlay.Services;
 
@@ -33,16 +32,17 @@ public partial class OverlayService : ObservableObject, IOverlayService
     {
         if (File != null && File.IsValid && Settings != null)
         {
+            List<IActivityRecord> records = [];
             //insert interpolated records if needed
-            List<IActivityRecord> fullRecordList;
             if (Settings.FPS > 1)
-                fullRecordList = InterpolateRecords(File.Records, Settings.FPS);
+                records = InterpolateRecords(File.Records, Settings.FPS);
             else
-                fullRecordList = File.Records;
-            //create list of unitary screenspace gps points
-            List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(fullRecordList, out double gpsAspectRatio);
+                records = File.Records;
+            InstanceData data = new() { Records = records };
+            PrepareInstanceData(ref data);
+
             //Generate video frames and encode video using FFMpegCore
-            IEnumerable<IVideoFrame> frames = CreateVideoFrames(fullRecordList, normalizedPoints, gpsAspectRatio, progressReportCallback);
+            IEnumerable<IVideoFrame> frames = CreateVideoFrames(data, progressReportCallback);
             RawVideoPipeSource framesSource = new(frames) { FrameRate = Settings.FPS };
             Directory.CreateDirectory(Path.GetDirectoryName(outputFilename) ?? string.Empty);
             await FFMpegArguments.FromPipeInput(framesSource)
@@ -87,221 +87,144 @@ public partial class OverlayService : ObservableObject, IOverlayService
             return null;
         if (!Settings.IsGpsOverlayEnabled && !Settings.IsDataFieldsOverlayEnabled && !Settings.IsAltitudeOverlayEnabled)
             return null;
-        //create list of unitary screenspace gps points
-        List<(double x, double y)?> normalizedPoints = ProcessGpsPoints(File.Records, out double gpsAspectRatio);
-        //define layout
-        int overlayWidth = 0;
-        int overlayHeight = 0;
-        int altitudeOverlayStartY = 0;
-        int mapOverlayStartX = 0;
-        if (Settings!.IsDataFieldsOverlayEnabled)
+
+        InstanceData data = new() { Records = File.Records };
+        PrepareInstanceData(ref data);
+        data.PathRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
+        data.GraphRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
+
+        SKBitmap? pathCacheBitmap = null;
+        SKBitmap? altitudeCacheBitmap = null;
+        return CreateFrame(data, recordIndex, ref pathCacheBitmap, ref altitudeCacheBitmap);
+    }
+
+    private IEnumerable<IVideoFrame> CreateVideoFrames(InstanceData data, Action<double>? progressReportCallback = null)
+    {
+        SKBitmap? pathCacheBitmap = null;
+        SKBitmap? altitudeCacheBitmap = null;
+        for (int i = 0; i < data.Records.Count; ++i)
         {
-            overlayWidth = Settings.DataFieldsOverlayWidth;
-            overlayHeight = Settings.DataFieldsOverlayHeight;
+            SKBitmap frame = CreateFrame(data, i, ref pathCacheBitmap, ref altitudeCacheBitmap);
+            progressReportCallback?.Invoke((double)i / data.Records.Count);
+            yield return new BitmapVideoFrameWrapper(frame);
         }
-        if (Settings.IsGpsOverlayEnabled)
-        {
-            mapOverlayStartX = overlayWidth;
-            overlayWidth += Settings.GpsOverlayWidth;
-            overlayHeight = Math.Max(overlayHeight, Settings.GpsOverlayHeight);
-        }
-        if (Settings.IsAltitudeOverlayEnabled)
-        {
-            overlayWidth = Math.Max(overlayWidth, Settings.AltitudeOverlayWidth);
-            altitudeOverlayStartY = overlayHeight;
-            overlayHeight += Settings.AltitudeOverlayHeight;
-        }
-        PathRendererOptions pathRendererOptions = CreatePathRendererOptionsFromSettings(Settings);
-        GraphRendererOptions graphRendererOptions = CreateGraphRendererOptionsFromSettings(Settings);
-        pathRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
-        graphRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
+    }
+
+    private SKBitmap CreateFrame(InstanceData data, int recordIndex, ref SKBitmap? pathCacheBitmap, ref SKBitmap? altitudeCacheBitmap)
+    {
         //create underlying bitmap
-        SKBitmap sKBitmap = new(overlayWidth, overlayHeight);
+        SKBitmap sKBitmap = new(data.OverlayWidth, data.OverlayHeight);
         SKCanvas sKCanvas = new(sKBitmap);
-        sKCanvas.Clear(Settings.Background);
+        sKCanvas.Clear(Settings!.Background);
         if (Settings.IsDataFieldsOverlayEnabled)
         {
             //create data fields overlay and apply
-            SKBitmap? dataFieldsOverlay = CreateDataFieldsOverlay(File.Records.ElementAt(recordIndex));
+            SKBitmap? dataFieldsOverlay = CreateDataFieldsOverlay(data.Records[recordIndex]);
             if (dataFieldsOverlay != null && !dataFieldsOverlay.IsEmpty)
                 sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
         }
         if (Settings.IsGpsOverlayEnabled)
         {
-            float gpsDrawAreaPadding = Settings.GpsLineWidth * 2;//add some padding so the points on the border dont get cut off
-            double gpsDrawAreaAspectRatio = (double)(pathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2) / (pathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2);
-            double scale;
-            if (gpsDrawAreaAspectRatio > gpsAspectRatio)
-            {
-                //points cover the full height
-                scale = pathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2;
-            }
-            else
-            {
-                //points cover the full width
-                scale = pathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2;
-            }
-            //transform points into actual draw points
-            List<SKPoint?> drawPoints = [];
-            foreach ((double x, double y)? point in normalizedPoints)
-                if (point is null)
-                    drawPoints.Add(null);
-                else
-                {
-                    float x = (float)((point?.x ?? 0) * scale + gpsDrawAreaPadding);
-                    float y = (float)((point?.y ?? 0) * scale + gpsDrawAreaPadding);
-                    drawPoints.Add(new SKPoint(x, y));
-                }
-            //create base gps overlay
-            SKBitmap gpsBaseBitmap = PathRenderer.RenderStaticPart(pathRendererOptions, drawPoints);
-            SKBitmap? pathCacheBitmap = null;
             //apply base gps overlay
-            sKCanvas.DrawBitmap(gpsBaseBitmap, mapOverlayStartX, 0, SKSamplingOptions.Default);
+            sKCanvas.DrawBitmap(data.GpsBaseBitmap, data.MapOverlayStartX, 0, SKSamplingOptions.Default);
             //create partial gps path and apply over base gps overlay
-            SKBitmap gpsPathOverlay = PathRenderer.RenderTrailPart(pathRendererOptions, drawPoints, recordIndex, ref pathCacheBitmap);
-            sKCanvas.DrawBitmap(gpsPathOverlay, mapOverlayStartX, 0, SKSamplingOptions.Default);
+            SKBitmap gpsPathOverlay = PathRenderer.RenderTrailPart(data.PathRendererOptions, data.DrawPoints, recordIndex, ref pathCacheBitmap);
+            sKCanvas.DrawBitmap(gpsPathOverlay, data.MapOverlayStartX, 0, SKSamplingOptions.Default);
         }
         if (Settings.IsAltitudeOverlayEnabled)
         {
-            //create base altitude overlay
-            List<float?> altitudeValues = [];
-            List<float?> altitudeXPositions = [];
-            float? totalDistance = File.Records.Last().Distance;
-            for (int i = 0; i < File.Records.Count; i++)
-            {
-                altitudeValues.Add(File.Records[i].Altitude);
-                float? xPos = Settings.AltitudeXReference switch
-                {
-                    AltitudeXReference.Distance => File.Records[i].Distance / totalDistance,
-                    _ => (float)i / (File.Records.Count - 1)
-                };
-                altitudeXPositions.Add(xPos);
-            }
-            SKBitmap altitudeBaseBitmap = GraphRenderer.RenderStaticPart(graphRendererOptions, altitudeValues, altitudeXPositions);
-            SKBitmap? altitudeCacheBitmap = null;
             //apply base altitude overlay
-            sKCanvas.DrawBitmap(altitudeBaseBitmap, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
+            sKCanvas.DrawBitmap(data.AltitudeBaseBitmap, 0, data.AltitudeOverlayStartY, SKSamplingOptions.Default);
             //create partial altitude path and apply over base altitude overlay
-            SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, altitudeXPositions, recordIndex, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
-            sKCanvas.DrawBitmap(altitudePathOverlay, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
+            SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(data.GraphRendererOptions, data.AltitudeValues, data.AltitudeXPositions, recordIndex, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
+            sKCanvas.DrawBitmap(altitudePathOverlay, 0, data.AltitudeOverlayStartY, SKSamplingOptions.Default);
         }
         return sKBitmap;
     }
 
-    private IEnumerable<IVideoFrame> CreateVideoFrames(
-        List<IActivityRecord> records,
-        List<(double x, double y)?> normalizedPoints,
-        double gpsAspectRatio,
-        Action<double>? progressReportCallback = null)
+    private void PrepareInstanceData(ref InstanceData data)
     {
-        //define layout
-        int overlayWidth = 0;
-        int overlayHeight = 0;
-        int altitudeOverlayStartY = 0;
-        int mapOverlayStartX = 0;
-        if (Settings!.IsDataFieldsOverlayEnabled)
-        {
-            overlayWidth = Settings.DataFieldsOverlayWidth;
-            overlayHeight = Settings.DataFieldsOverlayHeight;
-        }
-        if (Settings.IsGpsOverlayEnabled)
-        {
-            mapOverlayStartX = overlayWidth;
-            overlayWidth += Settings.GpsOverlayWidth;
-            overlayHeight = Math.Max(overlayHeight, Settings.GpsOverlayHeight);
-        }
-        if (Settings.IsAltitudeOverlayEnabled)
-        {
-            overlayWidth = Math.Max(overlayWidth, Settings.AltitudeOverlayWidth);
-            altitudeOverlayStartY = overlayHeight;
-            overlayHeight += Settings.AltitudeOverlayHeight;
-        }
+        CalculateLayout(ref data);
 
-        PathRendererOptions pathRendererOptions = CreatePathRendererOptionsFromSettings(Settings);
-        GraphRendererOptions graphRendererOptions = CreateGraphRendererOptionsFromSettings(Settings);
-        List<SKPoint?> drawPoints = [];
-        List<float?> altitudeValues = [];
-        List<float?> altitudeXPositions = [];
-        SKBitmap? gpsBaseBitmap = null;
-        SKBitmap? altitudeBaseBitmap = null;
-        if (Settings.IsGpsOverlayEnabled)
-        {
-            float gpsDrawAreaPadding = Settings.GpsLineWidth * 2;//add some padding so the points on the border dont get cut off
-            double gpsDrawAreaAspectRatio = (double)(pathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2) / (pathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2);
-            double scale;
-            if (gpsDrawAreaAspectRatio > gpsAspectRatio)
-            {
-                //points cover the full height
-                scale = pathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2;
-            }
+        data.PathRendererOptions = CreatePathRendererOptionsFromSettings(Settings!);
+        data.GraphRendererOptions = CreateGraphRendererOptionsFromSettings(Settings!);
+
+        data.DrawPoints = [];
+        data.AltitudeValues = [];
+        data.AltitudeXPositions = [];
+        data.GpsBaseBitmap = null;
+        data.AltitudeBaseBitmap = null;
+
+        if (Settings!.IsGpsOverlayEnabled)
+            PrepareGpsOverlayData(ref data);
+
+        if (Settings.IsAltitudeOverlayEnabled)
+            PrepareAltitudeOverlayData(ref data);
+    }
+
+    private void PrepareGpsOverlayData(ref InstanceData data)
+    {
+        //create list of unitary screenspace gps points
+        List<(double x, double y)?> normalizedGpsPoints = ProcessGpsPoints(data.Records, out double gpsAspectRatio);
+        float gpsDrawAreaPadding = Settings!.GpsLineWidth * 2;//add some padding so the points on the border dont get cut off
+        double gpsDrawAreaAspectRatio = (double)(data.PathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2) / (data.PathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2);
+        double scale;
+        if (gpsDrawAreaAspectRatio > gpsAspectRatio)
+            scale = data.PathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2;// points cover the full height
+        else
+            scale = data.PathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2;// points cover the full width
+        //transform points into actual draw points
+        foreach ((double x, double y)? point in normalizedGpsPoints)
+            if (point is null)
+                data.DrawPoints.Add(null);
             else
             {
-                //points cover the full width
-                scale = pathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2;
+                float x = (float)((point?.x ?? 0) * scale + gpsDrawAreaPadding);
+                float y = (float)((point?.y ?? 0) * scale + gpsDrawAreaPadding);
+                data.DrawPoints.Add(new SKPoint(x, y));
             }
-            //transform points into actual draw points
-            foreach ((double x, double y)? point in normalizedPoints)
-                if (point is null)
-                    drawPoints.Add(null);
-                else
-                {
-                    float x = (float)((point?.x ?? 0) * scale + gpsDrawAreaPadding);
-                    float y = (float)((point?.y ?? 0) * scale + gpsDrawAreaPadding);
-                    drawPoints.Add(new SKPoint(x, y));
-                }
-            //create base gps overlay
-            gpsBaseBitmap = PathRenderer.RenderStaticPart(pathRendererOptions, drawPoints);
-            pathRendererOptions.PrimaryColor = Settings.PrimaryColor;
+        //create base gps overlay
+        data.GpsBaseBitmap = PathRenderer.RenderStaticPart(data.PathRendererOptions, data.DrawPoints);
+    }
+
+    private void PrepareAltitudeOverlayData(ref InstanceData data)
+    {
+        float? totalDistance = data.Records.Last().Distance;
+        for (int i = 0; i < data.Records.Count; i++)
+        {
+            data.AltitudeValues.Add(data.Records[i].Altitude);
+            float? xPos = Settings!.AltitudeXReference switch
+            {
+                AltitudeXReference.Distance => data.Records[i].Distance / totalDistance,
+                _ => (float)i / (data.Records.Count - 1)
+            };
+            data.AltitudeXPositions.Add(xPos);
+        }
+        data.AltitudeBaseBitmap = GraphRenderer.RenderStaticPart(data.GraphRendererOptions, data.AltitudeValues, data.AltitudeXPositions);
+    }
+
+    private void CalculateLayout(ref InstanceData data)
+    {
+        data.OverlayWidth = 0;
+        data.OverlayHeight = 0;
+        data.AltitudeOverlayStartY = 0;
+        data.MapOverlayStartX = 0;
+        if (Settings!.IsDataFieldsOverlayEnabled)
+        {
+            data.OverlayWidth = Settings.DataFieldsOverlayWidth;
+            data.OverlayHeight = Settings.DataFieldsOverlayHeight;
+        }
+        if (Settings.IsGpsOverlayEnabled)
+        {
+            data.MapOverlayStartX = data.OverlayWidth;
+            data.OverlayWidth += Settings.GpsOverlayWidth;
+            data.OverlayHeight = Math.Max(data.OverlayHeight, Settings.GpsOverlayHeight);
         }
         if (Settings.IsAltitudeOverlayEnabled)
         {
-            float? totalDistance = records.Last().Distance;
-            for (int i = 0; i < records.Count; i++)
-            {
-                altitudeValues.Add(records[i].Altitude);
-                float? xPos = Settings.AltitudeXReference switch
-                {
-                    AltitudeXReference.Distance => records[i].Distance / totalDistance,
-                    _ => (float)i / (records.Count - 1)
-                };
-                altitudeXPositions.Add(xPos);
-            }
-            altitudeBaseBitmap = GraphRenderer.RenderStaticPart(graphRendererOptions, altitudeValues, altitudeXPositions);
-        }
-        SKBitmap? pathCacheBitmap = null;
-        SKBitmap? altitudeCacheBitmap = null;
-        for (int i = 0; i < records.Count; ++i)
-        {
-            //create underlying bitmap
-            SKBitmap sKBitmap = new(overlayWidth, overlayHeight);
-            SKCanvas sKCanvas = new(sKBitmap);
-            sKCanvas.Clear(Settings.Background);
-            if (Settings.IsDataFieldsOverlayEnabled)
-            {
-                //create data fields overlay and apply
-                SKBitmap? dataFieldsOverlay = CreateDataFieldsOverlay(records[i]);
-                if (dataFieldsOverlay != null && !dataFieldsOverlay.IsEmpty)
-                    sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
-            }
-            if (Settings.IsGpsOverlayEnabled)
-            {
-                //apply base gps overlay
-                sKCanvas.DrawBitmap(gpsBaseBitmap, mapOverlayStartX, 0, SKSamplingOptions.Default);
-                //create partial gps path and apply over base gps overlay
-                SKBitmap gpsPathOverlay = PathRenderer.RenderTrailPart(pathRendererOptions, drawPoints, i, ref pathCacheBitmap);
-                sKCanvas.DrawBitmap(gpsPathOverlay, mapOverlayStartX, 0, SKSamplingOptions.Default);
-            }
-            if (Settings.IsAltitudeOverlayEnabled)
-            {
-                //apply base altitude overlay
-                sKCanvas.DrawBitmap(altitudeBaseBitmap, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
-                //create partial altitude path and apply over base altitude overlay
-                SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(graphRendererOptions, altitudeValues, altitudeXPositions, i, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
-                sKCanvas.DrawBitmap(altitudePathOverlay, 0, altitudeOverlayStartY, SKSamplingOptions.Default);
-            }
-            //create frame and return
-            progressReportCallback?.Invoke((double)i / records.Count);
-            yield return new BitmapVideoFrameWrapper(sKBitmap);
+            data.OverlayWidth = Math.Max(data.OverlayWidth, Settings.AltitudeOverlayWidth);
+            data.AltitudeOverlayStartY = data.OverlayHeight;
+            data.OverlayHeight += Settings.AltitudeOverlayHeight;
         }
     }
 
@@ -479,6 +402,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
     }
 
     #region STATIC METHODS
+
     /// <summary>
     /// Excludes last original record from output list
     /// </summary>
@@ -665,5 +589,22 @@ public partial class OverlayService : ObservableObject, IOverlayService
             _ => (x) => x //default meters
         };
     }
+
     #endregion
+
+    private struct InstanceData
+    {
+        public int OverlayWidth;
+        public int OverlayHeight;
+        public int AltitudeOverlayStartY;
+        public int MapOverlayStartX;
+        public PathRendererOptions PathRendererOptions;
+        public GraphRendererOptions GraphRendererOptions;
+        public List<IActivityRecord> Records;
+        public List<SKPoint?> DrawPoints;
+        public List<float?> AltitudeValues;
+        public List<float?> AltitudeXPositions;
+        public SKBitmap? GpsBaseBitmap;
+        public SKBitmap? AltitudeBaseBitmap;
+    }
 }
