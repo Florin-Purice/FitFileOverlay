@@ -11,7 +11,7 @@ public class PathRendererRenderStaticPartDataGenerator : DataSourceGeneratorAttr
         {
             BitmapHeight = 400,
             BitmapWidth = 400,
-            PrimaryColor = SKColors.White,
+            TertiaryColor = SKColors.White,
             StrokeWidth = 6
         };
         List<SKPoint?> points =
@@ -29,7 +29,7 @@ public class PathRendererRenderStaticPartDataGenerator : DataSourceGeneratorAttr
         ];
         yield return () => new PathRendererRenderStaticPartTestData(rendererOptions, points, "Test1.png");
 
-        rendererOptions.PrimaryColor = new SKColor(250, 0, 0, 50);
+        rendererOptions.TertiaryColor = new SKColor(250, 0, 0, 50);
         yield return () => new PathRendererRenderStaticPartTestData(rendererOptions, points, "Test2_transparency.png");
     }
 }
