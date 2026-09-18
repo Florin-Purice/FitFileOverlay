@@ -1,7 +1,6 @@
 ﻿using FFMpegCore;
 using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Pipes;
-using FitFileOverlay.Enums;
 using FitFileOverlay.Helpers;
 using FitFileOverlay.Models;
 using SkiaSharp;
@@ -32,13 +31,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
     {
         if (File != null && File.IsValid && Settings != null)
         {
-            List<IActivityRecord> records = [];
-            //insert interpolated records if needed
-            if (Settings.FPS > 1)
-                records = InterpolateRecords(File.Records, Settings.FPS);
-            else
-                records = File.Records;
-            InstanceData data = new() { Records = records };
+            InstanceData data = new() { Records = InterpolateRecords(File.Records, Settings.FPS) };
             PrepareInstanceData(ref data);
 
             //Generate video frames and encode video using FFMpegCore
@@ -188,7 +181,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
     }
 
     /// <summary>
-    /// Excludes last original record from output list
+    /// Creates in-between records based on FPS and timegap between activity records
     /// </summary>
     /// <param name="originalList"></param>
     /// <param name="fps">Determines the number of inserted records.
@@ -247,6 +240,8 @@ public partial class OverlayService : ObservableObject, IOverlayService
                 });
             }
         }
+        // add last record as-is
+        newList.Add(originalList.Last());
         return newList;
     }
 
