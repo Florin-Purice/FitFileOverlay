@@ -2025,7 +2025,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0"
-                                           Text="Source code" />
+                                           Text="View source code" />
                                 <ui:SymbolIcon Grid.Column="1"
                                                Symbol="Link24" />
                             </Grid>
