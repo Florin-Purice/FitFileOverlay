@@ -1,4 +1,5 @@
-﻿using FitFileOverlay.Models;
+﻿using FFMpegCore;
+using FitFileOverlay.Models;
 using FitFileOverlay.Services;
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
@@ -61,7 +62,7 @@ public class OverlayServiceTests
         // Arrange
         IOverlayService sut = App.Services.GetService<IOverlayService>()!;
 
-        // Assert
+        // Act
         SKBitmap? snapshot = sut.GetSnapshot(activityPercent);
 
         // Assert
@@ -78,11 +79,16 @@ public class OverlayServiceTests
         if (File.Exists(fileName))
             File.Delete(fileName);
 
-        // Assert
+        // Act
         await sut.Export(fileName);
 
         // Assert
         await Assert.That(File.Exists(fileName)).IsTrue();
+        //use ffprobe to check video duration
+        using FileStream fileStream = File.OpenRead(fileName);
+        IMediaAnalysis videoInfo = await FFProbe.AnalyseAsync(fileStream);
+        await Assert.That(videoInfo.Duration).IsEqualTo(sut.File!.ActivityDuration).Within(TimeSpan.FromSeconds(1));
+
         //attach artifact
         TestContext.Current!.Output.AttachArtifact(fileName);
     }
@@ -95,7 +101,7 @@ public class OverlayServiceTests
             // Ensure the overlay service is initialized before each test
             IOverlayService os = App.Services.GetService<IOverlayService>()!;
             os.Load("./Assets/short.fit");
-            os.Settings = new OverlaySettings();
+            os.Settings = new OverlaySettings() { FPS = 2 };
         }
         catch { }
     }
