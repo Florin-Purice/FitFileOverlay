@@ -1,45 +1,58 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>app_icon.ico</ApplicationIcon>
-    <UseWPF>true</UseWPF>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Version>2.0.5</Version>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net10.0-windows</TargetFramework>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<ApplicationIcon>app_icon.ico</ApplicationIcon>
+		<UseWPF>true</UseWPF>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Version>2.0.6</Version>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="app_icon.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="app_icon.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="FFMpegCore" Version="5.4.0" />
-    <PackageReference Include="FFMpegCore.Extensions.Downloader" Version="5.0.0" />
-    <PackageReference Include="FFMpegCore.Extensions.SkiaSharp" Version="5.0.3" />
-    <PackageReference Include="Garmin.FIT.Sdk" Version="21.214.0" />
-    <PackageReference Include="OpenTK.GLWpfControl" Version="4.3.6" />
-    <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.2.3" />
-    <PackageReference Include="SkiaSharp.Views.WPF" Version="4.152.0" NoWarn="NU1701" />
-    <PackageReference Include="Velopack" Version="1.2.0" />
-    <PackageReference Include="WPF-UI" Version="4.3.0" />
-    <PackageReference Include="WPF-UI.DependencyInjection" Version="4.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="FFMpegCore" Version="5.4.0" />
+		<PackageReference Include="FFMpegCore.Extensions.Downloader" Version="5.0.0" />
+		<PackageReference Include="FFMpegCore.Extensions.SkiaSharp" Version="5.0.3" />
+		<PackageReference Include="Garmin.FIT.Sdk" Version="21.214.0" />
+		<PackageReference Include="OpenTK.GLWpfControl" Version="4.3.6" />
+		<PackageReference Include="PixiEditor.ColorPicker" Version="3.4.2.3" />
+		<PackageReference Include="SkiaSharp.Views.WPF" Version="4.152.0" NoWarn="NU1701" />
+		<PackageReference Include="Velopack" Version="1.2.0" />
+		<PackageReference Include="WPF-UI" Version="4.3.0" />
+		<PackageReference Include="WPF-UI.DependencyInjection" Version="4.3.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Assets\fit_overlay_1024.png" />
-    <None Remove="Assets\fit_overlay_256.png" />
-    <None Remove="Assets\gray_x_transparent_background.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Assets\fit_overlay_1024.png" />
+		<None Remove="Assets\fit_overlay_256.png" />
+		<None Remove="Assets\gray_x_transparent_background.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Assets\fit_overlay_1024.png" />
-    <Resource Include="Assets\fit_overlay_256.png" />
-    <Resource Include="Assets\gray_x_transparent_background.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Assets\fit_overlay_1024.png" />
+		<Resource Include="Assets\fit_overlay_256.png" />
+		<Resource Include="Assets\gray_x_transparent_background.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!--Nest under OverlayService.cs-->
+		<Compile Update="Services\OverlayService.DataFields.cs">
+			<DependentUpon>OverlayService.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Services\OverlayService.Map.cs">
+			<DependentUpon>OverlayService.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Services\OverlayService.AltitudeGraph.cs">
+			<DependentUpon>OverlayService.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
 </Project>
