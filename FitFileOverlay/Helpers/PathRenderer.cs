@@ -1,4 +1,4 @@
-﻿using SkiaSharp;
+using SkiaSharp;
 
 namespace FitFileOverlay.Helpers;
 
@@ -55,7 +55,7 @@ public class PathRenderer
         if (previousTrailBase == null)
         {
             basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
-            SKCanvas baseCanvas = new(basePathBitmap);
+            using SKCanvas baseCanvas = new(basePathBitmap);
             for (int i = 0; i < currentPointIndex - 1 && i < points.Count - 1; ++i)
                 if (points[i] != null && points[i + 1] != null)
                 {
@@ -67,7 +67,7 @@ public class PathRenderer
         else if (currentPointIndex > 0)
         {
             basePathBitmap = previousTrailBase;
-            SKCanvas baseCanvas = new(basePathBitmap);
+            using SKCanvas baseCanvas = new(basePathBitmap);
             if (points[currentPointIndex] != null && points[currentPointIndex - 1] != null)
             {
                 baseCanvas.DrawLine(points[currentPointIndex] ?? new(), points[currentPointIndex - 1] ?? new(), skPaint);

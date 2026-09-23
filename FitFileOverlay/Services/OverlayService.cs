@@ -1,4 +1,4 @@
-﻿using FFMpegCore;
+using FFMpegCore;
 using FFMpegCore.Extensions.SkiaSharp;
 using FFMpegCore.Pipes;
 using FitFileOverlay.Helpers;
@@ -131,14 +131,17 @@ public partial class OverlayService : ObservableObject, IOverlayService
     {
         //create underlying bitmap
         SKBitmap sKBitmap = new(data.OverlayWidth, data.OverlayHeight);
-        SKCanvas sKCanvas = new(sKBitmap);
+        using SKCanvas sKCanvas = new(sKBitmap);
         sKCanvas.Clear(Settings!.Background);
         if (Settings.IsDataFieldsOverlayEnabled)
         {
             //create data fields overlay and apply
             SKBitmap? dataFieldsOverlay = CreateDataFieldsOverlay(data.Records[recordIndex]);
             if (dataFieldsOverlay != null && !dataFieldsOverlay.IsEmpty)
+            {
                 sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
+                dataFieldsOverlay.Dispose();
+            }
         }
         if (Settings.IsGpsOverlayEnabled)
         {

@@ -1,4 +1,4 @@
-﻿using FitFileOverlay.Models;
+using FitFileOverlay.Models;
 using SkiaSharp;
 using System.Windows.Controls;
 
@@ -101,7 +101,7 @@ public class GraphRenderer
         if (previousTrailBase == null)
         {
             basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
-            SKCanvas baseCanvas = new(basePathBitmap);
+            using SKCanvas baseCanvas = new(basePathBitmap);
             for (int i = 0; i < currentValueIndex - 1 && i < values.Count - 1; ++i)
                 if (values[i] != null && values[i + 1] != null)
                 {
@@ -117,7 +117,7 @@ public class GraphRenderer
         else if (currentValueIndex > 0)
         {
             basePathBitmap = previousTrailBase;
-            SKCanvas baseCanvas = new(basePathBitmap);
+            using SKCanvas baseCanvas = new(basePathBitmap);
             if (values[currentValueIndex] != null && values[currentValueIndex - 1] != null)
             {
                 float x0 = (xPositions[currentValueIndex - 1] * options.BitmapWidth) ?? 0f;
