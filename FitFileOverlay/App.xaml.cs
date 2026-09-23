@@ -59,6 +59,8 @@ public partial class App
 
             services.AddSingleton<HomePage>();
             services.AddSingleton<HomePageViewModel>();
+            services.AddSingleton<CropPage>();
+            services.AddSingleton<CropPageViewModel>();
             services.AddSingleton<SettingsPage>();
             services.AddSingleton<SettingsViewModel>();
 

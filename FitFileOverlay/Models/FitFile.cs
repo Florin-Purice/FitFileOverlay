@@ -48,9 +48,7 @@ public partial class FitFile : ObservableObject
     public partial string FileName { get; private set; } = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ActivityDurationString))]
     public partial TimeSpan ActivityDuration { get; private set; } = TimeSpan.Zero;
-    public string ActivityDurationString => ActivityDuration.TotalHours >= 1 ? ActivityDuration.ToString(@"h\:mm\:ss") : ActivityDuration.ToString(@"mm\:ss");
 
     /// <summary>
     /// Total activity distance in kilometers

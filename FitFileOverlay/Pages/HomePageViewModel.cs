@@ -1,11 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using FitFileOverlay.Helpers;
-using FitFileOverlay.Models;
 using FitFileOverlay.Services;
 using Instances.Exceptions;
 using Microsoft.Win32;
 using System.IO;
-using System.Windows.Documents;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
@@ -73,7 +71,8 @@ public partial class HomePageViewModel(IOverlayService _overlayService, IContent
     public async Task ExportVideo(CancellationToken cancellationToken)
     {
         if (OverlayService.File == null ||
-            (!OverlayService.Settings!.IsGpsOverlayEnabled && !OverlayService.Settings.IsDataFieldsOverlayEnabled && !OverlayService.Settings.IsAltitudeOverlayEnabled))
+            (!OverlayService.Settings!.IsGpsOverlayEnabled && !OverlayService.Settings.IsDataFieldsOverlayEnabled && !OverlayService.Settings.IsAltitudeOverlayEnabled) ||
+            OverlayService.CropEndIndex <= OverlayService.CropStartIndex)
             return;
         //Disable window interraction
         IsBusy = true;

@@ -93,6 +93,34 @@ public class OverlayServiceTests
         TestContext.Current!.Output.AttachArtifact(fileName);
     }
 
+    [Test]
+    public async Task Export_WithCrop_CreatesTheCorrectVideoFile()
+    {
+        // Arrange
+        OverlayService sut = new();
+        sut.Load("./Assets/short.fit");
+        sut.Settings = new OverlaySettings() { FPS = 2 };
+        sut.CropStartIndex = 10;
+        sut.CropEndIndex = 20;
+        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "OverlayService_Export", "output_cropped.mov");
+        // Delete the file if it already exists
+        if (File.Exists(fileName))
+            File.Delete(fileName);
+
+        // Act
+        await sut.Export(fileName);
+
+        // Assert
+        await Assert.That(File.Exists(fileName)).IsTrue();
+        //use ffprobe to check video duration
+        using FileStream fileStream = File.OpenRead(fileName);
+        IMediaAnalysis videoInfo = await FFProbe.AnalyseAsync(fileStream);
+        await Assert.That(videoInfo.Duration).IsEqualTo(TimeSpan.FromSeconds(sut.CropEndIndex - sut.CropStartIndex)).Within(TimeSpan.FromSeconds(1));
+
+        //attach artifact
+        TestContext.Current!.Output.AttachArtifact(fileName);
+    }
+
     [Before(Class)]
     public static void InitStaticOverlayService()
     {
