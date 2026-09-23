@@ -12,26 +12,33 @@ public partial class OverlayService : ObservableObject, IOverlayService
 {
     public event Action? NewFileLoaded;
     public event NewSettingsAppiedEventHandler? NewSettingsApplied;
+    public event Action? CropIntervalChanged;
 
     [ObservableProperty]
     public partial OverlaySettings? Settings { get; set; }
     [ObservableProperty]
     public partial FitFile? File { get; private set; }
+    [ObservableProperty]
+    public partial int CropStartIndex { get; set; }
+    [ObservableProperty]
+    public partial int CropEndIndex { get; set; }
 
     public bool Load(string fileName)
     {
         FitFile newFile = new(fileName);
         if (!newFile.IsValid)
             return false;
+        CropStartIndex = 0;
+        CropEndIndex = newFile.Records.Count;
         File = newFile;
         return true;
     }
 
     public async Task Export(string outputFilename, Action<double>? progressReportCallback = null, CancellationToken? cancellationToken = null)
     {
-        if (File != null && File.IsValid && Settings != null)
+        if (File != null && File.IsValid && Settings != null && CropEndIndex > CropStartIndex)
         {
-            InstanceData data = new() { Records = InterpolateRecords(File.Records, Settings.FPS) };
+            InstanceData data = new() { Records = InterpolateRecords(GetCroppedRecordList(), Settings.FPS) };
             PrepareInstanceData(ref data);
 
             //Generate video frames and encode video using FFMpegCore
@@ -52,11 +59,12 @@ public partial class OverlayService : ObservableObject, IOverlayService
 
     public SKBitmap? GetSnapshot(double activityPercent)
     {
-        if (File != null && File.IsValid && Settings != null)
+        if (File != null && File.IsValid && Settings != null && CropEndIndex > CropStartIndex)
         {
-            int recordIndex = (int)(activityPercent * File.Records.Count);
+            int croppedListCount = GetCroppedRecordList().Count;
+            int recordIndex = (int)(activityPercent * croppedListCount);
             if (recordIndex < 0) recordIndex = 0;
-            if (recordIndex >= File.Records.Count) recordIndex = File.Records.Count - 1;
+            if (recordIndex >= croppedListCount) recordIndex = croppedListCount - 1;
             return GetSnapshotAtRecord(recordIndex);
         }
         return null;
@@ -72,6 +80,22 @@ public partial class OverlayService : ObservableObject, IOverlayService
         NewFileLoaded?.Invoke();
     }
 
+    partial void OnCropStartIndexChanged(int value)
+    {
+        if (value < 0)
+            CropStartIndex = 0;
+        else
+            CropIntervalChanged?.Invoke();
+    }
+
+    partial void OnCropEndIndexChanged(int value)
+    {
+        if (File != null && value > File.Records.Count)
+            CropEndIndex = File.Records.Count;
+        else
+            CropIntervalChanged?.Invoke();
+    }
+
     private SKBitmap? GetSnapshotAtRecord(int recordIndex)
     {
         if (File == null || !File.IsValid || Settings == null)
@@ -81,7 +105,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
         if (!Settings.IsGpsOverlayEnabled && !Settings.IsDataFieldsOverlayEnabled && !Settings.IsAltitudeOverlayEnabled)
             return null;
 
-        InstanceData data = new() { Records = File.Records };
+        InstanceData data = new() { Records = GetCroppedRecordList() };
         PrepareInstanceData(ref data);
         data.PathRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
         data.GraphRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
@@ -243,6 +267,11 @@ public partial class OverlayService : ObservableObject, IOverlayService
         // add last record as-is
         newList.Add(originalList.Last());
         return newList;
+    }
+
+    private List<IActivityRecord> GetCroppedRecordList()
+    {
+        return File?.Records.GetRange(CropStartIndex, CropEndIndex - CropStartIndex) ?? [];
     }
 
     private struct InstanceData
