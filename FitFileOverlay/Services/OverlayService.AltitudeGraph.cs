@@ -9,13 +9,14 @@ public partial class OverlayService
 {
     private void PrepareAltitudeOverlayData(ref InstanceData data)
     {
-        float? totalDistance = data.Records.Last().Distance;
+        float? startDistance = data.Records.First().Distance;
+        float? totalDistance = data.Records.Last().Distance - startDistance;
         for (int i = 0; i < data.Records.Count; i++)
         {
             data.AltitudeValues.Add(data.Records[i].Altitude);
             float? xPos = Settings!.AltitudeXReference switch
             {
-                AltitudeXReference.Distance => data.Records[i].Distance / totalDistance,
+                AltitudeXReference.Distance => (data.Records[i].Distance - startDistance) / totalDistance,
                 _ => (float)i / (data.Records.Count - 1)
             };
             data.AltitudeXPositions.Add(xPos);

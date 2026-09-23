@@ -52,6 +52,20 @@ public partial class OverlayPreview : UserControl
 
     [ObservableProperty]
     public partial WriteableBitmap? SnapshotImage { get; set; }
+    [ObservableProperty]
+    public partial bool IsCropped { get; set; } = false;
+    [ObservableProperty]
+    public partial TimeSpan CropStartTime { get; set; } = TimeSpan.Zero;
+    [ObservableProperty]
+    public partial TimeSpan CropEndTime { get; set; } = TimeSpan.Zero;
+    [ObservableProperty]
+    public partial TimeSpan CropDuration { get; set; } = TimeSpan.Zero;
+    [ObservableProperty]
+    public partial float CropStartDistance { get; set; } = 0f;
+    [ObservableProperty]
+    public partial float CropEndDistance { get; set; } = 0f;
+    [ObservableProperty]
+    public partial float CropTotalDistance { get; set; } = 0f;
 
     private static void ActivityPercentChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
@@ -64,6 +78,7 @@ public partial class OverlayPreview : UserControl
         IOverlayService os = (IOverlayService)e.NewValue;
         os?.NewFileLoaded += op.OnNewFileLoaded;
         os?.NewSettingsApplied += op.OnNewSettingsApplied;
+        os?.CropIntervalChanged += op.OnCropIntervalChanged;
         os?.Settings?.PropertyChanged += op.OnOverlayPreviewPropertyChanged;
     }
 
@@ -74,12 +89,39 @@ public partial class OverlayPreview : UserControl
         _ = Task.Run(UpdateSnapshotImage);
     }
 
-    private void OnOverlayPreviewPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void OnNewFileLoaded()
     {
         _ = Task.Run(UpdateSnapshotImage);
     }
 
-    private void OnNewFileLoaded()
+    private void OnCropIntervalChanged()
+    {
+        IOverlayService os = OverlayServiceThreadSafe;
+        if(os == null || os.File == null || os.CropEndIndex < 1)
+        {
+            IsCropped = false;
+            return;
+        }
+        if (os.CropStartIndex == 0 && os.CropEndIndex == os.File.Records.Count)
+        {
+            IsCropped = false;
+            return;
+        }
+        IsCropped = true;
+        IActivityRecord cropStartRecord = os.File.Records[os.CropStartIndex];
+        IActivityRecord cropEndRecord = os.File.Records[os.CropEndIndex - 1];
+        IActivityRecord firstRecord = os.File.Records.First();
+        CropStartTime = cropStartRecord.TimeStamp - firstRecord.TimeStamp;
+        CropEndTime = cropEndRecord.TimeStamp - firstRecord.TimeStamp;
+        CropDuration = cropEndRecord.TimeStamp - cropStartRecord.TimeStamp;
+        CropStartDistance = (cropStartRecord.Distance / 1000f) ?? 0f;
+        CropEndDistance = (cropEndRecord.Distance / 1000f) ?? 0f;
+        CropTotalDistance = ((cropEndRecord.Distance - cropStartRecord.Distance) / 1000f) ?? 0f;
+
+        _ = Task.Run(UpdateSnapshotImage);
+    }
+
+    private void OnOverlayPreviewPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         _ = Task.Run(UpdateSnapshotImage);
     }

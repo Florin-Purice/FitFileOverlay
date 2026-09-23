@@ -27,6 +27,11 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<CanNavig
             Content = "Home",
             Icon = new SymbolIcon { Symbol = SymbolRegular.VideoClip24 },
             TargetPageType = typeof(HomePage)
+        },
+        new NavigationViewItem(){
+            Content = "Crop",
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Crop24 },
+            TargetPageType = typeof(CropPage)
         }
     ];
 
