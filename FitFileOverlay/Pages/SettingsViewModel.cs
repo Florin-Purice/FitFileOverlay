@@ -1,3 +1,5 @@
+using FitFileOverlay.Enums;
+using FitFileOverlay.Models;
 using System.Reflection;
 using Wpf.Ui;
 using Wpf.Ui.Abstractions.Controls;
@@ -5,63 +7,36 @@ using Wpf.Ui.Appearance;
 
 namespace FitFileOverlay.Pages;
 
-public partial class SettingsViewModel(IContentDialogService contentDialogService) : ObservableObject, INavigationAware
+public partial class SettingsViewModel : ObservableObject
 {
-    private bool _isInitialized = false;
+    private readonly IContentDialogService _contentDialogService;
+    private readonly IThemeService _themeService;
 
-    [ObservableProperty]
-    public partial string AppVersion { get; set; } = String.Empty;
-    [ObservableProperty]
-    public partial ApplicationTheme CurrentTheme { get; set; } = ApplicationTheme.Unknown;
-
-    public Task OnNavigatedToAsync()
+    public SettingsViewModel(IContentDialogService contentDialogService, IThemeService themeService)
     {
-        if (!_isInitialized)
-            InitializeViewModel();
-
-        return Task.CompletedTask;
-    }
-
-    public Task OnNavigatedFromAsync()
-    {
-        return Task.CompletedTask;
-    }
-
-    private void InitializeViewModel()
-    {
-        CurrentTheme = ApplicationThemeManager.GetAppTheme();
+        _contentDialogService = contentDialogService;
+        _themeService = themeService;
+        AppThemeValues = Enum.GetValues<AppTheme>();
         AppVersion = $"FitFileOverlay - {GetAssemblyVersion()}";
-        _isInitialized = true;
+        AppSettings = App.AppSettings;
+        AppSettings.PropertyChanged += OnAppSettingsPropertyChanged;
     }
+
+    [ObservableProperty]
+    public partial AppSettings AppSettings { get; private set; }
+    [ObservableProperty]
+    public partial AppTheme[] AppThemeValues { get; private set; }
+    [ObservableProperty]
+    public partial string AppVersion { get; set; } = string.Empty;
 
     private static string GetAssemblyVersion()
     {
-        return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? String.Empty;
+        return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty;
     }
 
-    [RelayCommand]
-    private void OnChangeTheme(string parameter)
+    private void OnAppSettingsPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        switch (parameter)
-        {
-            case "theme_light":
-                if (CurrentTheme == ApplicationTheme.Light)
-                    break;
-                ApplicationThemeManager.Apply(ApplicationTheme.Light);
-                CurrentTheme = ApplicationTheme.Light;
-                break;
-            case "theme_high_contrast":
-                if (CurrentTheme == ApplicationTheme.HighContrast)
-                    break;
-                ApplicationThemeManager.Apply(ApplicationTheme.HighContrast);
-                CurrentTheme = ApplicationTheme.HighContrast;
-                break;
-            default:
-                if (CurrentTheme == ApplicationTheme.Dark)
-                    break;
-                ApplicationThemeManager.Apply(ApplicationTheme.Dark);
-                CurrentTheme = ApplicationTheme.Dark;
-                break;
-        }
+        if (e.PropertyName == nameof(AppSettings.Theme))
+            App.ChangeTheme(AppSettings.Theme);
     }
 }

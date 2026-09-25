@@ -13,7 +13,7 @@ namespace FitFileOverlay.Pages;
 
 public partial class EditPageViewModel : ObservableObject
 {
-    private readonly string _templatesDirectory = Path.Combine(App.SaveDirrectory, "Templates");
+    private readonly string _templatesDirectory = Path.Combine(App.AppSettings.SaveLocation, "Templates");
     private readonly PreviewWindowViewModel _previewWindowViewModel;
     private readonly IContentDialogService _contentDialogService;
     private PreviewWindow? _previewWindow;

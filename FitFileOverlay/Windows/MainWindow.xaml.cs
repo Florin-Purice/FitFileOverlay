@@ -2,7 +2,6 @@ using FFMpegCore;
 using FFMpegCore.Extensions.Downloader;
 using FFMpegCore.Helpers;
 using System.IO;
-using System.Security.Principal;
 using System.Windows;
 using Velopack;
 using Velopack.Sources;
@@ -16,7 +15,7 @@ namespace FitFileOverlay.Windows;
 
 public partial class MainWindow : INavigationWindow
 {
-    private IContentDialogService _contentDialogService;
+    private readonly IContentDialogService _contentDialogService;
 
     public MainWindow(
         MainWindowViewModel viewModel,
@@ -37,7 +36,7 @@ public partial class MainWindow : INavigationWindow
         contentDialogService.SetDialogHost(RootContentDialog);
         _contentDialogService = contentDialogService;
 
-        GlobalFFOptions.Current.BinaryFolder = Path.Combine(App.SaveDirrectory, "ffbin");
+        GlobalFFOptions.Current.BinaryFolder = Path.Combine(App.AppSettings.SaveLocation, "ffbin");
         InitializeSplashScreen();
     }
 
