@@ -1,11 +1,12 @@
 ﻿using System.Windows.Controls;
+using Wpf.Ui.Abstractions.Controls;
 
 namespace FitFileOverlay.Pages;
 
 /// <summary>
 /// Interaction logic for CropPage.xaml
 /// </summary>
-public partial class CropPage : Page
+public partial class CropPage : INavigableView<CropPageViewModel>
 {
     public CropPage(CropPageViewModel viewModel)
     {

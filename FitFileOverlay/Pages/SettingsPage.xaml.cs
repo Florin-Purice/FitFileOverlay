@@ -1,5 +1,4 @@
-﻿using ColorPicker;
-using Wpf.Ui.Abstractions.Controls;
+﻿using Wpf.Ui.Abstractions.Controls;
 
 namespace FitFileOverlay.Pages;
 

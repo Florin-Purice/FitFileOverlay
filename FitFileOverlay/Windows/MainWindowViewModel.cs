@@ -32,6 +32,11 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<CanNavig
             Content = "Crop",
             Icon = new SymbolIcon { Symbol = SymbolRegular.Crop24 },
             TargetPageType = typeof(CropPage)
+        },
+        new NavigationViewItem(){
+            Content = "Edit",
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Edit24 },
+            TargetPageType = typeof(EditPage)
         }
     ];
 
