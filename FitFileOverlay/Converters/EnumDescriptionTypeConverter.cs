@@ -10,8 +10,8 @@ public class EnumDescriptionTypeConverter(Type type) : EnumConverter(type)
     {
         if (destinationType == typeof(string) && value is Enum e)
         {
-            var field = e.GetType().GetField(e.ToString());
-            var desc = field?.GetCustomAttribute<DescriptionAttribute>();
+            FieldInfo? field = e.GetType().GetField(e.ToString());
+            DescriptionAttribute? desc = field?.GetCustomAttribute<DescriptionAttribute>();
             return desc?.Description ?? e.ToString();
         }
         return base.ConvertTo(ctx, culture, value, destinationType);
