@@ -2,7 +2,6 @@ using FFMpegCore;
 using FFMpegCore.Extensions.Downloader;
 using FFMpegCore.Helpers;
 using System.IO;
-using System.Security.Principal;
 using System.Windows;
 using Velopack;
 using Velopack.Sources;
@@ -16,7 +15,7 @@ namespace FitFileOverlay.Windows;
 
 public partial class MainWindow : INavigationWindow
 {
-    private IContentDialogService _contentDialogService;
+    private readonly IContentDialogService _contentDialogService;
 
     public MainWindow(
         MainWindowViewModel viewModel,
@@ -37,7 +36,7 @@ public partial class MainWindow : INavigationWindow
         contentDialogService.SetDialogHost(RootContentDialog);
         _contentDialogService = contentDialogService;
 
-        GlobalFFOptions.Current.BinaryFolder = Path.Combine(App.SaveDirrectory, "ffbin");
+        GlobalFFOptions.Current.BinaryFolder = Path.Combine(App.AppSettings.SaveLocation, "ffbin");
         InitializeSplashScreen();
     }
 
@@ -47,11 +46,10 @@ public partial class MainWindow : INavigationWindow
 
     private void InitializeSplashScreen()
     {
-        List<Func<Action<string>, Task>> tasks =
-        [
-            UpdateMyApp,
-            CheckFFMpegInstall
-        ];
+        List<Func<Action<string>, Task>> tasks = [];
+        if (App.AppSettings.UpdateAtStartup)
+            tasks.Add(UpdateApp);
+        tasks.Add(CheckFFMpegInstall);
         SplashScreen splashScreen = new(tasks);
         SplashScreenHost.Content = splashScreen;
         Task.Run(() => splashScreen.RunTasksAndHideAsync());
@@ -109,7 +107,7 @@ public partial class MainWindow : INavigationWindow
         }
     }
 
-    private async Task UpdateMyApp(Action<string> messageChangeCallback)
+    private async Task UpdateApp(Action<string> messageChangeCallback)
     {
         try
         {
@@ -121,7 +119,7 @@ public partial class MainWindow : INavigationWindow
             Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(10));
             Task completed = await Task.WhenAny(checkTask, timeoutTask);
             if (completed == timeoutTask || completed.IsFaulted)
-                return; // Timed out or error (like no internet connection)
+                return; // Timed out or error (e.g. no internet connection)
             UpdateInfo? newVersion = await checkTask;
             if (newVersion == null)
                 return; // no update available
