@@ -18,7 +18,6 @@
       ScrollViewer.CanContentScroll="False"
       mc:Ignorable="d">
     <Page.Resources>
-        <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
         <converters:SKColorToColorConverter x:Key="SKColorToColorConverter" />
         <converters:DrawnFieldListToBooleanConverter x:Key="DrawnFieldListToBooleanConverter" />
         <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />

@@ -28,7 +28,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
-                <ui:TextBlock Text="Start"
+                <ui:TextBlock Text="Crop start"
                               HorizontalAlignment="Center"
                               FontTypography="Subtitle" />
                 <ui:NumberBox Margin="0,5,0,0"
@@ -41,9 +41,9 @@
                        Content="Reset"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Top"
-                       Icon="{ui:SymbolIcon ArrowReset24}" />
+                       Icon="{ui:SymbolIcon ArrowCounterclockwise24}" />
             <StackPanel Grid.Column="2">
-                <ui:TextBlock Text="End"
+                <ui:TextBlock Text="Crop end"
                               HorizontalAlignment="Center"
                               FontTypography="Subtitle" />
                 <ui:NumberBox Margin="0,5,0,0"
