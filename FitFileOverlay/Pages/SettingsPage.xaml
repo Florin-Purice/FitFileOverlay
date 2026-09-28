@@ -71,8 +71,8 @@
                     <ui:ToggleSwitch Grid.Column="1"
                                      Margin="0,0,5,0"
                                      LabelPosition="Left"
-                                     OnContent="Enabled"
-                                     OffContent="Disabled"
+                                     OnContent="On"
+                                     OffContent="Off"
                                      IsChecked="{Binding ViewModel.AppSettings.UpdateAtStartup}" />
                 </ui:CardControl>
                 <!--searching update-->
@@ -140,10 +140,6 @@
                                       Text="You are running the latest version"
                                       TextWrapping="WrapWithOverflow" />
                     </ui:CardControl.Header>
-                    <ui:TextBlock FontTypography="BodyStrong"
-                                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                  Text="{Binding ViewModel.AppVersion}"
-                                  TextWrapping="WrapWithOverflow" />
                 </ui:CardControl>
                 <!--updates available-->
                 <ui:CardControl Icon="{ui:SymbolIcon ArrowSync24}"
