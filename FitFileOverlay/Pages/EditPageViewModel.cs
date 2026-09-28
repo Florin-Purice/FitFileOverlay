@@ -7,11 +7,12 @@ using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.IO;
 using Wpf.Ui;
+using Wpf.Ui.Abstractions.Controls;
 using Wpf.Ui.Controls;
 
 namespace FitFileOverlay.Pages;
 
-public partial class EditPageViewModel : ObservableObject
+public partial class EditPageViewModel : ObservableObject, INavigationAware
 {
     private readonly string _templatesDirectory = Path.Combine(App.AppSettings.SaveLocation, "Templates");
     private readonly PreviewWindowViewModel _previewWindowViewModel;
@@ -48,6 +49,17 @@ public partial class EditPageViewModel : ObservableObject
     public partial AltitudeUnit[] AltitudeUnits { get; private set; }
     [ObservableProperty]
     public partial AltitudeXReference[] AltitudeXReferences { get; set; }
+
+    public Task OnNavigatedToAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task OnNavigatedFromAsync()
+    {
+        _previewWindow?.Close();
+        return Task.CompletedTask;
+    }
 
     [RelayCommand]
     private void ToggleDataFieldVisibility(DataFieldType item)

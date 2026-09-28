@@ -53,18 +53,18 @@
                 <TextBlock FontSize="20"
                            FontWeight="Medium"
                            Text="Overlay settings" />
-                <!--FPS-->
+                <!--Framerate-->
                 <ui:CardControl Icon="{ui:SymbolIcon DesktopPulse24}"
                                 Margin="0,8,0,0">
                     <ui:CardControl.Header>
                         <StackPanel>
                             <ui:TextBlock FontTypography="BodyStrong"
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="FPS"
+                                          Text="Framerate"
                                           TextWrapping="WrapWithOverflow" />
                             <ui:TextBlock Appearance="Secondary"
                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                          Text="Framerate of the output video."
+                                          Text="Recommended 5 or less. Higher values greatly increase file size and export time with diminishing visual improvements."
                                           TextWrapping="WrapWithOverflow" />
                         </StackPanel>
                     </ui:CardControl.Header>
@@ -72,6 +72,26 @@
                                   Maximum="60"
                                   ClearButtonEnabled="False"
                                   Value="{Binding ViewModel.OverlayService.Settings.FPS, UpdateSourceTrigger=PropertyChanged}" />
+                </ui:CardControl>
+                <!--Fade duration-->
+                <ui:CardControl Icon="{ui:SymbolIcon Clock24}"
+                                Margin="0,8,0,0">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Fade duration"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:TextBlock Appearance="Secondary"
+                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                          Text="The length of the fading path, in seconds."
+                                          TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ui:NumberBox Minimum="1"
+                                  Maximum="10000"
+                                  ClearButtonEnabled="False"
+                                  Value="{Binding ViewModel.OverlayService.Settings.FadeDurationSeconds, UpdateSourceTrigger=PropertyChanged}" />
                 </ui:CardControl>
                 <!--LTHR-->
                 <ui:CardExpander Icon="{ui:SymbolIcon HeartPulse24}"
@@ -115,26 +135,6 @@
                                       Value="{Binding ViewModel.OverlayService.Settings.LTHR}" />
                     </Grid>
                 </ui:CardExpander>
-                <!--Fade duration-->
-                <ui:CardControl Icon="{ui:SymbolIcon Clock24}"
-                                Margin="0,8,0,0">
-                    <ui:CardControl.Header>
-                        <StackPanel>
-                            <ui:TextBlock FontTypography="BodyStrong"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Fade duration"
-                                          TextWrapping="WrapWithOverflow" />
-                            <ui:TextBlock Appearance="Secondary"
-                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                          Text="The length of the fading path, in seconds."
-                                          TextWrapping="WrapWithOverflow" />
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                    <ui:NumberBox Minimum="1"
-                                  Maximum="10000"
-                                  ClearButtonEnabled="False"
-                                  Value="{Binding ViewModel.OverlayService.Settings.FadeDurationSeconds, UpdateSourceTrigger=PropertyChanged}" />
-                </ui:CardControl>
                 <!--Colors-->
                 <ui:CardControl Icon="{ui:SymbolIcon Color24}"
                                 Margin="0,8,0,0">
@@ -1910,45 +1910,38 @@
                     </Grid>
                 </ui:CardExpander>
                 <!--Data field ordering-->
-                <Border Visibility="{Binding ViewModel.OverlayService.Settings.DrawnDataFields, Converter={StaticResource CollectionToVisibilityConverter}}"
-                        BorderBrush="{DynamicResource CardBorderBrush}"
-                        BorderThickness="1"
-                        Background="{DynamicResource CardBackground}"
-                        CornerRadius="4"
-                        Margin="0,8,0,0">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal"
-                                    Margin="20,15,0,15">
-                            <ui:SymbolIcon Symbol="ChevronUpDown24" />
-                            <ui:TextBlock FontTypography="BodyStrong"
-                                          VerticalAlignment="Center"
-                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="Data field ordering"
-                                          TextWrapping="WrapWithOverflow"
-                                          Margin="15,0,0,0" />
-                        </StackPanel>
-                        <ui:ListView ItemsSource="{Binding ViewModel.OverlayService.Settings.DrawnDataFields}"
-                                     Margin="15,0,15,15">
-                            <ui:ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <ui:Button Icon="{ui:SymbolIcon ChevronUp24}"
-                                                   Height="35"
-                                                   Command="{Binding ViewModel.MoveFieldUpCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                                   CommandParameter="{Binding}" />
-                                        <ui:Button Icon="{ui:SymbolIcon ChevronDown24}"
-                                                   Height="35"
-                                                   Margin="5,0,15,0"
-                                                   Command="{Binding ViewModel.MoveFieldDownCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                                   CommandParameter="{Binding}" />
-                                        <TextBlock Text="{Binding}"
-                                                   VerticalAlignment="Center" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ui:ListView.ItemTemplate>
-                        </ui:ListView>
-                    </StackPanel>
-                </Border>
+                <ui:CardExpander Icon="{ui:SymbolIcon ChevronUpDown24}"
+                                 ContentPadding="0"
+                                 Margin="0,8,0,0"
+                                 Visibility="{Binding ViewModel.OverlayService.Settings.DrawnDataFields, Converter={StaticResource CollectionToVisibilityConverter}}">
+                    <ui:CardExpander.Header>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      VerticalAlignment="Center"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Data field order"
+                                      TextWrapping="WrapWithOverflow" />
+                    </ui:CardExpander.Header>
+                    <ui:ListView ItemsSource="{Binding ViewModel.OverlayService.Settings.DrawnDataFields}"
+                                 Margin="15,5">
+                        <ui:ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:Button Icon="{ui:SymbolIcon ChevronUp24}"
+                                               Height="35"
+                                               Command="{Binding ViewModel.MoveFieldUpCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                               CommandParameter="{Binding}" />
+                                    <ui:Button Icon="{ui:SymbolIcon ChevronDown24}"
+                                               Height="35"
+                                               Margin="5,0,15,0"
+                                               Command="{Binding ViewModel.MoveFieldDownCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                               CommandParameter="{Binding}" />
+                                    <TextBlock Text="{Binding}"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ui:ListView.ItemTemplate>
+                    </ui:ListView>
+                </ui:CardExpander>
             </StackPanel>
         </ui:DynamicScrollViewer>
     </Grid>
