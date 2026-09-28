@@ -53,18 +53,18 @@
                 <TextBlock FontSize="20"
                            FontWeight="Medium"
                            Text="Overlay settings" />
-                <!--FPS-->
+                <!--Framerate-->
                 <ui:CardControl Icon="{ui:SymbolIcon DesktopPulse24}"
                                 Margin="0,8,0,0">
                     <ui:CardControl.Header>
                         <StackPanel>
                             <ui:TextBlock FontTypography="BodyStrong"
                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                          Text="FPS"
+                                          Text="Framerate"
                                           TextWrapping="WrapWithOverflow" />
                             <ui:TextBlock Appearance="Secondary"
                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                          Text="Framerate of the output video."
+                                          Text="Recommended 5 or less. Higher values greatly increase file size and export time with diminishing visual improvements."
                                           TextWrapping="WrapWithOverflow" />
                         </StackPanel>
                     </ui:CardControl.Header>
