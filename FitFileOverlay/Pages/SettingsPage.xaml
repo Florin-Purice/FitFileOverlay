@@ -154,7 +154,7 @@
                                           TextWrapping="WrapWithOverflow" />
                             <ui:TextBlock FontTypography="Caption"
                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                          Text="{Binding ViewModel.AppVersion}"
+                                          Text="{Binding ViewModel.UpdateVersion}"
                                           TextWrapping="WrapWithOverflow" />
                         </StackPanel>
                     </ui:CardControl.Header>
