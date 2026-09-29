@@ -41,6 +41,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial string UpdateVersion { get; set; } = string.Empty;
     [ObservableProperty]
+    public partial int DownloadProgress { get; set; } = 0;
+    [ObservableProperty]
     public partial UpdateStatus UpdateStatus { get; set; } = UpdateStatus.Searching;
 
     [RelayCommand]
@@ -73,7 +75,7 @@ public partial class SettingsViewModel : ObservableObject
             _messenger.Send(new CanNavigateMessage(false));
             await InstallUpdatesAndRestart();
         }
-        catch 
+        catch
         {
             UpdateStatus = UpdateStatus.InstallError;
             _messenger.Send(new CanNavigateMessage(true));
@@ -97,9 +99,17 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (_updataManager == null || _updateInfo == null)
             throw new NullReferenceException();
-        await _updataManager.DownloadUpdatesAsync(_updateInfo);
+        TimeSpan timeout = TimeSpan.FromSeconds(AppSettings.DownloadUpdateTimeoutSeconds);
+        CancellationTokenSource cts = new(timeout);
+        await _updataManager.DownloadUpdatesAsync(_updateInfo, OnDownloadProgressUpdate, cts.Token);
+        if (cts.IsCancellationRequested)
+            throw new TimeoutException($"Download timed out: took over {AppSettings.DownloadUpdateTimeoutSeconds} seconds");
+        // save
+        App.SaveSettings();
         _updataManager.ApplyUpdatesAndRestart(_updateInfo);
     }
+
+    private void OnDownloadProgressUpdate(int progress) => DownloadProgress = progress;
 
     private void OnAppSettingsPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
