@@ -10,6 +10,8 @@ public partial class AppSettings : ObservableObject
     public partial AppTheme Theme { get; set; } = AppTheme.System;
     [ObservableProperty]
     public partial bool UpdateAtStartup { get; set; } = true;
+    [ObservableProperty]
+    public partial int DownloadUpdateTimeoutSeconds { get; set; } = 60;
 #if DEBUG
     [ObservableProperty]
     public partial string SaveLocation { get; set; } = @".\";

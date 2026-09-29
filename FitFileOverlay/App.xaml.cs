@@ -58,6 +58,18 @@ public partial class App
         }
     }
 
+    public static void SaveSettings()
+    {
+        AppSettings.ToFile(Path.Combine(_settingsLocation, _appSettingsFilename));
+        OverlaySettings.ToFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename));
+    }
+
+    public static void LoadSettings()
+    {
+        _appSettings = AppSettings.FromFile(Path.Combine(_settingsLocation, _appSettingsFilename));
+        _overlaySettings = OverlaySettings.FromFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename));
+    }
+
     // The.NET Generic Host provides dependency injection, configuration, logging, and other services.
     // https://docs.microsoft.com/dotnet/core/extensions/generic-host
     // https://docs.microsoft.com/dotnet/core/extensions/dependency-injection
@@ -125,17 +137,5 @@ public partial class App
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
-    }
-
-    private static void SaveSettings()
-    {
-        AppSettings.ToFile(Path.Combine(_settingsLocation, _appSettingsFilename));
-        OverlaySettings.ToFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename));
-    }
-
-    private static void LoadSettings()
-    {
-        _appSettings = AppSettings.FromFile(Path.Combine(_settingsLocation, _appSettingsFilename));
-        _overlaySettings = OverlaySettings.FromFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename));
     }
 }

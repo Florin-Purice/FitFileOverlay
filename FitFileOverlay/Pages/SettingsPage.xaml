@@ -122,10 +122,10 @@
                                           Text="Applying updates. Please don't close the app."
                                           TextWrapping="WrapWithOverflow" />
                             <ProgressBar Grid.Row="2"
-                                         IsIndeterminate="True"
                                          Margin="0,2"
                                          Height="6"
-                                         HorizontalAlignment="Stretch" />
+                                         HorizontalAlignment="Stretch"
+                                         Value="{Binding ViewModel.DownloadProgress}"/>
                         </Grid>
                     </ui:CardControl.Header>
                 </ui:CardControl>
