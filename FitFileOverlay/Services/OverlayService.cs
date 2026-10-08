@@ -28,9 +28,9 @@ public partial class OverlayService : ObservableObject, IOverlayService
         FitFile newFile = new(fileName);
         if (!newFile.IsValid)
             return false;
+        File = newFile;
         CropStartIndex = 0;
         CropEndIndex = newFile.Records.Count;
-        File = newFile;
         return true;
     }
 

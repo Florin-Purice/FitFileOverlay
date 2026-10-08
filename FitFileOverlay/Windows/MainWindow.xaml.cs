@@ -25,6 +25,7 @@ public partial class MainWindow : INavigationWindow
     )
     {
         ViewModel = viewModel;
+        ViewModel.ParentWindow = this;
         DataContext = this;
 
         SystemThemeWatcher.Watch(this);
