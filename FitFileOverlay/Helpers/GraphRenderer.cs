@@ -7,6 +7,7 @@ namespace FitFileOverlay.Helpers;
 public class GraphRenderer
 {
     private const float _textMargin = 10f;
+    private const float _topPaddingMultiplier = 3f;
 
     /// <summary>
     /// The same for all frames, so it can be rendered once and reused.
@@ -17,7 +18,7 @@ public class GraphRenderer
     /// <returns></returns>
     public static SKBitmap RenderStaticPart(GraphRendererOptions options, List<float?> values, List<float?> xPositions)
     {
-        float topPadding = 2f * (float)options.StrokeWidth;
+        float topPadding = _topPaddingMultiplier * (float)options.StrokeWidth;
         float min = values.Min() ?? 0f;
         float max = values.Max() ?? 1f;
         float range = max - min;
@@ -78,7 +79,7 @@ public class GraphRenderer
     /// <returns></returns>
     public static SKBitmap RenderTrailPart(GraphRendererOptions options, List<float?> values, List<float?> xPositions, int currentValueIndex, Func<float?, float?> valueConverter, ref SKBitmap? previousTrailBase)
     {
-        float topPadding = 2f * (float)options.StrokeWidth;
+        float topPadding = _topPaddingMultiplier * (float)options.StrokeWidth;
         float min = values.Min() ?? 0f;
         float max = values.Max() ?? 1f;
         float range = max - min;

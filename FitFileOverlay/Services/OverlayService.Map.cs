@@ -10,7 +10,7 @@ public partial class OverlayService
     {
         //create list of unitary screenspace gps points
         List<(double x, double y)?> normalizedGpsPoints = ProcessGpsPoints(data.Records, out double gpsAspectRatio);
-        float gpsDrawAreaPadding = Settings!.GpsLineWidth * 2;//add some padding so the points on the border dont get cut off
+        float gpsDrawAreaPadding = Settings!.GpsLineWidth * 3f;//add some padding so the points on the border dont get cut off
         double gpsDrawAreaAspectRatio = (double)(data.PathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2) / (data.PathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2);
         double scale;
         if (gpsDrawAreaAspectRatio > gpsAspectRatio)
