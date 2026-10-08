@@ -7,6 +7,8 @@ using System.IO;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
+using Wpf.Ui.TaskBar;
+using Timer = System.Timers.Timer;
 
 namespace FitFileOverlay.Pages;
 
@@ -17,6 +19,9 @@ public partial class HomePageViewModel(IOverlayService _overlayService, IContent
     [ObservableProperty]
     public partial string ExportVideoLog { get; set; } = string.Empty;
 
+    /// <summary>
+    /// values between 0 and 1
+    /// </summary>
     [ObservableProperty]
     public partial double ExportVideoProgress { get; set; } = 0d;
 
@@ -83,10 +88,14 @@ public partial class HomePageViewModel(IOverlayService _overlayService, IContent
         if (sfd.ShowDialog() == true)
         {
             bool ok = false;
+            Timer? timer = null;
             try
             {
                 IsExportingVideo = true;
                 _exportVideoStartTime = DateTime.Now;
+                timer = new Timer(TimeSpan.FromMilliseconds(100));
+                timer.Elapsed += OnTimerElapsed;
+                timer.Start();
                 await OverlayService.Export(sfd.FileName, ReportExportViewProgress, cancellationToken);
                 ok = true;
             }
@@ -107,6 +116,9 @@ public partial class HomePageViewModel(IOverlayService _overlayService, IContent
             }
             finally
             {
+                timer?.Stop();
+                timer?.Dispose();
+                _messenger.Send(new TaskBarProgressMessage(TaskBarProgressState.None, 100));
                 IsExportingVideo = false;
             }
             //If exporting was canceled display a message else report success
@@ -145,12 +157,18 @@ public partial class HomePageViewModel(IOverlayService _overlayService, IContent
         return IsNotBusy && OverlayService.File != null;
     }
 
-    private void ReportExportViewProgress(double progress)
+    private void OnTimerElapsed(object? sender, System.Timers.ElapsedEventArgs e)
     {
+        // update elpased time message
         TimeSpan exportDuration = DateTime.Now - _exportVideoStartTime;
         string durationString = exportDuration.TotalHours < 1 ? exportDuration.ToString(@"mm\:ss") : exportDuration.ToString(@"h\:mm\:ss");
         ExportVideoLog = "Elapsed time " + durationString;
+    }
+
+    private void ReportExportViewProgress(double progress)
+    {
         ExportVideoProgress = progress;
+        _messenger.Send(new TaskBarProgressMessage(TaskBarProgressState.Normal, ExportVideoProgress));
     }
 
     partial void OnIsExportingVideoChanged(bool value)
