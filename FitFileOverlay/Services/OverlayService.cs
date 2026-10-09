@@ -92,6 +92,8 @@ public partial class OverlayService : ObservableObject, IOverlayService
     {
         if (value < 0)
             CropStartIndex = 0;
+        else if (value >= CropEndIndex)
+            CropStartIndex = CropEndIndex - 1;
         else
             CropIntervalChanged?.Invoke();
     }
