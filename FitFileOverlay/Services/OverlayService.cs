@@ -10,6 +10,13 @@ namespace FitFileOverlay.Services;
 
 public partial class OverlayService : ObservableObject, IOverlayService
 {
+#pragma warning disable MVVMTK0042 // Prefer using [ObservableProperty] on partial properties
+    [ObservableProperty]
+    private int _cropStartIndex;
+    [ObservableProperty]
+    private int _cropEndIndex;
+#pragma warning restore MVVMTK0042 // Prefer using [ObservableProperty] on partial properties
+
     public event Action? NewFileLoaded;
     public event NewSettingsAppiedEventHandler? NewSettingsApplied;
     public event Action? CropIntervalChanged;
@@ -18,10 +25,6 @@ public partial class OverlayService : ObservableObject, IOverlayService
     public partial OverlaySettings? Settings { get; set; }
     [ObservableProperty]
     public partial FitFile? File { get; private set; }
-    [ObservableProperty]
-    public partial int CropStartIndex { get; set; }
-    [ObservableProperty]
-    public partial int CropEndIndex { get; set; }
 
     public bool Load(string fileName)
     {
@@ -29,8 +32,13 @@ public partial class OverlayService : ObservableObject, IOverlayService
         if (!newFile.IsValid)
             return false;
         File = newFile;
-        CropStartIndex = 0;
-        CropEndIndex = newFile.Records.Count;
+#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+        _cropStartIndex = 0;
+        _cropEndIndex = newFile.Records.Count;
+#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+        OnPropertyChanged(nameof(CropStartIndex));
+        OnPropertyChanged(nameof(CropEndIndex));
+        CropIntervalChanged?.Invoke();
         return true;
     }
 
@@ -84,6 +92,8 @@ public partial class OverlayService : ObservableObject, IOverlayService
     {
         if (value < 0)
             CropStartIndex = 0;
+        else if (value >= CropEndIndex)
+            CropStartIndex = CropEndIndex - 1;
         else
             CropIntervalChanged?.Invoke();
     }

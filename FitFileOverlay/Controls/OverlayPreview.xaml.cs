@@ -28,7 +28,11 @@ public partial class OverlayPreview : UserControl
                     isAnimationProhibited: true,
                     defaultUpdateSourceTrigger: UpdateSourceTrigger.PropertyChanged));
 
-    private bool _snapshotLock = false;
+    private long _snapshotRequestId = 0;
+    private bool _snapshotIsExecuting = false;
+    private DateTime _lastSnapshotTime = DateTime.MinValue;
+    private readonly Lock _snapshotLock = new();
+    private const int SnapshotThrottleMs = 100; // Minimum time between GetSnapshot calls
 
     public OverlayPreview()
     {
@@ -128,17 +132,50 @@ public partial class OverlayPreview : UserControl
 
     private async Task UpdateSnapshotImage()
     {
-        IOverlayService os = OverlayServiceThreadSafe;
-        if (!_snapshotLock && os != null && os.File != null)
+        long requestId = Interlocked.Increment(ref _snapshotRequestId);
+        lock (_snapshotLock)
         {
-            _snapshotLock = true;
-            try
+            // If already executing, just return (the executor will pick up the new ID)
+            if (_snapshotIsExecuting)
+                return;
+            _snapshotIsExecuting = true;
+        }
+        IOverlayService os = OverlayServiceThreadSafe;
+        try
+        {
+            while (true)
             {
-                SKBitmap? snapshot = await Task.Run(() => os.GetSnapshot(ActivityPercentThreadSafe));
-                RunOnMainThread(() => SnapshotImage = snapshot?.ToWriteableBitmap());
+                if (os != null && os.File != null)
+                {
+                    // Wait until enough time has passed since the last snapshot
+                    long timeSinceLastSnapshot = (long)(DateTime.Now - _lastSnapshotTime).TotalMilliseconds;
+                    if (timeSinceLastSnapshot < SnapshotThrottleMs)
+                        await Task.Delay((int)(SnapshotThrottleMs - timeSinceLastSnapshot));
+                    long idToExecute = _snapshotRequestId;
+                    _lastSnapshotTime = DateTime.Now;
+                    SKBitmap? snapshot = await Task.Run(() => os.GetSnapshot(ActivityPercentThreadSafe));
+                    // Update UI with the latest snapshot (even if newer requests came in, show this)
+                    RunOnMainThread(() => SnapshotImage = snapshot?.ToWriteableBitmap());
+                }
+                // Check if a newer request came in
+                lock (_snapshotLock)
+                {
+                    if (_snapshotRequestId > requestId)
+                        requestId = _snapshotRequestId;
+                        // Loop again for the new request
+                    else
+                        // No newer request, we're done
+                        break;
+                }
             }
-            catch { }
-            finally { _snapshotLock = false; }
+        }
+        catch { }
+        finally
+        {
+            lock (_snapshotLock)
+            {
+                _snapshotIsExecuting = false;
+            }
         }
     }
 
