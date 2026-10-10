@@ -13,7 +13,8 @@ public class PathRendererTests
         //Arrange
 
         //Act
-        SKBitmap result = PathRenderer.RenderStaticPart(testData.RendererOptions, testData.Points);
+        PathRenderer sut = new(testData.RendererOptions, testData.Points);
+        SKBitmap result = sut.RenderStaticPart();
 
         //Assert
         await Assert.That(result).IsNotNull();
@@ -29,9 +30,8 @@ public class PathRendererTests
     {
         //Arrange
 
-        //Act
-        SKBitmap? pathCache = null;
-        SKBitmap result = PathRenderer.RenderTrailPart(testData.RendererOptions, testData.Points, testData.CurrentPointIndex, ref pathCache);
+        PathRenderer sut = new(testData.RendererOptions, testData.Points);
+        SKBitmap result = sut.RenderTrailPart(testData.CurrentPointIndex);
 
         //Assert
         await Assert.That(result).IsNotNull();
@@ -39,22 +39,6 @@ public class PathRendererTests
         string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "PathRenderer_RenderTrailPart", (testData.FileName ?? string.Empty));
         SaveImageToFile(result, fileName);
         TestContext.Current!.Output.AttachArtifact(fileName);
-    }
-
-    [Test]
-    [PathRendererRenderTrailPartDataGenerator]
-    public async Task RenderTrailPart_ValidInputWithPathCache_ExpectedResult(PathRendererRenderTrailPartTestData testData)
-    {
-        //Arrange
-
-        //Act
-        SKBitmap? pathCache = null;
-        _ = PathRenderer.RenderTrailPart(testData.RendererOptions, testData.Points, testData.CurrentPointIndex - 1, ref pathCache);
-        SKBitmap result = PathRenderer.RenderTrailPart(testData.RendererOptions, testData.Points, testData.CurrentPointIndex, ref pathCache);
-
-        //Assert
-        await Assert.That(pathCache).IsNotNull();
-        await Assert.That(result).IsNotNull();
     }
 
     private static void SaveImageToFile(SKBitmap bitmap, string fileName)
