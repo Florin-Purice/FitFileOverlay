@@ -7,32 +7,30 @@ namespace FitFileOverlay.Services;
 
 public partial class OverlayService
 {
-    private SKBitmap? CreateDataFieldsOverlay(IActivityRecord record)
+    private void DrawDataFieldsOverlay(SKCanvas canvas, IActivityRecord record)
     {
         DataFieldRendererOptions rendererOptions = CreateDataFieldRendererOptionsFromSettings(Settings!);
         int dataFieldCount = Settings!.DrawnDataFields.Count;
         int dataFieldsPerColumn = (int)Math.Ceiling((double)dataFieldCount / Settings.DataOverlayColumnCount);
         if (Settings.DataFieldsOverlayWidth <= 0)
-            return null;
-        SKBitmap sKBitmap = new(Settings.DataFieldsOverlayWidth, Settings.DataFieldsOverlayHeight);
-        SKCanvas sKCanvas = new(sKBitmap);
-        //create data field overlays and apply them in the correct place
+            return;
+        //draw data field overlays in the correct place
         int row = 0, col = 0;
         foreach (DataFieldType dataField in Settings.DrawnDataFields)
         {
-            SKBitmap? dataFieldBitmap = CreateDataFieldBitmap(record, rendererOptions, dataField);
-            if (dataFieldBitmap != null)
-                sKCanvas.DrawBitmap(dataFieldBitmap, rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row, SKSamplingOptions.Default);
+            int canvasSaveCount = canvas.Save();
+            canvas.Translate(rendererOptions.BitmapWidth * col, rendererOptions.BitmapHeight * row);
+            DrawDataField(canvas, record, rendererOptions, dataField);
+            canvas.RestoreToCount(canvasSaveCount);
             if (++row >= dataFieldsPerColumn)
             {
                 row = 0;
                 ++col;
             }
         }
-        return sKBitmap;
     }
 
-    private SKBitmap? CreateDataFieldBitmap(IActivityRecord record, DataFieldRendererOptions rendererOptionsBase, DataFieldType dataField)
+    private void DrawDataField(SKCanvas canvas, IActivityRecord record, DataFieldRendererOptions rendererOptionsBase, DataFieldType dataField)
     {
         string label, value, unit;
         switch (dataField)
@@ -151,9 +149,9 @@ public partial class OverlayService
                         Settings.TimestampFontSize);
                 break;
             default:
-                return null;
+                return;
         }
-        return DataFieldRenderer.Render(rendererOptionsBase, label, value, unit);
+        DataFieldRenderer.Render(canvas, rendererOptionsBase, label, value, unit);
     }
 
     private SKColor GetHeartRateZoneBrush(int heartRate)

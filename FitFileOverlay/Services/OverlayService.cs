@@ -116,58 +116,54 @@ public partial class OverlayService : ObservableObject, IOverlayService
             return null;
 
         InstanceData data = new() { Records = GetCroppedRecordList() };
+        data.MapRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
+        data.AltitudeRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
         PrepareInstanceData(ref data);
-        data.PathRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
-        data.GraphRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
 
-        SKBitmap? pathCacheBitmap = null;
-        SKBitmap? altitudeCacheBitmap = null;
-        return CreateFrame(data, recordIndex, ref pathCacheBitmap, ref altitudeCacheBitmap);
+        return CreateFrame(data, recordIndex);
     }
 
     private IEnumerable<IVideoFrame> CreateVideoFrames(InstanceData data, Action<double>? progressReportCallback = null)
     {
-        SKBitmap? pathCacheBitmap = null;
-        SKBitmap? altitudeCacheBitmap = null;
         for (int i = 0; i < data.Records.Count; ++i)
         {
-            SKBitmap frame = CreateFrame(data, i, ref pathCacheBitmap, ref altitudeCacheBitmap);
+            SKBitmap frame = CreateFrame(data, i);
             progressReportCallback?.Invoke((double)i / data.Records.Count);
             yield return new BitmapVideoFrameWrapper(frame);
         }
     }
 
-    private SKBitmap CreateFrame(InstanceData data, int recordIndex, ref SKBitmap? pathCacheBitmap, ref SKBitmap? altitudeCacheBitmap)
+    private SKBitmap CreateFrame(InstanceData data, int recordIndex)
     {
-        //create underlying bitmap
         SKBitmap sKBitmap = new(data.OverlayWidth, data.OverlayHeight);
         using SKCanvas sKCanvas = new(sKBitmap);
         sKCanvas.Clear(Settings!.Background);
         if (Settings.IsDataFieldsOverlayEnabled)
         {
-            //create data fields overlay and apply
-            SKBitmap? dataFieldsOverlay = CreateDataFieldsOverlay(data.Records[recordIndex]);
-            if (dataFieldsOverlay != null && !dataFieldsOverlay.IsEmpty)
-            {
-                sKCanvas.DrawBitmap(dataFieldsOverlay, 0, 0, SKSamplingOptions.Default);
-                dataFieldsOverlay.Dispose();
-            }
+            //draw data fields overlay
+            int canvasSaveCount = sKCanvas.Save();
+            DrawDataFieldsOverlay(sKCanvas, data.Records[recordIndex]);
+            sKCanvas.RestoreToCount(canvasSaveCount);
         }
         if (Settings.IsGpsOverlayEnabled)
         {
             //apply base gps overlay
-            sKCanvas.DrawBitmap(data.GpsBaseBitmap, data.MapOverlayStartX, 0, SKSamplingOptions.Default);
-            //create partial gps path and apply over base gps overlay
-            SKBitmap gpsPathOverlay = PathRenderer.RenderTrailPart(data.PathRendererOptions, data.DrawPoints, recordIndex, ref pathCacheBitmap);
-            sKCanvas.DrawBitmap(gpsPathOverlay, data.MapOverlayStartX, 0, SKSamplingOptions.Default);
+            sKCanvas.DrawBitmap(data.MapBaseBitmap, data.MapOverlayStartX, 0, SKSamplingOptions.Default);
+            //draw partial gps path over base gps overlay
+            int canvasSaveCount = sKCanvas.Save();
+            sKCanvas.Translate(data.MapOverlayStartX, 0);
+            data.AltitudeRenderer.RenderTrailPart(sKCanvas, recordIndex);
+            sKCanvas.RestoreToCount(canvasSaveCount);
         }
         if (Settings.IsAltitudeOverlayEnabled)
         {
             //apply base altitude overlay
             sKCanvas.DrawBitmap(data.AltitudeBaseBitmap, 0, data.AltitudeOverlayStartY, SKSamplingOptions.Default);
-            //create partial altitude path and apply over base altitude overlay
-            SKBitmap altitudePathOverlay = GraphRenderer.RenderTrailPart(data.GraphRendererOptions, data.AltitudeValues, data.AltitudeXPositions, recordIndex, GetAltitudeValueConverter(Settings.AltitudeUnit), ref altitudeCacheBitmap);
-            sKCanvas.DrawBitmap(altitudePathOverlay, 0, data.AltitudeOverlayStartY, SKSamplingOptions.Default);
+            //draw partial altitude path over base altitude overlay
+            int canvasSaveCount = sKCanvas.Save();
+            sKCanvas.Translate(0, data.AltitudeOverlayStartY);
+            data.MapRenderer.RenderTrailPart(sKCanvas, recordIndex, GetAltitudeValueConverter(Settings.AltitudeUnit));
+            sKCanvas.RestoreToCount(canvasSaveCount);
         }
         return sKBitmap;
     }
@@ -176,13 +172,13 @@ public partial class OverlayService : ObservableObject, IOverlayService
     {
         CalculateLayout(ref data);
 
-        data.PathRendererOptions = CreatePathRendererOptionsFromSettings(Settings!);
-        data.GraphRendererOptions = CreateGraphRendererOptionsFromSettings(Settings!);
+        data.MapRendererOptions = CreatePathRendererOptionsFromSettings(Settings!);
+        data.AltitudeRendererOptions = CreateGraphRendererOptionsFromSettings(Settings!);
 
         data.DrawPoints = [];
         data.AltitudeValues = [];
         data.AltitudeXPositions = [];
-        data.GpsBaseBitmap = null;
+        data.MapBaseBitmap = null;
         data.AltitudeBaseBitmap = null;
 
         if (Settings!.IsGpsOverlayEnabled)
@@ -220,12 +216,10 @@ public partial class OverlayService : ObservableObject, IOverlayService
     /// <summary>
     /// Creates in-between records based on FPS and timegap between activity records
     /// </summary>
-    /// <param name="originalList"></param>
     /// <param name="fps">Determines the number of inserted records.
     ///                   Normally the number of output records for one record will be equal to fps value,
     ///                   but in case the time gap between two consecutive records is greater than 1 second the number 
     ///                   of output records between those two records will be multiplied by the time gap</param>
-    /// <returns></returns>
     private static List<IActivityRecord> InterpolateRecords(List<IActivityRecord> originalList, uint fps)
     {
         List<IActivityRecord> newList = [];
@@ -293,13 +287,15 @@ public partial class OverlayService : ObservableObject, IOverlayService
         public int OverlayHeight;
         public int AltitudeOverlayStartY;
         public int MapOverlayStartX;
-        public PathRendererOptions PathRendererOptions;
-        public GraphRendererOptions GraphRendererOptions;
+        public PathRenderer AltitudeRenderer;
+        public GraphRenderer MapRenderer;
+        public PathRendererOptions MapRendererOptions;
+        public GraphRendererOptions AltitudeRendererOptions;
         public List<IActivityRecord> Records;
         public List<SKPoint?> DrawPoints;
         public List<float?> AltitudeValues;
         public List<float?> AltitudeXPositions;
-        public SKBitmap? GpsBaseBitmap;
+        public SKBitmap? MapBaseBitmap;
         public SKBitmap? AltitudeBaseBitmap;
     }
 }

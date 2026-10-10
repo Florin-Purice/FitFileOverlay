@@ -9,8 +9,8 @@ public class PathRendererRenderTrailPartDataGenerator : DataSourceGeneratorAttri
     {
         PathRendererOptions rendererOptions = new()
         {
-            BitmapHeight = 400,
-            BitmapWidth = 400,
+            BitmapHeight = 450,
+            BitmapWidth = 450,
             PrimaryColor = SKColors.White,
             SecondaryColor = SKColors.Orange,
             StrokeWidth = 6,

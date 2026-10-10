@@ -11,12 +11,12 @@ public partial class OverlayService
         //create list of unitary screenspace gps points
         List<(double x, double y)?> normalizedGpsPoints = ProcessGpsPoints(data.Records, out double gpsAspectRatio);
         float gpsDrawAreaPadding = Settings!.GpsLineWidth * 3f;//add some padding so the points on the border dont get cut off
-        double gpsDrawAreaAspectRatio = (double)(data.PathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2) / (data.PathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2);
+        double gpsDrawAreaAspectRatio = (double)(data.MapRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2) / (data.MapRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2);
         double scale;
         if (gpsDrawAreaAspectRatio > gpsAspectRatio)
-            scale = data.PathRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2;// points cover the full height
+            scale = data.MapRendererOptions.BitmapHeight - gpsDrawAreaPadding * 2;// points cover the full height
         else
-            scale = data.PathRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2;// points cover the full width
+            scale = data.MapRendererOptions.BitmapWidth - gpsDrawAreaPadding * 2;// points cover the full width
         //transform points into actual draw points
         foreach ((double x, double y)? point in normalizedGpsPoints)
             if (point is null)
@@ -27,8 +27,11 @@ public partial class OverlayService
                 float y = (float)((point?.y ?? 0) * scale + gpsDrawAreaPadding);
                 data.DrawPoints.Add(new SKPoint(x, y));
             }
-        //create base gps overlay
-        data.GpsBaseBitmap = PathRenderer.RenderStaticPart(data.PathRendererOptions, data.DrawPoints);
+        //create renderer instance and base bitmap
+        data.AltitudeRenderer = new PathRenderer(data.MapRendererOptions, data.DrawPoints);
+        data.MapBaseBitmap = new SKBitmap(data.MapRendererOptions.BitmapWidth, data.MapRendererOptions.BitmapHeight);
+        using SKCanvas canvas = new(data.MapBaseBitmap);
+        data.AltitudeRenderer.RenderStaticPart(canvas);
     }
 
     private static List<(double x, double y)?> ProcessGpsPoints(ICollection<IActivityRecord> records, out double gpsAspectRatio)

@@ -13,7 +13,9 @@ public class DataFieldRendererTests
         //Arrange
 
         //Act
-        SKBitmap result = DataFieldRenderer.Render(testData.RendererOptions, testData.Label, testData.Value, testData.Unit);
+        using SKBitmap result = new(testData.RendererOptions.BitmapWidth, testData.RendererOptions.BitmapHeight);
+        using (SKCanvas canvas = new(result))
+            DataFieldRenderer.Render(canvas, testData.RendererOptions, testData.Label, testData.Value, testData.Unit);
 
         //Assert
         await Assert.That(result).IsNotNull();

@@ -4,14 +4,10 @@ namespace FitFileOverlay.Helpers;
 
 public class DataFieldRenderer
 {
-    public static SKBitmap Render(DataFieldRendererOptions options, string label, string value, string unit)
+    public static void Render(SKCanvas canvas, DataFieldRendererOptions options, string label, string value, string unit)
     {
-        SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
-        using SKCanvas canvas = new(bitmap);
-        canvas.Clear(SKColors.Transparent);
         using SKPaint skPaint = new();
         skPaint.IsAntialias = true;
-
         //draw label
         skPaint.Color = options.LabelColor;
         options.LabelFont.MeasureText(label, out SKRect labelSize, skPaint);
@@ -27,8 +23,6 @@ public class DataFieldRenderer
         options.UnitFont.MeasureText(unit, out SKRect unitSize, skPaint);
         unitSize.Offset(valueSize.Right, valueSize.Bottom);
         canvas.DrawText(unit, unitSize.Left, unitSize.Bottom, SKTextAlign.Left, options.UnitFont, skPaint);
-
-        return bitmap;
     }
 }
 

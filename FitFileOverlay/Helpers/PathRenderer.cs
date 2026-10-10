@@ -2,26 +2,22 @@ using SkiaSharp;
 
 namespace FitFileOverlay.Helpers;
 
-public class PathRenderer
+public class PathRenderer(PathRendererOptions options, List<SKPoint?> points)
 {
+    private SKBitmap? _previousTrailBase = null;
+
     /// <summary>
     /// The same for all frames, so it can be rendered once and reused.
     /// Is the base layer of the map overlay.
     /// </summary>
-    /// <param name="options"></param>
-    /// <param name="points"></param>
-    /// <returns></returns>
-    public static SKBitmap RenderStaticPart(PathRendererOptions options, List<SKPoint?> points)
+    /// <param name="canvas">The canvas to draw the trail onto.</param>
+    public void RenderStaticPart(SKCanvas canvas)
     {
-        SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
-        using SKCanvas canvas = new(bitmap);
-        canvas.Clear(SKColors.Transparent);
         using SKPaint skPaint = new();
         skPaint.IsAntialias = true;
         skPaint.BlendMode = SKBlendMode.Src;
         skPaint.StrokeWidth = options.StrokeWidth;
         skPaint.Color = options.TertiaryColor;
-
         for (int i = 0; i < points.Count - 1; ++i)
             if (points[i] != null && points[i + 1] != null)
             {
@@ -29,33 +25,21 @@ public class PathRenderer
                 //smooth corners by drawing circles at points
                 canvas.DrawCircle(points[i] ?? new(), options.StrokeWidth / 2f, skPaint);
             }
-
-        return bitmap;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="options"></param>
-    /// <param name="points"></param>
-    /// <param name="currentPointIndex"></param>
-    /// <param name="previousTrailBase">A bitmap with the path of all points before current one.</param>
-    /// <returns></returns>
-    public static SKBitmap RenderTrailPart(PathRendererOptions options, List<SKPoint?> points, int currentPointIndex, ref SKBitmap? previousTrailBase)
+    /// <param name="canvas">The canvas to draw the trail onto.</param>
+    public void RenderTrailPart(SKCanvas canvas, int currentPointIndex)
     {
-        SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
-        using SKCanvas canvas = new(bitmap);
-        canvas.Clear(SKColors.Transparent);
         using SKPaint skPaint = new();
         skPaint.IsAntialias = true;
         skPaint.BlendMode = SKBlendMode.Src;
         skPaint.StrokeWidth = options.StrokeWidth * 2;
         skPaint.Color = options.PrimaryColor;
 
-        SKBitmap basePathBitmap;
-        if (previousTrailBase == null)
+        if (_previousTrailBase == null)
         {
-            basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
-            using SKCanvas baseCanvas = new(basePathBitmap);
+            _previousTrailBase = new(options.BitmapWidth, options.BitmapHeight);
+            using SKCanvas baseCanvas = new(_previousTrailBase);
             for (int i = 0; i < currentPointIndex - 1 && i < points.Count - 1; ++i)
                 if (points[i] != null && points[i + 1] != null)
                 {
@@ -66,8 +50,7 @@ public class PathRenderer
         }
         else if (currentPointIndex > 0)
         {
-            basePathBitmap = previousTrailBase;
-            using SKCanvas baseCanvas = new(basePathBitmap);
+            using SKCanvas baseCanvas = new(_previousTrailBase);
             if (points[currentPointIndex] != null && points[currentPointIndex - 1] != null)
             {
                 baseCanvas.DrawLine(points[currentPointIndex] ?? new(), points[currentPointIndex - 1] ?? new(), skPaint);
@@ -75,9 +58,8 @@ public class PathRenderer
                 baseCanvas.DrawCircle(points[currentPointIndex] ?? new(), options.StrokeWidth, skPaint);
             }
         }
-        else basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
-        canvas.DrawBitmap(basePathBitmap, 0, 0, SKSamplingOptions.Default);
-        previousTrailBase = basePathBitmap;
+        skPaint.BlendMode = SKBlendMode.SrcOver;
+        canvas.DrawBitmap(_previousTrailBase, 0, 0, SKSamplingOptions.Default);
 
         //Draw fading path
         if (currentPointIndex > 0)
@@ -98,7 +80,6 @@ public class PathRenderer
                     canvas.DrawCircle(points[i - 1] ?? new(), options.StrokeWidth, skPaint);
                 }
         }
-
         //Mark current position with a circle
         if (points[currentPointIndex] != null)
         {
@@ -111,8 +92,6 @@ public class PathRenderer
             skPaint.PathEffect = null;
             canvas.DrawCircle(points[currentPointIndex]! ?? new(), options.StrokeWidth * 2, skPaint);
         }
-
-        return bitmap;
     }
 }
 
@@ -126,4 +105,3 @@ public struct PathRendererOptions
     public float StrokeWidth { get; set; }
     public int FadePointCount { get; set; }
 }
-
