@@ -29,7 +29,9 @@ public partial class OverlayService
             }
         //create renderer instance and base bitmap
         data.PathRenderer = new PathRenderer(data.PathRendererOptions, data.DrawPoints);
-        data.GpsBaseBitmap = data.PathRenderer.RenderStaticPart();
+        data.GpsBaseBitmap = new SKBitmap(data.PathRendererOptions.BitmapWidth, data.PathRendererOptions.BitmapHeight);
+        using SKCanvas canvas = new(data.GpsBaseBitmap);
+        data.PathRenderer.RenderStaticPart(canvas);
     }
 
     private static List<(double x, double y)?> ProcessGpsPoints(ICollection<IActivityRecord> records, out double gpsAspectRatio)
