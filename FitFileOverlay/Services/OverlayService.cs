@@ -116,28 +116,26 @@ public partial class OverlayService : ObservableObject, IOverlayService
             return null;
 
         InstanceData data = new() { Records = GetCroppedRecordList() };
-        PrepareInstanceData(ref data);
         data.PathRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
         data.GraphRendererOptions.FadePointCount = Settings.FadeDurationSeconds;
+        PrepareInstanceData(ref data);
 
-        SKBitmap? pathCacheBitmap = null;
         SKBitmap? altitudeCacheBitmap = null;
-        return CreateFrame(data, recordIndex, ref pathCacheBitmap, ref altitudeCacheBitmap);
+        return CreateFrame(data, recordIndex, ref altitudeCacheBitmap);
     }
 
     private IEnumerable<IVideoFrame> CreateVideoFrames(InstanceData data, Action<double>? progressReportCallback = null)
     {
-        SKBitmap? pathCacheBitmap = null;
         SKBitmap? altitudeCacheBitmap = null;
         for (int i = 0; i < data.Records.Count; ++i)
         {
-            SKBitmap frame = CreateFrame(data, i, ref pathCacheBitmap, ref altitudeCacheBitmap);
+            SKBitmap frame = CreateFrame(data, i, ref altitudeCacheBitmap);
             progressReportCallback?.Invoke((double)i / data.Records.Count);
             yield return new BitmapVideoFrameWrapper(frame);
         }
     }
 
-    private SKBitmap CreateFrame(InstanceData data, int recordIndex, ref SKBitmap? pathCacheBitmap, ref SKBitmap? altitudeCacheBitmap)
+    private SKBitmap CreateFrame(InstanceData data, int recordIndex, ref SKBitmap? altitudeCacheBitmap)
     {
         //create underlying bitmap
         SKBitmap sKBitmap = new(data.OverlayWidth, data.OverlayHeight);
@@ -158,7 +156,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
             //apply base gps overlay
             sKCanvas.DrawBitmap(data.GpsBaseBitmap, data.MapOverlayStartX, 0, SKSamplingOptions.Default);
             //create partial gps path and apply over base gps overlay
-            SKBitmap gpsPathOverlay = PathRenderer.RenderTrailPart(data.PathRendererOptions, data.DrawPoints, recordIndex, ref pathCacheBitmap);
+            SKBitmap gpsPathOverlay = data.PathRenderer.RenderTrailPart(recordIndex);
             sKCanvas.DrawBitmap(gpsPathOverlay, data.MapOverlayStartX, 0, SKSamplingOptions.Default);
         }
         if (Settings.IsAltitudeOverlayEnabled)
@@ -293,6 +291,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
         public int OverlayHeight;
         public int AltitudeOverlayStartY;
         public int MapOverlayStartX;
+        public PathRenderer PathRenderer;
         public PathRendererOptions PathRendererOptions;
         public GraphRendererOptions GraphRendererOptions;
         public List<IActivityRecord> Records;

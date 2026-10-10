@@ -27,8 +27,9 @@ public partial class OverlayService
                 float y = (float)((point?.y ?? 0) * scale + gpsDrawAreaPadding);
                 data.DrawPoints.Add(new SKPoint(x, y));
             }
-        //create base gps overlay
-        data.GpsBaseBitmap = PathRenderer.RenderStaticPart(data.PathRendererOptions, data.DrawPoints);
+        //create renderer instance and base bitmap
+        data.PathRenderer = new PathRenderer(data.PathRendererOptions, data.DrawPoints);
+        data.GpsBaseBitmap = data.PathRenderer.RenderStaticPart();
     }
 
     private static List<(double x, double y)?> ProcessGpsPoints(ICollection<IActivityRecord> records, out double gpsAspectRatio)
