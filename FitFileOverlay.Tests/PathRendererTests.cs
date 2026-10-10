@@ -31,7 +31,9 @@ public class PathRendererTests
         //Arrange
 
         PathRenderer sut = new(testData.RendererOptions, testData.Points);
-        SKBitmap result = sut.RenderTrailPart(testData.CurrentPointIndex);
+        using SKBitmap result = new(testData.RendererOptions.BitmapWidth, testData.RendererOptions.BitmapHeight);
+        using (SKCanvas canvas = new(result))
+            sut.RenderTrailPart(canvas, testData.CurrentPointIndex);
 
         //Assert
         await Assert.That(result).IsNotNull();

@@ -32,12 +32,9 @@ public class PathRenderer(PathRendererOptions options, List<SKPoint?> points)
         return bitmap;
     }
 
-    /// <param name="previousTrailBase">A bitmap with the path of all points before current one.</param>
-    public SKBitmap RenderTrailPart(int currentPointIndex)
+    /// <param name="canvas">The canvas to draw the trail onto.</param>
+    public void RenderTrailPart(SKCanvas canvas, int currentPointIndex)
     {
-        SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
-        using SKCanvas canvas = new(bitmap);
-        canvas.Clear(SKColors.Transparent);
         using SKPaint skPaint = new();
         skPaint.IsAntialias = true;
         skPaint.BlendMode = SKBlendMode.Src;
@@ -67,6 +64,8 @@ public class PathRenderer(PathRendererOptions options, List<SKPoint?> points)
             }
         }
         //else basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
+
+        skPaint.BlendMode = SKBlendMode.SrcOver;
         canvas.DrawBitmap(_previousTrailBase, 0, 0, SKSamplingOptions.Default);
 
         //Draw fading path
@@ -102,7 +101,6 @@ public class PathRenderer(PathRendererOptions options, List<SKPoint?> points)
             canvas.DrawCircle(points[currentPointIndex]! ?? new(), options.StrokeWidth * 2, skPaint);
         }
 
-        return bitmap;
     }
 }
 

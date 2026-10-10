@@ -155,9 +155,11 @@ public partial class OverlayService : ObservableObject, IOverlayService
         {
             //apply base gps overlay
             sKCanvas.DrawBitmap(data.GpsBaseBitmap, data.MapOverlayStartX, 0, SKSamplingOptions.Default);
-            //create partial gps path and apply over base gps overlay
-            SKBitmap gpsPathOverlay = data.PathRenderer.RenderTrailPart(recordIndex);
-            sKCanvas.DrawBitmap(gpsPathOverlay, data.MapOverlayStartX, 0, SKSamplingOptions.Default);
+            //draw partial gps path over base gps overlay
+            int canvasSaveCount = sKCanvas.Save();
+            sKCanvas.Translate(data.MapOverlayStartX, 0);
+            data.PathRenderer.RenderTrailPart(sKCanvas, recordIndex);
+            sKCanvas.RestoreToCount(canvasSaveCount);
         }
         if (Settings.IsAltitudeOverlayEnabled)
         {
