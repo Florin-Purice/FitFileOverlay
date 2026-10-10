@@ -19,7 +19,6 @@ namespace FitFileOverlay;
 
 public partial class App
 {
-    private static OverlaySettings? _overlaySettings;
     private static AppSettings? _appSettings;
     private static readonly string _overlaySettingsFilename = "overlay_settings.json";
     private static readonly string _appSettingsFilename = "app_settings.json";
@@ -28,47 +27,6 @@ public partial class App
 #else
     private static readonly string _settingsLocation = @"..\";
 #endif
-
-    public static AppSettings AppSettings => _appSettings ?? new();
-    public static OverlaySettings OverlaySettings => _overlaySettings ?? new();
-    public static IServiceProvider Services => _host.Services;
-
-    public static void ChangeTheme(AppTheme theme)
-    {
-        if (theme == AppTheme.System)
-            SystemThemeWatcher.Watch(App.Current.MainWindow);
-        else
-            SystemThemeWatcher.UnWatch(App.Current.MainWindow);
-
-        switch (theme)
-        {
-            case AppTheme.Light:
-                ApplicationThemeManager.Apply(ApplicationTheme.Light);
-                break;
-            case AppTheme.Dark:
-                ApplicationThemeManager.Apply(ApplicationTheme.Dark);
-                break;
-            case AppTheme.HighContrast:
-                ApplicationThemeManager.Apply(ApplicationTheme.HighContrast);
-                break;
-            case AppTheme.System:
-            default:
-                ApplicationThemeManager.ApplySystemTheme();
-                break;
-        }
-    }
-
-    public static void SaveSettings()
-    {
-        AppSettings.ToFile(Path.Combine(_settingsLocation, _appSettingsFilename));
-        OverlaySettings.ToFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename));
-    }
-
-    public static void LoadSettings()
-    {
-        _appSettings = AppSettings.FromFile(Path.Combine(_settingsLocation, _appSettingsFilename));
-        _overlaySettings = OverlaySettings.FromFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename));
-    }
 
     // The.NET Generic Host provides dependency injection, configuration, logging, and other services.
     // https://docs.microsoft.com/dotnet/core/extensions/generic-host
@@ -110,8 +68,48 @@ public partial class App
             services.AddSingleton<SettingsPage>();
             services.AddSingleton<SettingsViewModel>();
 
-            services.AddSingleton<IOverlayService>(s => new OverlayService { Settings = OverlaySettings });
+            services.AddSingleton<IOverlayService, OverlayService>();
         }).Build();
+
+    public static AppSettings AppSettings => _appSettings ?? new();
+    public static IServiceProvider Services => _host.Services;
+
+    public static void ChangeTheme(AppTheme theme)
+    {
+        if (theme == AppTheme.System)
+            SystemThemeWatcher.Watch(App.Current.MainWindow);
+        else
+            SystemThemeWatcher.UnWatch(App.Current.MainWindow);
+
+        switch (theme)
+        {
+            case AppTheme.Light:
+                ApplicationThemeManager.Apply(ApplicationTheme.Light);
+                break;
+            case AppTheme.Dark:
+                ApplicationThemeManager.Apply(ApplicationTheme.Dark);
+                break;
+            case AppTheme.HighContrast:
+                ApplicationThemeManager.Apply(ApplicationTheme.HighContrast);
+                break;
+            case AppTheme.System:
+            default:
+                ApplicationThemeManager.ApplySystemTheme();
+                break;
+        }
+    }
+
+    public static void SaveSettings()
+    {
+        AppSettings.ToFile(Path.Combine(_settingsLocation, _appSettingsFilename));
+        Services.GetRequiredService<IOverlayService>().Settings?.ToFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename));
+    }
+
+    public static void LoadSettings()
+    {
+        _appSettings = AppSettings.FromFile(Path.Combine(_settingsLocation, _appSettingsFilename));
+        Services.GetRequiredService<IOverlayService>().Settings = OverlaySettings.FromFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename));
+    }
 
     private async void OnStartup(object sender, StartupEventArgs e)
     {
