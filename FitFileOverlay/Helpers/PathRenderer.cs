@@ -35,6 +35,7 @@ public class PathRenderer(PathRendererOptions options, List<SKPoint?> points)
         skPaint.BlendMode = SKBlendMode.Src;
         skPaint.StrokeWidth = options.StrokeWidth * 2;
         skPaint.Color = options.PrimaryColor;
+
         if (_previousTrailBase == null)
         {
             _previousTrailBase = new(options.BitmapWidth, options.BitmapHeight);
@@ -59,6 +60,7 @@ public class PathRenderer(PathRendererOptions options, List<SKPoint?> points)
         }
         skPaint.BlendMode = SKBlendMode.SrcOver;
         canvas.DrawBitmap(_previousTrailBase, 0, 0, SKSamplingOptions.Default);
+
         //Draw fading path
         if (currentPointIndex > 0)
         {

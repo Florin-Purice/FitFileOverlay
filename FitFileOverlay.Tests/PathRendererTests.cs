@@ -14,7 +14,9 @@ public class PathRendererTests
 
         //Act
         PathRenderer sut = new(testData.RendererOptions, testData.Points);
-        SKBitmap result = sut.RenderStaticPart();
+        using SKBitmap result = new(testData.RendererOptions.BitmapWidth, testData.RendererOptions.BitmapHeight);
+        using (SKCanvas canvas = new(result))
+            sut.RenderStaticPart(canvas);
 
         //Assert
         await Assert.That(result).IsNotNull();

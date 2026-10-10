@@ -21,7 +21,11 @@ public partial class OverlayService
             };
             data.AltitudeXPositions.Add(xPos);
         }
-        data.AltitudeBaseBitmap = GraphRenderer.RenderStaticPart(data.GraphRendererOptions, data.AltitudeValues, data.AltitudeXPositions);
+        //create renderer instance and base bitmap
+        data.MapRenderer = new GraphRenderer(data.AltitudeRendererOptions, data.AltitudeValues, data.AltitudeXPositions);
+        data.AltitudeBaseBitmap = new SKBitmap(data.AltitudeRendererOptions.BitmapWidth, data.AltitudeRendererOptions.BitmapHeight);
+        using SKCanvas canvas = new(data.AltitudeBaseBitmap);
+        data.MapRenderer.RenderStaticPart(canvas);
     }
 
     private static Func<float?, float?> GetAltitudeValueConverter(AltitudeUnit unit)

@@ -13,7 +13,10 @@ public class GraphRendererTests
         //Arrange
 
         //Act
-        SKBitmap result = GraphRenderer.RenderStaticPart(testData.RendererOptions, testData.Values, testData.XPos);
+        GraphRenderer sut = new(testData.RendererOptions, testData.Values, testData.XPos);
+        using SKBitmap result = new(testData.RendererOptions.BitmapWidth, testData.RendererOptions.BitmapHeight);
+        using (SKCanvas canvas = new(result))
+            sut.RenderStaticPart(canvas);
 
         //Assert
         await Assert.That(result).IsNotNull();
@@ -30,8 +33,10 @@ public class GraphRendererTests
         //Arrange
 
         //Act
-        SKBitmap? pathCache = null;
-        SKBitmap result = GraphRenderer.RenderTrailPart(testData.RendererOptions, testData.Values, testData.XPos, testData.CurrentValueIndex, (x) => x, ref pathCache);
+        GraphRenderer sut = new(testData.RendererOptions, testData.Values, testData.XPos);
+        using SKBitmap result = new(testData.RendererOptions.BitmapWidth, testData.RendererOptions.BitmapHeight);
+        using (SKCanvas canvas = new(result))
+            sut.RenderTrailPart(canvas, testData.CurrentValueIndex, (x) => x);
 
         //Assert
         await Assert.That(result).IsNotNull();
@@ -39,22 +44,6 @@ public class GraphRendererTests
         string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "GraphRenderer_RenderTrailPart", (testData.FileName ?? string.Empty));
         SaveImageToFile(result, fileName);
         TestContext.Current!.Output.AttachArtifact(fileName);
-    }
-
-    [Test]
-    [GraphRendererRenderTrailPartDataGenerator]
-    public async Task RenderTrailPart_ValidInputWithPathCache_ExpectedResult(GraphRendererRenderTrailPartTestData testData)
-    {
-        //Arrange
-
-        //Act
-        SKBitmap? pathCache = null;
-        _ = GraphRenderer.RenderTrailPart(testData.RendererOptions, testData.Values, testData.XPos, testData.CurrentValueIndex - 1, (x) => x, ref pathCache);
-        SKBitmap result = GraphRenderer.RenderTrailPart(testData.RendererOptions, testData.Values, testData.XPos, testData.CurrentValueIndex, (x) => x, ref pathCache);
-
-        //Assert
-        await Assert.That(pathCache).IsNotNull();
-        await Assert.That(result).IsNotNull();
     }
 
     private static void SaveImageToFile(SKBitmap bitmap, string fileName)
