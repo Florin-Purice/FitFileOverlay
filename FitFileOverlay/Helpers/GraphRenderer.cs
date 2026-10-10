@@ -4,19 +4,18 @@ using System.Windows.Controls;
 
 namespace FitFileOverlay.Helpers;
 
-public class GraphRenderer
+public class GraphRenderer(GraphRendererOptions options, List<float?> values, List<float?> xPositions)
 {
     private const float _textMargin = 10f;
     private const float _topPaddingMultiplier = 3f;
+    private SKBitmap? _previousTrailBase = null;
 
     /// <summary>
     /// The same for all frames, so it can be rendered once and reused.
     /// Is the base layer of the graph overlay.
     /// </summary>
-    /// <param name="options"></param>
-    /// <param name="xPositions">List of positions for each value from values list; 0-left to 1-right.</param>
-    /// <returns></returns>
-    public static SKBitmap RenderStaticPart(GraphRendererOptions options, List<float?> values, List<float?> xPositions)
+    /// /// <param name="canvas">The canvas to draw the trail onto.</param>
+    public void RenderStaticPart(SKCanvas canvas)
     {
         float topPadding = _topPaddingMultiplier * (float)options.StrokeWidth;
         float min = values.Min() ?? 0f;
@@ -28,7 +27,6 @@ public class GraphRenderer
         float minPixels = (100f - options.BottomPaddingPercent) / 100f * options.BitmapHeight;
         float scalePixels = (maxPixels - minPixels) / range;
         float valueToPixel(float v) => minPixels + (v - min) * scalePixels;
-
         // Create full path
         using SKPathBuilder pathBuilder = new();
         pathBuilder.MoveTo(0, valueToPixel(values[0] ?? 0f));
@@ -45,10 +43,7 @@ public class GraphRenderer
         pathBuilder.LineTo(0, options.BitmapHeight);
         pathBuilder.Close();
         using SKPath graphBackgroundPath = pathBuilder.Detach();
-        // Create the bitmap and draw the graph background
-        SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
-        using SKCanvas canvas = new(bitmap);
-        canvas.Clear(SKColors.Transparent);
+        // draw the graph background
         SKPaint paint = new()
         {
             IsAntialias = true,
@@ -63,21 +58,11 @@ public class GraphRenderer
         paint.StrokeCap = SKStrokeCap.Round;
         paint.PathEffect = SKPathEffect.CreateCorner(options.StrokeWidth);
         canvas.DrawPath(trail, paint);
-
-        return bitmap;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="options"></param>
-    /// <param name="values"></param>
-    /// <param name="xPositions">List of positions for each value from values list; 0-left to 1-right.</param>
-    /// <param name="currentValueIndex"></param>
+    /// <param name="canvas">The canvas to draw the trail onto.</param>
     /// <param name="valueConverter">A function that converts the given values according to the specified unit</param>
-    /// <param name="previousTrailBase"></param>
-    /// <returns></returns>
-    public static SKBitmap RenderTrailPart(GraphRendererOptions options, List<float?> values, List<float?> xPositions, int currentValueIndex, Func<float?, float?> valueConverter, ref SKBitmap? previousTrailBase)
+    public void RenderTrailPart(SKCanvas canvas, int currentValueIndex, Func<float?, float?> valueConverter)
     {
         float topPadding = _topPaddingMultiplier * (float)options.StrokeWidth;
         float min = values.Min() ?? 0f;
@@ -89,20 +74,16 @@ public class GraphRenderer
         float minPixels = (100f - options.BottomPaddingPercent) / 100f * options.BitmapHeight;
         float scalePixels = (maxPixels - minPixels) / range;
         float valueToPixel(float v) => minPixels + (v - min) * scalePixels;
-        SKBitmap bitmap = new(options.BitmapWidth, options.BitmapHeight);
-        using SKCanvas canvas = new(bitmap);
-        canvas.Clear(SKColors.Transparent);
         using SKPaint skPaint = new();
         skPaint.IsAntialias = true;
         skPaint.BlendMode = SKBlendMode.Src;
         skPaint.StrokeWidth = options.StrokeWidth * 2;
         skPaint.Color = options.PrimaryColor;
 
-        SKBitmap basePathBitmap;
-        if (previousTrailBase == null)
+        if (_previousTrailBase == null)
         {
-            basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
-            using SKCanvas baseCanvas = new(basePathBitmap);
+            _previousTrailBase = new(options.BitmapWidth, options.BitmapHeight);
+            using SKCanvas baseCanvas = new(_previousTrailBase);
             for (int i = 0; i < currentValueIndex - 1 && i < values.Count - 1; ++i)
                 if (values[i] != null && values[i + 1] != null)
                 {
@@ -117,8 +98,7 @@ public class GraphRenderer
         }
         else if (currentValueIndex > 0)
         {
-            basePathBitmap = previousTrailBase;
-            using SKCanvas baseCanvas = new(basePathBitmap);
+            using SKCanvas baseCanvas = new(_previousTrailBase);
             if (values[currentValueIndex] != null && values[currentValueIndex - 1] != null)
             {
                 float x0 = (xPositions[currentValueIndex - 1] * options.BitmapWidth) ?? 0f;
@@ -130,9 +110,8 @@ public class GraphRenderer
                 baseCanvas.DrawCircle(x1, y1, options.StrokeWidth, skPaint);
             }
         }
-        else basePathBitmap = new(options.BitmapWidth, options.BitmapHeight);
-        canvas.DrawBitmap(basePathBitmap, 0, 0, SKSamplingOptions.Default);
-        previousTrailBase = basePathBitmap;
+        skPaint.BlendMode = SKBlendMode.SrcOver;
+        canvas.DrawBitmap(_previousTrailBase, 0, 0, SKSamplingOptions.Default);
 
         //Draw fading path
         if (currentValueIndex > 0)
@@ -216,8 +195,6 @@ public class GraphRenderer
                 canvas.DrawText(options.UnitText, textLeft + valueSize.Width, textBottom, SKTextAlign.Left, options.UnitFont, skPaint);
             }
         }
-
-        return bitmap;
     }
 }
 
