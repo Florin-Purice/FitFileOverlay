@@ -1,6 +1,6 @@
 # Fit  Overlay
 
-Windows application that reads a Garmin activity file (.fit) and creates a video file with map, altitude graph and other activity data.
+Windows application that reads a Garmin activity file (.fit) and creates a video file with map, altitude graph and other activity data over a transparent background.
 
 [![Release](https://img.shields.io/github/v/release/Florin-Purice/FitFileOverlay)](https://github.com/Florin-Purice/FitFileOverlay/releases)
 ![GitHub Release Date](https://img.shields.io/github/release-date/Florin-Purice/FitFileOverlay)
@@ -29,20 +29,23 @@ Install/update process is handled by [velopack](https://velopack.io/).
 
 ## Usage
 
-### 1. Load .fit file
-
-![Load](https://github.com/user-attachments/assets/58c299ad-5c9b-495c-bc24-abaed500c088)
+### 1. Load FIT file
 
 > [!NOTE]
 > When downloading an activity file from [Garmin Connect](https://connect.garmin.com/app/home), it is usually archived into a zip file. You need to unzip it first since Fit Overlay expects a .fit file.
 
-![Home](https://github.com/user-attachments/assets/15b016fd-9007-49f5-a335-b552908b85d5)
+When a file is loaded a preview of the overlay will be displayed. Use the slider at the bottom of the preview to see how the overlay will look at different points in the activity.
 
-After the file is loaded a preview of the overlay will be displayed. Use the slider at the bottom of the preview to see how the overlay will look at different points in the activity.
+![Home](https://github.com/user-attachments/assets/906656a8-52e2-4959-aec6-208d275c8a27)
 
-### 2. Change the settings
+### 2. Crop activity duration
 
-![Settings button](https://github.com/user-attachments/assets/f2608436-d23b-4da6-935a-0b96bf504f03)
+Trim the start and end of the activity, if needed, using sliders or by specifying the exact record indexes for more control. Useful for when you forgot to stop the activity recording on time or when you want to isolate a specific workout interval.  
+The preview will reflect the changes in real time.
+
+![Crop](https://github.com/user-attachments/assets/4c14fa8c-04d1-45b2-bebf-9f92c1b6940a)
+
+### 3. Change the look of the overlay
 
 Play with the settings to make the overlay look exactly how you want it to.  
 Things that you can customize:
@@ -56,33 +59,20 @@ Things that you can customize:
 * Change the order in which data fields are drawn
 
 To help you see the changes in real time you can open a preview window from the settings page.  
-When you are satisfied with how the overlay looks you may want to save the settings as a template.
+When you are satisfied with how the overlay looks you may want to save the settings as a template so you can reuse them some other time.
 
-![Save/Load Template, Preview Window](https://github.com/user-attachments/assets/7ae2c806-aa4f-4d80-99d4-55f313ed0307)
+![Edit](https://github.com/user-attachments/assets/bdd8b1ae-ce08-482c-ad05-0a45235b76e9)
 
-### 3. Export
-
-![Export button](https://github.com/user-attachments/assets/5516bb07-8428-4e06-bcc4-a3b07021878d)
+### 4. Export
 
 Finally it's time to create the overlay video. Use the `Export video` button from Home page, choose a save location and a name for the file and start exporting.  
-During export a progress bar will be displayed along with the time elapsed. Export can be cancelled at any time using the relevant button.
+During export a progress bar will be displayed along with the time elapsed. Export can be cancelled at any time using the `Cancel export` button.
 
-![Export](https://github.com/user-attachments/assets/3568dac7-c541-471a-bc56-5c89dacb23da)
+![Export](https://github.com/user-attachments/assets/02ded927-ceb8-4921-ab9a-ca3c7c8d2350)
 
 > [!NOTE]
-> Exporting process uses prores codec to preserve background transparency. This way the exported video can be used directly in the video editor without needing to key out the background (tested in Davinci Resolve). The downside is slower export and increased video size compared to .mp4 variant.
-
-```cs
-await FFMpegArguments.FromPipeInput(framesSource)
-    .OutputToFile(outputFilename, true, opt => opt
-        .WithFramerate(Settings.FPS)
-        .WithVideoCodec("prores_ks")
-        .ForcePixelFormat("yuva444p10le")
-        .WithCustomArgument("-profile:v 4444")
-        .WithConstantRateFactor(17))
-    .CancellableThrough(cancellationToken ?? new CancellationToken())
-    .ProcessAsynchronously(throwOnError: true);
- ```
+> Exporting process uses `prores` codec to preserve background transparency. This way the exported video can be used directly in the video editor without needing to key out the background. The downside is slower export and increased video size compared to .mp4 variant.  
+> Video playback tested with [PotPlayer](https://potplayer.tv/) and video editing with [DaVinci Resolve](https://www.blackmagicdesign.com/products/davinciresolve). Compatibility with other programs not guaranteed.
 
 ## Examples
 
@@ -90,20 +80,17 @@ await FFMpegArguments.FromPipeInput(framesSource)
 
 <a href="https://www.youtube.com/watch?v=hz7Gj9dUl5w">
   <img src="https://img.youtube.com/vi/hz7Gj9dUl5w/maxresdefault.jpg" width="300" alt="Watch Video">
-</a>  
-
+</a><br/>
 <a href="https://www.youtube.com/watch?v=JstSYJi-Fho">
   <img src="https://img.youtube.com/vi/JstSYJi-Fho/maxresdefault.jpg" width="300" alt="Watch Video">
-</a>  
-
+</a><br/>
 <a href="https://www.youtube.com/watch?v=2SCQUztco2o">
   <img src="https://img.youtube.com/vi/2SCQUztco2o/maxresdefault.jpg" width="300" alt="Watch Video">
-</a>  
-
+</a><br/>
 <a href="https://www.youtube.com/watch?v=eQ8ZyxgEZJ8">
   <img src="https://img.youtube.com/vi/eQ8ZyxgEZJ8/maxresdefault.jpg" width="300" alt="Watch Video">
-</a>  
+</a><br/>
 
 > [!NOTE]
-> The exported video from Fit Overlay has been applied over a recording, cropped, zoomed and added drop shadow using Davinci Resolve.  
+> The exported video from Fit Overlay has been applied over a recording, cropped, zoomed and added drop shadow using DaVinci Resolve.  
 > Fit Overlay does not draw directly over an existing video, it creates a video that displays FIT data that can later be applied over another video using a video editor.
