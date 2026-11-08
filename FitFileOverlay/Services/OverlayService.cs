@@ -55,9 +55,9 @@ public partial class OverlayService : ObservableObject, IOverlayService
             Directory.CreateDirectory(Path.GetDirectoryName(outputFilename) ?? string.Empty);
             await FFMpegArguments.FromPipeInput(framesSource)
                 .OutputToFile(outputFilename, true, opt => opt
-                    .WithFramerate(Settings.FPS)
+                    .WithFrameRate(Settings.FPS)
                     .WithVideoCodec("prores_ks")
-                    .ForcePixelFormat("yuva444p10le")
+                    .WithPixelFormat("yuva444p10le")
                     .WithCustomArgument("-profile:v 4444")
                     .WithConstantRateFactor(17))
                 .CancellableThrough(cancellationToken ?? new CancellationToken())
@@ -129,7 +129,7 @@ public partial class OverlayService : ObservableObject, IOverlayService
         {
             SKBitmap frame = CreateFrame(data, i);
             progressReportCallback?.Invoke((double)i / data.Records.Count);
-            yield return new BitmapVideoFrameWrapper(frame);
+            yield return new SkiaSharpVideoFrame(frame);
         }
     }
 
