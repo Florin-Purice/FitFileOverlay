@@ -107,18 +107,20 @@ public partial class OverlayPreview : UserControl
         if (os.CropStartIndex == 0 && os.CropEndIndex == os.File.Records.Count)
         {
             IsCropped = false;
-            return;
         }
-        IsCropped = true;
-        IActivityRecord cropStartRecord = os.File.Records[os.CropStartIndex];
-        IActivityRecord cropEndRecord = os.File.Records[os.CropEndIndex - 1];
-        IActivityRecord firstRecord = os.File.Records.First();
-        CropStartTime = cropStartRecord.TimeStamp - firstRecord.TimeStamp;
-        CropEndTime = cropEndRecord.TimeStamp - firstRecord.TimeStamp;
-        CropDuration = cropEndRecord.TimeStamp - cropStartRecord.TimeStamp;
-        CropStartDistance = (cropStartRecord.Distance / 1000f) ?? 0f;
-        CropEndDistance = (cropEndRecord.Distance / 1000f) ?? 0f;
-        CropTotalDistance = ((cropEndRecord.Distance - cropStartRecord.Distance) / 1000f) ?? 0f;
+        else
+        {
+            IsCropped = true;
+            IActivityRecord cropStartRecord = os.File.Records[os.CropStartIndex];
+            IActivityRecord cropEndRecord = os.File.Records[os.CropEndIndex - 1];
+            IActivityRecord firstRecord = os.File.Records.First();
+            CropStartTime = cropStartRecord.TimeStamp - firstRecord.TimeStamp;
+            CropEndTime = cropEndRecord.TimeStamp - firstRecord.TimeStamp;
+            CropDuration = cropEndRecord.TimeStamp - cropStartRecord.TimeStamp;
+            CropStartDistance = (cropStartRecord.Distance / 1000f) ?? 0f;
+            CropEndDistance = (cropEndRecord.Distance / 1000f) ?? 0f;
+            CropTotalDistance = ((cropEndRecord.Distance - cropStartRecord.Distance) / 1000f) ?? 0f;
+        }
 
         _ = Task.Run(UpdateSnapshotImage);
     }
