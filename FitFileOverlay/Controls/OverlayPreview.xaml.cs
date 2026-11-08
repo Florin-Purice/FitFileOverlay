@@ -28,11 +28,9 @@ public partial class OverlayPreview : UserControl
                     isAnimationProhibited: true,
                     defaultUpdateSourceTrigger: UpdateSourceTrigger.PropertyChanged));
 
-    private long _snapshotRequestId = 0;
     private bool _snapshotIsExecuting = false;
-    private DateTime _lastSnapshotTime = DateTime.MinValue;
+    private double? _snapshotLastUpdatePercent;
     private readonly Lock _snapshotLock = new();
-    private const int SnapshotThrottleMs = 100; // Minimum time between GetSnapshot calls
 
     public OverlayPreview()
     {
@@ -101,7 +99,7 @@ public partial class OverlayPreview : UserControl
     private void OnCropIntervalChanged()
     {
         IOverlayService os = OverlayServiceThreadSafe;
-        if(os == null || os.File == null || os.CropEndIndex < 1)
+        if (os == null || os.File == null || os.CropEndIndex < 1)
         {
             IsCropped = false;
             return;
@@ -132,40 +130,35 @@ public partial class OverlayPreview : UserControl
 
     private async Task UpdateSnapshotImage()
     {
-        long requestId = Interlocked.Increment(ref _snapshotRequestId);
+        double activityPercent = ActivityPercentThreadSafe;
         lock (_snapshotLock)
         {
-            // If already executing, just return (the executor will pick up the new ID)
             if (_snapshotIsExecuting)
+            {
+                _snapshotLastUpdatePercent = activityPercent;
                 return;
+            }
             _snapshotIsExecuting = true;
         }
         IOverlayService os = OverlayServiceThreadSafe;
         try
         {
-            while (true)
+            if (os != null && os.File != null)
             {
-                if (os != null && os.File != null)
+                while (true)
                 {
-                    // Wait until enough time has passed since the last snapshot
-                    long timeSinceLastSnapshot = (long)(DateTime.Now - _lastSnapshotTime).TotalMilliseconds;
-                    if (timeSinceLastSnapshot < SnapshotThrottleMs)
-                        await Task.Delay((int)(SnapshotThrottleMs - timeSinceLastSnapshot));
-                    long idToExecute = _snapshotRequestId;
-                    _lastSnapshotTime = DateTime.Now;
-                    SKBitmap? snapshot = await Task.Run(() => os.GetSnapshot(ActivityPercentThreadSafe));
+                    SKBitmap? snapshot = await Task.Run(() => os.GetSnapshot(activityPercent));
                     // Update UI with the latest snapshot (even if newer requests came in, show this)
                     RunOnMainThread(() => SnapshotImage = snapshot?.ToWriteableBitmap());
-                }
-                // Check if a newer request came in
-                lock (_snapshotLock)
-                {
-                    if (_snapshotRequestId > requestId)
-                        requestId = _snapshotRequestId;
-                        // Loop again for the new request
-                    else
-                        // No newer request, we're done
-                        break;
+
+                    // Check if a newer update request exists
+                    lock (_snapshotLock)
+                    {
+                        if (_snapshotLastUpdatePercent is not double newPercent)
+                            break;
+                        activityPercent = newPercent;
+                        _snapshotLastUpdatePercent = null;
+                    }
                 }
             }
         }
@@ -175,6 +168,7 @@ public partial class OverlayPreview : UserControl
             lock (_snapshotLock)
             {
                 _snapshotIsExecuting = false;
+                _snapshotLastUpdatePercent = null;
             }
         }
     }
