@@ -1,6 +1,5 @@
 using FFMpegCore;
 using FFMpegCore.Extensions.Downloader;
-using FFMpegCore.Helpers;
 using System.IO;
 using System.Windows;
 using Velopack;
@@ -61,7 +60,8 @@ public partial class MainWindow : INavigationWindow
         messageChangeCallback("Checking if ffmpeg is installed");
         try
         {
-            FFMpegHelper.VerifyFFMpegExists(GlobalFFOptions.Current);
+            // this is to run FFMpegHelper.VerifyFFMpegExists internally since FFMpegHelper is not public anymore
+            _ = FFMpeg.GetPixelFormats(); 
         }
         catch
         {
@@ -89,7 +89,7 @@ public partial class MainWindow : INavigationWindow
                     string dirPath = GlobalFFOptions.Current.BinaryFolder;
                     Directory.CreateDirectory(dirPath);
                     // download ffmpeg binaries
-                    Task<List<string>> downloadTask = FFMpegDownloader.DownloadBinaries();
+                    Task<IReadOnlyList<string>> downloadTask = FFMpegDownloader.DownloadBinariesAsync();
                     Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(10));
                     Task completed = await Task.WhenAny(downloadTask, timeoutTask);
                     if (completed == timeoutTask || completed.IsFaulted)
