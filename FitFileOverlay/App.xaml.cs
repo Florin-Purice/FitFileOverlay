@@ -108,7 +108,8 @@ public partial class App
     public static void LoadSettings()
     {
         _appSettings = AppSettings.FromFile(Path.Combine(_settingsLocation, _appSettingsFilename));
-        Services.GetRequiredService<IOverlayService>().Settings = OverlaySettings.FromFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename));
+        OverlaySettings overlaySettings = OverlaySettings.FromFile(Path.Combine(AppSettings.SaveLocation, _overlaySettingsFilename)) ?? new OverlaySettings();
+        Services.GetRequiredService<IOverlayService>().Settings = overlaySettings;
     }
 
     private async void OnStartup(object sender, StartupEventArgs e)
