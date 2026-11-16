@@ -1,0 +1,49 @@
+﻿namespace FitFileOverlay.Core.Models;
+
+public interface IActivityRecord
+{
+    /// <summary>
+    /// Time at which this record was created
+    /// </summary>
+    public DateTime TimeStamp { get; }
+
+    /// <summary>
+    /// Current location
+    /// </summary>
+    public GpsPoint? GPSPoint { get; }
+
+    /// <summary>
+    /// Current heart rate in beats/minute
+    /// </summary>
+    public int? HeartRate { get; }
+
+    /// <summary>
+    /// Current speed in m/s
+    /// </summary>
+    public float? Speed { get; }
+
+    /// <summary>
+    /// Total distance covered since start of activity to this record
+    /// </summary>
+    public float? Distance { get; }
+
+    /// <summary>
+    /// The amount of steps taken in a minute divided by two
+    /// </summary>
+    public float? Cadence { get; }
+
+    /// <summary>
+    /// Power in watts
+    /// </summary>
+    public int? Power { get; }
+
+    /// <summary>
+    /// Stride length in mm
+    /// </summary>
+    public float? StrideLength { get; }
+
+    /// <summary>
+    /// Altitude in meters
+    /// </summary>
+    public float? Altitude { get; }
+}

@@ -1,4 +1,5 @@
 <Solution>
-  <Project Path="FitFileOverlay.Tests/FitFileOverlay.Tests.csproj" Id="d750296b-f95e-4ab1-b575-1e77d5ec6ae6" />
-  <Project Path="FitFileOverlay/FitFileOverlay.csproj" />
+  <Project Path="FitFileOverlay.Core/FitFileOverlay.Core.csproj" Id="34b1b668-d016-461b-b29c-486ccaf13cbe" />
+  <Project Path="FitFileOverlay.Core.Tests/FitFileOverlay.Core.Tests.csproj" Id="d750296b-f95e-4ab1-b575-1e77d5ec6ae6" />
+  <Project Path="FitFileOverlay.UI/FitFileOverlay.UI.csproj" />
 </Solution>
