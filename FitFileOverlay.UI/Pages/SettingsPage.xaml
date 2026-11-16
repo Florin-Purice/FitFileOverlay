@@ -1,0 +1,254 @@
+﻿<Page x:Class="FitFileOverlay.UI.Pages.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:converters="clr-namespace:FitFileOverlay.UI.Converters"
+      xmlns:local="clr-namespace:FitFileOverlay.UI.Pages"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+      xmlns:enums="clr-namespace:FitFileOverlay.UI.Enums"
+      Title="SettingsPage"
+      d:DataContext="{d:DesignInstance local:SettingsPage, IsDesignTimeCreatable=False}"
+      d:DesignHeight="450"
+      d:DesignWidth="800"
+      ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      ScrollViewer.CanContentScroll="False"
+      mc:Ignorable="d">
+    <Page.Resources>
+        <converters:UpdateStatusToVisibilityConverter x:Key="UpdateStatusToVisibilityConverter" />
+    </Page.Resources>
+    <Grid Margin="20,15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="1">
+            <!--Theme selection-->
+            <TextBlock FontSize="20"
+                       FontWeight="Medium"
+                       Text="Personalization"
+                       Margin="0,30,0,0" />
+            <ui:CardControl Icon="{ui:SymbolIcon Color24}"
+                            Margin="0,8,0,0">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Theme"
+                                      TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ComboBox ItemsSource="{Binding ViewModel.AppThemeValues}"
+                          SelectedValue="{Binding ViewModel.AppSettings.Theme}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </ui:CardControl>
+            <!--Updates-->
+            <TextBlock FontSize="20"
+                       FontWeight="Medium"
+                       Text="Updates"
+                       Margin="0,30,0,12" />
+            <StackPanel>
+                <!--update at start-->
+                <ui:CardControl Icon="{ui:SymbolIcon Search24}"
+                                Margin="0,8,0,0"
+                                Height="71">
+                    <ui:CardControl.Header>
+                        <ui:TextBlock Grid.Row="1"
+                                      FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Check for updates at app startup"
+                                      TextWrapping="WrapWithOverflow" />
+                    </ui:CardControl.Header>
+                    <ui:ToggleSwitch Grid.Column="1"
+                                     Margin="0,0,5,0"
+                                     LabelPosition="Left"
+                                     OnContent="On"
+                                     OffContent="Off"
+                                     IsChecked="{Binding ViewModel.AppSettings.UpdateAtStartup}" />
+                </ui:CardControl>
+                <!--searching update-->
+                <ui:CardControl Icon="{ui:SymbolIcon Search24}"
+                                Margin="0,8,0,0"
+                                Height="71"
+                                Visibility="{Binding ViewModel.UpdateStatus, Converter={StaticResource UpdateStatusToVisibilityConverter}, ConverterParameter=Searching}">
+                    <ui:CardControl.Header>
+                        <Grid Grid.IsSharedSizeScope="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"
+                                               SharedSizeGroup="group" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*"
+                                               SharedSizeGroup="group" />
+                            </Grid.RowDefinitions>
+                            <ui:TextBlock Grid.Row="1"
+                                          FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Searching for updates..."
+                                          TextWrapping="WrapWithOverflow" />
+                            <ProgressBar Grid.Row="2"
+                                         IsIndeterminate="True"
+                                         Margin="0,2"
+                                         Height="6"
+                                         HorizontalAlignment="Stretch" />
+                        </Grid>
+                    </ui:CardControl.Header>
+                </ui:CardControl>
+                <!--updating-->
+                <ui:CardControl Icon="{ui:SymbolIcon ArrowSync24}"
+                                Margin="0,8,0,0"
+                                Height="71"
+                                Visibility="{Binding ViewModel.UpdateStatus, Converter={StaticResource UpdateStatusToVisibilityConverter}, ConverterParameter=Updating}">
+                    <ui:CardControl.Header>
+                        <Grid Grid.IsSharedSizeScope="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"
+                                               SharedSizeGroup="group" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*"
+                                               SharedSizeGroup="group" />
+                            </Grid.RowDefinitions>
+                            <ui:TextBlock Grid.Row="1"
+                                          FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Applying updates. Please don't close the app."
+                                          TextWrapping="WrapWithOverflow" />
+                            <ProgressBar Grid.Row="2"
+                                         Margin="0,2"
+                                         Height="6"
+                                         HorizontalAlignment="Stretch"
+                                         Value="{Binding ViewModel.DownloadProgress}"/>
+                        </Grid>
+                    </ui:CardControl.Header>
+                </ui:CardControl>
+                <!--up to date-->
+                <ui:CardControl Icon="{ui:SymbolIcon Checkmark24}"
+                                Margin="0,8,0,0"
+                                Height="71"
+                                Visibility="{Binding ViewModel.UpdateStatus, Converter={StaticResource UpdateStatusToVisibilityConverter}, ConverterParameter=UpToDate}">
+                    <ui:CardControl.Header>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="You are running the latest version"
+                                      TextWrapping="WrapWithOverflow" />
+                    </ui:CardControl.Header>
+                </ui:CardControl>
+                <!--updates available-->
+                <ui:CardControl Icon="{ui:SymbolIcon ArrowSync24}"
+                                Margin="0,8,0,0"
+                                Height="71"
+                                Visibility="{Binding ViewModel.UpdateStatus, Converter={StaticResource UpdateStatusToVisibilityConverter}, ConverterParameter=Available}">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <ui:TextBlock FontTypography="BodyStrong"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                          Text="Update available"
+                                          TextWrapping="WrapWithOverflow" />
+                            <ui:TextBlock FontTypography="Caption"
+                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                          Text="{Binding ViewModel.UpdateVersion}"
+                                          TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ui:Button Content="Download and install"
+                               Command="{Binding ViewModel.InstallUpdatesCommand}"
+                               Appearance="Primary" />
+                </ui:CardControl>
+                <!--search timed out or error-->
+                <ui:CardControl Icon="{ui:SymbolIcon ErrorCircle24}"
+                                Margin="0,8,0,0"
+                                Height="71"
+                                Visibility="{Binding ViewModel.UpdateStatus, Converter={StaticResource UpdateStatusToVisibilityConverter}, ConverterParameter=SearchError}">
+                    <ui:CardControl.Header>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Could not complete the search for updates"
+                                      TextWrapping="WrapWithOverflow" />
+                    </ui:CardControl.Header>
+                    <ui:Button Content="Try again"
+                               Command="{Binding ViewModel.SearchForUpdatesCommand}" />
+                </ui:CardControl>
+                <!--install error-->
+                <ui:CardControl Icon="{ui:SymbolIcon ErrorCircle24}"
+                                Margin="0,8,0,0"
+                                Height="71"
+                                Visibility="{Binding ViewModel.UpdateStatus, Converter={StaticResource UpdateStatusToVisibilityConverter}, ConverterParameter=InstallError}">
+                    <ui:CardControl.Header>
+                        <ui:TextBlock FontTypography="BodyStrong"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="Could not install the updates"
+                                      TextWrapping="WrapWithOverflow" />
+                    </ui:CardControl.Header>
+                </ui:CardControl>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2">
+            <!--About-->
+            <TextBlock FontSize="20"
+                       FontWeight="Medium"
+                       Text="About"
+                       Margin="0,30,0,12" />
+            <ui:CardExpander ContentPadding="0"
+                             Icon="{ui:ImageIcon '../Assets/fit_overlay_256.png', Width=38, Height=35}">
+                <ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Row="0"
+                                      Grid.Column="0"
+                                      FontTypography="Body"
+                                      Text="Fit Overlay" />
+                        <ui:TextBlock Grid.Row="1"
+                                      Grid.Column="0"
+                                      Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                      Text="© 2026 Florin Purice" />
+                        <ui:TextBlock Grid.Row="0"
+                                      Grid.RowSpan="2"
+                                      Grid.Column="1"
+                                      Margin="0,0,16,0"
+                                      VerticalAlignment="Center"
+                                      FontTypography="BodyStrong"
+                                      Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+                                      Text="{Binding ViewModel.AppVersion, Mode=OneWay}" />
+                    </Grid>
+                </ui:CardExpander.Header>
+                <StackPanel>
+                    <ui:Anchor Margin="0"
+                               Padding="16"
+                               HorizontalAlignment="Stretch"
+                               HorizontalContentAlignment="Stretch"
+                               Background="Transparent"
+                               BorderThickness="0,1,0,0"
+                               CornerRadius="0"
+                               NavigateUri="https://github.com/Florin-Purice/FitFileOverlay">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="View source code" />
+                            <ui:SymbolIcon Grid.Column="1"
+                                           Symbol="Link24" />
+                        </Grid>
+                    </ui:Anchor>
+                </StackPanel>
+            </ui:CardExpander>
+        </StackPanel>
+    </Grid>
+</Page>

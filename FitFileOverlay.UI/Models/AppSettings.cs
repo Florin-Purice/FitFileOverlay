@@ -1,0 +1,44 @@
+﻿using FitFileOverlay.Core.Helpers;
+using FitFileOverlay.UI.Enums;
+using System.IO;
+
+namespace FitFileOverlay.UI.Models;
+
+public partial class AppSettings : ObservableObject
+{
+    [ObservableProperty]
+    public partial AppTheme Theme { get; set; } = AppTheme.System;
+    [ObservableProperty]
+    public partial bool UpdateAtStartup { get; set; } = true;
+    [ObservableProperty]
+    public partial int DownloadUpdateTimeoutSeconds { get; set; } = 60;
+#if DEBUG
+    [ObservableProperty]
+    public partial string SaveLocation { get; set; } = @".\";
+#else
+    [ObservableProperty]
+    public partial string SaveLocation { get; set; } = @"..\";
+#endif
+
+    public void ToFile(string fileName)
+    {
+        string jsonString = CustomJsonSerializer.Serialize(this);
+        string? directory = Path.GetDirectoryName(fileName);
+        if (!string.IsNullOrWhiteSpace(directory))
+            Directory.CreateDirectory(directory!);
+        File.WriteAllText(fileName, jsonString);
+    }
+
+    public static AppSettings? FromFile(string fileName)
+    {
+        try
+        {
+            string jsonString = File.ReadAllText(fileName);
+            return CustomJsonSerializer.Deserialize<AppSettings>(jsonString);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+}

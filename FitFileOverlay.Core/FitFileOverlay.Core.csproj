@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net11.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+	  <PackageReference Include="FFMpegCore" Version="6.0.0" />
+	  <PackageReference Include="FFMpegCore.Extensions.SkiaSharp" Version="6.0.0" />
+	  <PackageReference Include="Garmin.FIT.Sdk" Version="21.221.0" />
+	  <PackageReference Include="SkiaSharp" Version="4.156.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!--Nest under OverlayService.cs-->
+		<Compile Update="OverlayService.DataFields.cs">
+			<DependentUpon>OverlayService.cs</DependentUpon>
+		</Compile>
+		<Compile Update="OverlayService.Map.cs">
+			<DependentUpon>OverlayService.cs</DependentUpon>
+		</Compile>
+		<Compile Update="OverlayService.AltitudeGraph.cs">
+			<DependentUpon>OverlayService.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+</Project>

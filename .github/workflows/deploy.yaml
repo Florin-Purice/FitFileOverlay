@@ -18,7 +18,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: ./FitFileOverlay
+        working-directory: ./FitFileOverlay.UI
 
     steps:
     - name: Checkout
@@ -29,7 +29,7 @@ jobs:
     - name: Get Version from Project File
       id: get-version
       shell: bash
-      run: echo "version=$(grep -oE '<Version>[^<]+' FitFileOverlay.csproj | sed 's/<Version>//')" >> $GITHUB_OUTPUT
+      run: echo "version=$(grep -oE '<Version>[^<]+' FitFileOverlay.UI.csproj | sed 's/<Version>//')" >> $GITHUB_OUTPUT
 
     # Install the .NET Core workload
     - name: Install .NET Core

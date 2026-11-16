@@ -1,0 +1,122 @@
+﻿using FFMpegCore;
+using FitFileOverlay.Core.Models;
+using SkiaSharp;
+
+namespace FitFileOverlay.Core.Tests;
+
+public class OverlayServiceTests
+{
+    private static OverlayService? _overlayService;
+
+    [Test]
+    public async Task Load_LoadsValidFitFile()
+    {
+        // Arrange
+        OverlayService sut = new();
+        string validFitFilePath = "./Assets/valid.fit";
+
+        // Act
+        bool loadResult = sut.Load(validFitFilePath);
+
+        // Assert
+        await Assert.That(loadResult).IsTrue();
+        await Assert.That(sut.File).IsNotNull();
+        await Assert.That(sut.File.IsValid).IsTrue();
+        await Assert.That(sut.File.Records).Count().IsEqualTo(187);
+    }
+
+    [Test]
+    public async Task Load_LoadsInvalidFitFile()
+    {
+        // Arrange
+        OverlayService sut = new();
+        string invalidFitFilePath = "./Assets/invalid.fit";
+
+        // Act
+        bool loadResult = sut.Load(invalidFitFilePath);
+
+        // Assert
+        await Assert.That(loadResult).IsFalse();
+    }
+
+    [Test]
+    [Arguments(0.5)]
+    [Arguments(0)]
+    [Arguments(1)]
+    [Arguments(-1)]
+    [Arguments(5)]
+    public async Task GetSnapshot_ReturnsNonNullBitmap(double activityPercent)
+    {
+        // Arrange
+
+        // Act
+        SKBitmap? snapshot = _overlayService!.GetSnapshot(activityPercent);
+
+        // Assert
+        await Assert.That(snapshot).IsNotNull();
+    }
+
+    [Test]
+    public async Task Export_CreatesTheCorrectVideoFile()
+    {
+        // Arrange
+        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "OverlayService_Export", "output.mov");
+        // Delete the file if it already exists
+        if (File.Exists(fileName))
+            File.Delete(fileName);
+
+        // Act
+        await _overlayService!.Export(fileName);
+
+        // Assert
+        await Assert.That(File.Exists(fileName)).IsTrue();
+        //use ffprobe to check video duration
+        using FileStream fileStream = File.OpenRead(fileName);
+        IMediaAnalysis videoInfo = await FFProbe.AnalyseAsync(fileStream);
+        await Assert.That(videoInfo.Duration).IsEqualTo(_overlayService.File!.ActivityDuration).Within(TimeSpan.FromSeconds(1));
+
+        //attach artifact
+        TestContext.Current!.Output.AttachArtifact(fileName);
+    }
+
+    [Test]
+    public async Task Export_WithCrop_CreatesTheCorrectVideoFile()
+    {
+        // Arrange
+        OverlayService sut = new();
+        sut.Load("./Assets/short.fit");
+        sut.Settings = new OverlaySettings() { FPS = 2 };
+        sut.CropStartIndex = 10;
+        sut.CropEndIndex = 20;
+        string fileName = Path.Combine(TestContext.ResultsDirectory, "TestOutput", "OverlayService_Export", "output_cropped.mov");
+        // Delete the file if it already exists
+        if (File.Exists(fileName))
+            File.Delete(fileName);
+
+        // Act
+        await sut.Export(fileName);
+
+        // Assert
+        await Assert.That(File.Exists(fileName)).IsTrue();
+        //use ffprobe to check video duration
+        using FileStream fileStream = File.OpenRead(fileName);
+        IMediaAnalysis videoInfo = await FFProbe.AnalyseAsync(fileStream);
+        await Assert.That(videoInfo.Duration).IsEqualTo(TimeSpan.FromSeconds(sut.CropEndIndex - sut.CropStartIndex)).Within(TimeSpan.FromSeconds(1));
+
+        //attach artifact
+        TestContext.Current!.Output.AttachArtifact(fileName);
+    }
+
+    [Before(Class)]
+    public static void InitStaticOverlayService()
+    {
+        try
+        {
+            // Ensure the overlay service is initialized before each test
+            _overlayService = new OverlayService();
+            _overlayService.Load("./Assets/short.fit");
+            _overlayService.Settings = new OverlaySettings() { FPS = 2 };
+        }
+        catch { }
+    }
+}
