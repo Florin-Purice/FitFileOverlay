@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using FitFileOverlay.UI.Helpers;
+using FitFileOverlay.UI.Models;
 using FitFileOverlay.UI.Pages;
 using System.Collections.ObjectModel;
 using System.Windows;
