@@ -17,6 +17,9 @@ public partial class HomePageViewModel(IOverlayService _overlayService, IContent
     private DateTime _exportVideoStartTime;
 
     [ObservableProperty]
+    public partial bool IsFileDragOver { get; set; } = false;
+
+    [ObservableProperty]
     public partial string ExportVideoLog { get; set; } = string.Empty;
 
     /// <summary>
@@ -57,17 +60,8 @@ public partial class HomePageViewModel(IOverlayService _overlayService, IContent
             Filter = "FIT Files|*.fit"
         };
         if (ofd.ShowDialog() == true)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    _ = OverlayService.Load(ofd.FileName);
-                }
-                catch { }
-            });
-            //await UpdateSnapshotImage();
-        }
+            await LoadFile(ofd.FileName);
+
         //Re-enable window interaction
         IsBusy = false;
     }
@@ -150,6 +144,24 @@ public partial class HomePageViewModel(IOverlayService _overlayService, IContent
         if (result == ContentDialogResult.Primary)
             if (ExportVideoCancelCommand?.CanExecute(null) == true)
                 ExportVideoCancelCommand?.Execute(null);
+    }
+
+    public async Task LoadFile(string fileName)
+    {
+        //Disable window interraction
+        IsBusy = true;
+
+        await Task.Run(() =>
+        {
+            try
+            {
+                _ = OverlayService.Load(fileName);
+            }
+            catch { }
+        });
+
+        //Re-enable window interaction
+        IsBusy = false;
     }
 
     private bool CanExportVideo()
