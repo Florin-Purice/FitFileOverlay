@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
 using FitFileOverlay.UI.Enums;
-using FitFileOverlay.UI.Helpers;
 using FitFileOverlay.UI.Models;
 using System.Reflection;
 using Velopack;

@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using FitFileOverlay.Core;
-using FitFileOverlay.UI.Helpers;
+using FitFileOverlay.UI.Models;
 using Instances.Exceptions;
 using Microsoft.Win32;
 using System.IO;
